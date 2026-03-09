@@ -148,48 +148,163 @@ def _extract_valid_pixels(image: Image.Image) -> np.ndarray:
     rgb = arr[:, :, :3].reshape(-1, 3)
     alpha = arr[:, :, 3].reshape(-1)
 
-    # 若有透明背景，優先用 alpha 過濾
+    # 若有透明背景，優先只保留衣物像素
     if np.any(alpha < 250):
         mask = alpha > 20
         pixels = rgb[mask]
         if len(pixels) > 0:
             return pixels
 
-    # 若沒有透明資訊，退回全部像素
+    # 沒有透明背景時，退回全部像素
     return rgb
 
 
-def _rgb_to_color_family(r: int, g: int, b: int) -> str:
-    rf, gf, bf = r / 255.0, g / 255.0, b / 255.0
-    h, s, v = colorsys.rgb_to_hsv(rf, gf, bf)
+def _classify_neutral_light_color(pixels: np.ndarray) -> str | None:
+    """
+    專門處理白 / 米 / 灰 / 黑這類低飽和色。
+    回傳：
+      - 白色系 / 米色系 / 灰色系 / 黑色系
+      - 若不屬於明顯中性色，回傳 None
+    """
+    if len(pixels) == 0:
+        return None
 
-    # 白 / 黑 / 灰 / 米色優先判
-    if v >= 0.88 and s <= 0.10:
-        return "白色系"
+    pixels_f = pixels.astype(np.float32) / 255.0
+    rgb_max = pixels_f.max(axis=1)
+    rgb_min = pixels_f.min(axis=1)
+    chroma = rgb_max - rgb_min
+    value = rgb_max
 
-    if v <= 0.18:
+    # 低飽和像素：接近白灰黑米
+    neutral_mask = chroma <= 0.18
+    neutral_pixels = pixels_f[neutral_mask]
+
+    if len(neutral_pixels) < max(30, int(len(pixels_f) * 0.15)):
+        return None
+
+    neutral_ratio = len(neutral_pixels) / len(pixels_f)
+
+    # 中性色比例太低，代表不是主色
+    if neutral_ratio < 0.35:
+        return None
+
+    nr = neutral_pixels[:, 0]
+    ng = neutral_pixels[:, 1]
+    nb = neutral_pixels[:, 2]
+
+    nmax = neutral_pixels.max(axis=1)
+    nmin = neutral_pixels.min(axis=1)
+    nchroma = nmax - nmin
+
+    mean_r = float(np.mean(nr))
+    mean_g = float(np.mean(ng))
+    mean_b = float(np.mean(nb))
+    mean_v = float(np.mean(nmax))
+    mean_chroma = float(np.mean(nchroma))
+
+    # 亮色像素比例：避免白衣被少量印花或陰影拖走
+    bright_mask = nmax >= 0.80
+    mid_mask = (nmax >= 0.45) & (nmax < 0.80)
+    dark_mask = nmax < 0.22
+
+    bright_ratio = float(np.mean(bright_mask))
+    mid_ratio = float(np.mean(mid_mask))
+    dark_ratio = float(np.mean(dark_mask))
+
+    # 偏暖程度：白 vs 米色常用
+    rg_diff = abs(mean_r - mean_g)
+    rb_diff = mean_r - mean_b
+    gb_diff = mean_g - mean_b
+
+    # 黑色
+    if dark_ratio >= 0.55:
         return "黑色系"
 
-    if s <= 0.12 and 0.18 < v < 0.88:
+    # 白色：
+    # - 整體亮
+    # - 飽和很低
+    # - R/G/B 接近
+    if (
+        bright_ratio >= 0.45
+        and mean_v >= 0.82
+        and mean_chroma <= 0.06
+        and rg_diff <= 0.04
+        and abs(rb_diff) <= 0.05
+        and abs(gb_diff) <= 0.05
+    ):
+        return "白色系"
+
+    # 米色：
+    # - 偏亮
+    # - 低飽和
+    # - R、G 明顯高於 B，帶黃暖感
+    if (
+        (bright_ratio >= 0.25 or mean_v >= 0.68)
+        and mean_chroma <= 0.12
+        and rb_diff >= 0.04
+        and gb_diff >= 0.02
+    ):
+        return "米色系"
+
+    # 灰色：
+    # - 中亮度
+    # - 低飽和
+    # - RGB 接近
+    if (
+        (mid_ratio >= 0.35 or mean_v >= 0.35)
+        and mean_chroma <= 0.08
+        and rg_diff <= 0.05
+        and abs(rb_diff) <= 0.06
+        and abs(gb_diff) <= 0.06
+    ):
         return "灰色系"
 
-    # 米色：亮度偏高、飽和不高、偏黃橘
-    if v >= 0.65 and s <= 0.28 and (0.08 <= h <= 0.16):
-        return "米色系"
+    return None
+
+
+def _rgb_to_color_family_from_pixels(pixels: np.ndarray) -> str:
+    """
+    非中性色時的退回判斷：
+    用較鮮明像素決定主色系，避免大面積灰白背景稀釋彩色衣物。
+    """
+    pixels_f = pixels.astype(np.float32) / 255.0
+    r = pixels_f[:, 0]
+    g = pixels_f[:, 1]
+    b = pixels_f[:, 2]
+
+    rgb_max = pixels_f.max(axis=1)
+    rgb_min = pixels_f.min(axis=1)
+    chroma = rgb_max - rgb_min
+
+    # 優先保留較有顏色的像素
+    colorful_mask = chroma >= 0.12
+    colorful = pixels_f[colorful_mask]
+
+    if len(colorful) < max(20, int(len(pixels_f) * 0.08)):
+        colorful = pixels_f
+
+    avg = np.mean(colorful, axis=0)
+    rf, gf, bf = float(avg[0]), float(avg[1]), float(avg[2])
+
+    h, s, v = colorsys.rgb_to_hsv(rf, gf, bf)
+
+    # 再保底一次中性色
+    if v >= 0.86 and s <= 0.10:
+        return "白色系"
+    if v <= 0.18:
+        return "黑色系"
+    if s <= 0.10 and 0.18 < v < 0.86:
+        return "灰色系"
 
     # 彩色區間
-    if (h >= 0.95 or h < 0.04):
+    if h >= 0.95 or h < 0.04:
         return "紅色系"
-
     if 0.04 <= h < 0.12:
         return "棕色系"
-
-    if 0.12 <= h < 0.20:
+    if 0.12 <= h < 0.18:
         return "米色系"
-
-    if 0.20 <= h < 0.45:
+    if 0.18 <= h < 0.45:
         return "綠色系"
-
     if 0.45 <= h < 0.75:
         return "藍色系"
 
@@ -204,15 +319,34 @@ def _detect_color_tone(image: Image.Image) -> Dict[str, Any]:
             "score": 0.0,
         }
 
-    # 避免極端雜訊，使用中位數顏色
-    median_rgb = np.median(pixels, axis=0).astype(np.uint8)
-    r, g, b = int(median_rgb[0]), int(median_rgb[1]), int(median_rgb[2])
+    # 先做中性色專用判斷，這一步對白 / 米 / 灰最重要
+    neutral_family = _classify_neutral_light_color(pixels)
+    if neutral_family is not None:
+        # 用符合中性色條件的像素覆蓋率作為簡單信心值
+        pixels_f = pixels.astype(np.float32) / 255.0
+        rgb_max = pixels_f.max(axis=1)
+        rgb_min = pixels_f.min(axis=1)
+        chroma = rgb_max - rgb_min
+        neutral_ratio = float(np.mean(chroma <= 0.18))
 
-    family = _rgb_to_color_family(r, g, b)
+        score = 0.65 + neutral_ratio * 0.30
+        score = max(0.0, min(1.0, score))
 
-    # 用與中位數相近像素比例，當成簡單信心值
-    dist = np.linalg.norm(pixels.astype(np.int16) - median_rgb.astype(np.int16), axis=1)
-    score = float(np.mean(dist < 40))
+        return {
+            "zh": neutral_family,
+            "score": score,
+        }
+
+    # 非中性色才走一般主色判斷
+    family = _rgb_to_color_family_from_pixels(pixels)
+
+    pixels_f = pixels.astype(np.float32) / 255.0
+    rgb_max = pixels_f.max(axis=1)
+    rgb_min = pixels_f.min(axis=1)
+    chroma = rgb_max - rgb_min
+    colorful_ratio = float(np.mean(chroma >= 0.12))
+
+    score = 0.55 + colorful_ratio * 0.35
     score = max(0.0, min(1.0, score))
 
     return {
