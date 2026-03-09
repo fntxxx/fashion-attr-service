@@ -104,10 +104,14 @@ def _rank_top1(image: Image.Image, labels, zh_map, model: CLIPModel, processor: 
 
 app = FastAPI()
 
-@app.on_event("startup")
-def load_clip_model():
-    app.state.model = CLIPModel.from_pretrained(MODEL_ID).to(DEVICE)
-    app.state.processor = CLIPProcessor.from_pretrained(MODEL_ID)
+app.state.model = None
+app.state.processor = None
+
+def get_clip():
+    if app.state.model is None or app.state.processor is None:
+        app.state.model = CLIPModel.from_pretrained(MODEL_ID).to(DEVICE)
+        app.state.processor = CLIPProcessor.from_pretrained(MODEL_ID)
+    return app.state.model, app.state.processor
 
 app.add_middleware(
     CORSMiddleware,
@@ -134,8 +138,7 @@ async def predict(file: UploadFile = File(...)):
     raw = await file.read()
     image = Image.open(io.BytesIO(raw)).convert("RGB")
 
-    model = app.state.model
-    processor = app.state.processor
+    model, processor = get_clip()
 
     category = _rank_top1(image, CATEGORY, CATEGORY_ZH, model, processor)
     occasion = _rank_top1(image, OCCASION, OCCASION_ZH, model, processor)
