@@ -44,6 +44,12 @@ CATEGORY_TEXTS: List[Tuple[str, str, str]] = [
     ("jeans", "牛仔褲", "a product photo of denim jeans"),
     ("pants", "長褲", "a product photo of casual pants"),
     ("shorts", "短褲", "a product photo of shorts"),
+
+    ("sneakers", "運動鞋", "a product photo of sneakers"),
+    ("boots", "靴子", "a product photo of boots"),
+    ("sandals", "涼鞋", "a product photo of sandals"),
+    ("heels", "高跟鞋", "a product photo of high heels"),
+    ("loafers", "樂福鞋", "a product photo of loafers"),
 ]
 
 OCCASION_TEXTS: List[Tuple[str, str, str]] = [
@@ -364,34 +370,43 @@ def _normalize_category(category: Dict[str, Any]) -> Dict[str, Any]:
 
 
 def _normalize_occasion(category_key: str, occasion: Dict[str, Any]) -> Dict[str, Any]:
-    casual_keys = {"t-shirt", "hoodie", "sweatshirt", "jeans", "pants", "shorts", "skirt"}
-    formal_keys = {"shirt", "dress", "coat"}
+    casual_keys = {
+        "t-shirt", "hoodie", "sweatshirt", "jeans", "pants", "shorts", "skirt",
+        "sneakers", "sandals"
+    }
+    formal_keys = {
+        "shirt", "dress", "coat", "heels", "loafers"
+    }
+    outdoor_keys = {"boots"}
 
-    # 分數不高時做收斂，降低亂跳
     if occasion["score"] < 0.60:
         if category_key in casual_keys:
             occasion["key"] = "casual"
             occasion["zh"] = "日常休閒"
         elif category_key in formal_keys:
-            if occasion["key"] != "outdoor":
-                occasion["key"] = "office"
-                occasion["zh"] = "上班通勤"
+            occasion["key"] = "office"
+            occasion["zh"] = "上班通勤"
+        elif category_key in outdoor_keys:
+            occasion["key"] = "outdoor"
+            occasion["zh"] = "戶外活動"
 
     return occasion
 
 
 def _normalize_season(category_key: str, season: Dict[str, Any]) -> Dict[str, Any]:
-    # 分數不高時，用類別做保守修正
     if season["score"] < 0.60:
-        if category_key in {"coat"}:
+        if category_key in {"coat", "boots"}:
             season["key"] = "winter"
             season["zh"] = "冬季"
-        elif category_key in {"shorts", "t-shirt"}:
+        elif category_key in {"shorts", "t-shirt", "sandals"}:
             season["key"] = "summer"
             season["zh"] = "夏季"
-        elif category_key in {"hoodie", "sweatshirt", "sweater", "jacket"}:
+        elif category_key in {"hoodie", "sweatshirt", "sweater", "jacket", "sneakers", "loafers"}:
             season["key"] = "mild"
             season["zh"] = "春秋"
+        elif category_key in {"heels"}:
+            season["key"] = "all-season"
+            season["zh"] = "四季皆可"
 
     return season
 
