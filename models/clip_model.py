@@ -15,7 +15,7 @@ model = model.to(device)
 model.eval()
 
 
-def predict(image: Image.Image, labels):
+def predict_topk(image: Image.Image, labels, topk=3):
     image_input = preprocess(image).unsqueeze(0).to(device)
     text = tokenizer(labels).to(device)
 
@@ -28,5 +28,19 @@ def predict(image: Image.Image, labels):
 
         similarity = (image_features @ text_features.T).softmax(dim=-1)
 
-    values, indices = similarity[0].topk(1)
-    return labels[indices[0]], values[0].item()
+    values, indices = similarity[0].topk(min(topk, len(labels)))
+
+    results = []
+    for value, index in zip(values.tolist(), indices.tolist()):
+        results.append({
+            "label": labels[index],
+            "score": float(value)
+        })
+
+    return results
+
+
+def predict_best(image: Image.Image, labels):
+    results = predict_topk(image, labels, topk=1)
+    best = results[0]
+    return best["label"], best["score"]

@@ -18,16 +18,23 @@ async def predict(image: UploadFile = File(...)):
     contents = await image.read()
     img = Image.open(io.BytesIO(contents)).convert("RGB")
 
-    category, score = classify_category(img)
+    category_result = classify_category(img)
     color = extract_color(img)
 
-    style = "casual"
-    season = "spring_autumn"
-
     return {
-        "category": category,
+        "mainCategory": category_result["mainCategory"],
+        "mainCategoryKey": category_result["mainCategoryKey"],
+        "category": category_result["category"],
+        "categoryKey": category_result["categoryKey"],
         "colorTone": color,
-        "style": style,
-        "season": season,
-        "score": float(score)
+        "style": category_result["style"],
+        "season": category_result["season"],
+        "scores": {
+            "mainCategory": category_result["scores"]["mainCategory"],
+            "category": category_result["scores"]["category"],
+            "occasion": category_result["score"],
+            "colorTone": category_result["score"],
+            "season": category_result["score"]
+        },
+        "score": category_result["score"]
     }
