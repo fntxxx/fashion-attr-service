@@ -4,7 +4,11 @@ python-multipart==0.0.9
 
 pillow==10.4.0
 numpy<2
-scikit-learn==1.5.1
 
 torch==2.2.2
+torchvision==0.17.2
+transformers==4.40.2
+huggingface-hub==0.24.6
+safetensors==0.4.4
+
 open_clip_torch==2.24.0
