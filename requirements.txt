@@ -4,11 +4,12 @@ python-multipart==0.0.9
 
 pillow==10.4.0
 numpy<2
+opencv-python-headless==4.10.0.84
 
 torch==2.2.2
 torchvision==0.17.2
-transformers==4.40.2
 huggingface-hub==0.24.6
 safetensors==0.4.4
 
 open_clip_torch==2.24.0
+ultralytics==8.2.79

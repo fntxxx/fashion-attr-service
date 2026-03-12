@@ -26,3 +26,5 @@ uploads/
 # Hugging Face / model cache
 .cache/
 huggingface/
+
+yolov8n.pt

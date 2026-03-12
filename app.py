@@ -41,32 +41,18 @@ async def predict(image: UploadFile = File(...)):
             },
         }
 
-    route_info = detect_image_route(original_img)
-    route = route_info["route"]
-
+    route = "product"
     coarse_info = detect_coarse_fashion_type(original_img)
 
-    # 商品圖先不要走 detection，避免把本來乾淨的商品圖切壞
-    if route == "product":
-        working_img = original_img
-        detection = {
-            "detected": False,
-            "label": None,
-            "mainCategoryKey": None,
-            "bbox": None,
-            "score": 0.0
-        }
-    else:
-        detection = detect_main_garment(original_img)
+    detection = {
+        "detected": False,
+        "label": None,
+        "mainCategoryKey": None,
+        "bbox": None,
+        "score": 0.0,
+    }
 
-        if detection["detected"]:
-            working_img = crop_image_by_bbox(
-                original_img,
-                detection["bbox"],
-                padding_ratio=0.08
-            )
-        else:
-            working_img = original_img
+    working_img = original_img
 
     category_result = classify_category(working_img)
     color_tone = extract_color(working_img)
