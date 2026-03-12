@@ -1,21 +1,39 @@
 from __future__ import annotations
 
+from pathlib import Path
 from typing import Any, Optional
 
 import numpy as np
 from PIL import Image
-from ultralytics import YOLO
 
-_MODEL: Optional[YOLO] = None
+_MODEL = None
+_MODEL_LOAD_FAILED = False
 
 PERSON_CLASS_ID = 0
+MODEL_NAME = "yolov8n.pt"
 
 
-def get_yolo_model() -> YOLO:
-    global _MODEL
-    if _MODEL is None:
-        _MODEL = YOLO("yolov8n.pt")
-    return _MODEL
+def get_yolo_model():
+    global _MODEL, _MODEL_LOAD_FAILED
+
+    if _MODEL is not None:
+        return _MODEL
+
+    if _MODEL_LOAD_FAILED:
+        return None
+
+    try:
+        from ultralytics import YOLO
+
+        model_path = Path(MODEL_NAME)
+
+        # 若本地沒有模型檔，ultralytics 通常會自動下載官方權重
+        _MODEL = YOLO(str(model_path) if model_path.exists() else MODEL_NAME)
+        return _MODEL
+    except Exception as e:
+        print("get_yolo_model load failed:", e)
+        _MODEL_LOAD_FAILED = True
+        return None
 
 
 def _pil_to_numpy(image: Image.Image) -> np.ndarray:
@@ -27,25 +45,26 @@ def detect_main_subject_bbox(
     conf: float = 0.25,
 ) -> dict[str, Any] | None:
     """
-    第一版最小可行 detector：
-    - 使用 YOLOv8n 偵測 person
-    - 若有多個 person，取面積最大的
-    - 若沒偵測到 person，回傳 None
-
-    這不是最終 clothing-specific detector，
-    而是先讓人物商品圖能先聚焦到主體區域，
-    降低背景與非主衣物干擾。
+    使用 YOLOv8n 偵測 person。
+    若模型不可用，直接回傳 None，避免整個 API 啟動失敗。
     """
     model = get_yolo_model()
+    if model is None:
+        return None
+
     img = _pil_to_numpy(image)
 
-    results = model.predict(
-        source=img,
-        conf=conf,
-        verbose=False,
-        imgsz=640,
-        device="cpu",
-    )
+    try:
+        results = model.predict(
+            source=img,
+            conf=conf,
+            verbose=False,
+            imgsz=640,
+            device="cpu",
+        )
+    except Exception as e:
+        print("detect_main_subject_bbox predict failed:", e)
+        return None
 
     if not results:
         return None
