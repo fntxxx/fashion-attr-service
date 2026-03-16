@@ -106,3 +106,66 @@ def predict_best(image: Image.Image, labels):
     results = predict_topk(image, labels, topk=1)
     best = results[0]
     return best["label"], best["score"]
+
+
+def encode_image_feature(image: Image.Image):
+    model, preprocess, _ = get_clip_model()
+
+    image_input = preprocess(image).unsqueeze(0).to(DEVICE)
+
+    with torch.no_grad():
+        image_features = model.encode_image(image_input)
+        image_features = image_features / image_features.norm(dim=-1, keepdim=True)
+
+    return image_features
+
+
+def score_texts_with_image_feature(image_features, labels):
+    model, _, tokenizer = get_clip_model()
+
+    if not isinstance(labels, list):
+        labels = list(labels)
+
+    cache_key = tuple(labels)
+
+    if cache_key in _text_feature_cache:
+        text_features = _text_feature_cache[cache_key]
+    else:
+        text_input = tokenizer(labels).to(DEVICE)
+
+        with torch.no_grad():
+            text_features = model.encode_text(text_input)
+            text_features = text_features / text_features.norm(dim=-1, keepdim=True)
+
+        _text_feature_cache[cache_key] = text_features
+
+    similarity = (image_features @ text_features.T).squeeze(0)
+
+    results = []
+    for label, score in zip(labels, similarity.tolist()):
+        results.append({
+            "label": label,
+            "score": float(score)
+        })
+
+    return results
+
+
+def predict_topk_with_image_feature(image_features, labels, topk=3):
+    raw_results = score_texts_with_image_feature(image_features, labels)
+
+    labels = [item["label"] for item in raw_results]
+    raw_scores = torch.tensor([item["score"] for item in raw_results], dtype=torch.float32)
+
+    probs = torch.softmax(raw_scores, dim=-1)
+
+    values, indices = probs.topk(min(topk, len(labels)))
+
+    results = []
+    for value, index in zip(values.tolist(), indices.tolist()):
+        results.append({
+            "label": labels[index],
+            "score": float(value)
+        })
+
+    return results

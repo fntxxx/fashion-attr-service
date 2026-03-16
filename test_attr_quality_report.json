@@ -2,7 +2,7 @@
   "api_url": "http://127.0.0.1:7860/predict",
   "dataset_dir": "D:\\DevData\\attr_quality_testset",
   "labels_file": "D:\\Projects\\fashion-attr-service\\labels_full_template.csv",
-  "script_elapsed_sec": 335.6944,
+  "script_elapsed_sec": 167.7865,
   "summary": {
     "total_rows": 120,
     "valid_evaluated_rows": 120,
@@ -573,10 +573,10 @@
       "errors": []
     },
     "time": {
-      "total_elapsed_sec": 335.645,
-      "avg_elapsed_sec_per_item": 2.797,
-      "max_elapsed_sec": 35.01,
-      "min_elapsed_sec": 2.1094
+      "total_elapsed_sec": 167.7777,
+      "avg_elapsed_sec_per_item": 1.3981,
+      "max_elapsed_sec": 21.7389,
+      "min_elapsed_sec": 0.9846
     }
   },
   "items": [
@@ -585,7 +585,7 @@
       "group": "category",
       "subgroup": "dress",
       "passed": true,
-      "elapsed_sec": 35.01,
+      "elapsed_sec": 21.7389,
       "category_pass": true,
       "expected": {
         "category": "dress",
@@ -823,7 +823,7 @@
       "group": "category",
       "subgroup": "dress",
       "passed": true,
-      "elapsed_sec": 3.1728,
+      "elapsed_sec": 1.4717,
       "category_pass": true,
       "expected": {
         "category": "dress",
@@ -1061,7 +1061,7 @@
       "group": "category",
       "subgroup": "dress",
       "passed": true,
-      "elapsed_sec": 3.2304,
+      "elapsed_sec": 1.6552,
       "category_pass": true,
       "expected": {
         "category": "dress",
@@ -1299,7 +1299,7 @@
       "group": "category",
       "subgroup": "dress",
       "passed": true,
-      "elapsed_sec": 2.4881,
+      "elapsed_sec": 1.2137,
       "category_pass": true,
       "expected": {
         "category": "dress",
@@ -1537,7 +1537,7 @@
       "group": "category",
       "subgroup": "dress",
       "passed": true,
-      "elapsed_sec": 2.6815,
+      "elapsed_sec": 1.1982,
       "category_pass": true,
       "expected": {
         "category": "dress",
@@ -1775,7 +1775,7 @@
       "group": "category",
       "subgroup": "dress",
       "passed": true,
-      "elapsed_sec": 2.4106,
+      "elapsed_sec": 1.1711,
       "category_pass": true,
       "expected": {
         "category": "dress",
@@ -2016,7 +2016,7 @@
       "group": "category",
       "subgroup": "dress",
       "passed": true,
-      "elapsed_sec": 2.8487,
+      "elapsed_sec": 1.2605,
       "category_pass": true,
       "expected": {
         "category": "dress",
@@ -2254,7 +2254,7 @@
       "group": "category",
       "subgroup": "dress",
       "passed": true,
-      "elapsed_sec": 3.1134,
+      "elapsed_sec": 1.9266,
       "category_pass": true,
       "expected": {
         "category": "dress",
@@ -2492,7 +2492,7 @@
       "group": "category",
       "subgroup": "outer",
       "passed": true,
-      "elapsed_sec": 2.9817,
+      "elapsed_sec": 1.4554,
       "category_pass": true,
       "expected": {
         "category": "outer",
@@ -2733,7 +2733,7 @@
       "group": "category",
       "subgroup": "outer",
       "passed": true,
-      "elapsed_sec": 2.771,
+      "elapsed_sec": 1.3019,
       "category_pass": true,
       "expected": {
         "category": "outer",
@@ -2974,7 +2974,7 @@
       "group": "category",
       "subgroup": "outer",
       "passed": false,
-      "elapsed_sec": 2.4487,
+      "elapsed_sec": 1.1155,
       "category_pass": false,
       "expected": {
         "category": "outer",
@@ -3215,7 +3215,7 @@
       "group": "category",
       "subgroup": "outer",
       "passed": true,
-      "elapsed_sec": 2.5926,
+      "elapsed_sec": 1.2529,
       "category_pass": true,
       "expected": {
         "category": "outer",
@@ -3456,7 +3456,7 @@
       "group": "category",
       "subgroup": "outer",
       "passed": true,
-      "elapsed_sec": 2.6278,
+      "elapsed_sec": 1.2354,
       "category_pass": true,
       "expected": {
         "category": "outer",
@@ -3697,7 +3697,7 @@
       "group": "category",
       "subgroup": "outer",
       "passed": true,
-      "elapsed_sec": 2.9261,
+      "elapsed_sec": 1.3202,
       "category_pass": true,
       "expected": {
         "category": "outer",
@@ -3938,7 +3938,7 @@
       "group": "category",
       "subgroup": "outer",
       "passed": true,
-      "elapsed_sec": 2.3444,
+      "elapsed_sec": 1.1369,
       "category_pass": true,
       "expected": {
         "category": "outer",
@@ -4179,7 +4179,7 @@
       "group": "category",
       "subgroup": "outer",
       "passed": true,
-      "elapsed_sec": 2.5797,
+      "elapsed_sec": 1.3034,
       "category_pass": true,
       "expected": {
         "category": "outer",
@@ -4420,7 +4420,7 @@
       "group": "category",
       "subgroup": "pants",
       "passed": true,
-      "elapsed_sec": 3.0739,
+      "elapsed_sec": 1.6012,
       "category_pass": true,
       "expected": {
         "category": "pants",
@@ -4661,7 +4661,7 @@
       "group": "category",
       "subgroup": "pants",
       "passed": true,
-      "elapsed_sec": 2.3682,
+      "elapsed_sec": 1.1924,
       "category_pass": true,
       "expected": {
         "category": "pants",
@@ -4902,7 +4902,7 @@
       "group": "category",
       "subgroup": "pants",
       "passed": true,
-      "elapsed_sec": 2.9746,
+      "elapsed_sec": 1.417,
       "category_pass": true,
       "expected": {
         "category": "pants",
@@ -5143,7 +5143,7 @@
       "group": "category",
       "subgroup": "pants",
       "passed": true,
-      "elapsed_sec": 2.4391,
+      "elapsed_sec": 1.1092,
       "category_pass": true,
       "expected": {
         "category": "pants",
@@ -5381,7 +5381,7 @@
       "group": "category",
       "subgroup": "pants",
       "passed": true,
-      "elapsed_sec": 2.644,
+      "elapsed_sec": 1.3092,
       "category_pass": true,
       "expected": {
         "category": "pants",
@@ -5625,7 +5625,7 @@
       "group": "category",
       "subgroup": "pants",
       "passed": true,
-      "elapsed_sec": 2.2826,
+      "elapsed_sec": 1.1209,
       "category_pass": true,
       "expected": {
         "category": "pants",
@@ -5869,7 +5869,7 @@
       "group": "category",
       "subgroup": "pants",
       "passed": true,
-      "elapsed_sec": 2.617,
+      "elapsed_sec": 1.2394,
       "category_pass": true,
       "expected": {
         "category": "pants",
@@ -6113,7 +6113,7 @@
       "group": "category",
       "subgroup": "pants",
       "passed": true,
-      "elapsed_sec": 2.6862,
+      "elapsed_sec": 1.2335,
       "category_pass": true,
       "expected": {
         "category": "pants",
@@ -6357,7 +6357,7 @@
       "group": "category",
       "subgroup": "shoes",
       "passed": true,
-      "elapsed_sec": 2.8868,
+      "elapsed_sec": 1.6358,
       "category_pass": true,
       "expected": {
         "category": "shoes",
@@ -6598,7 +6598,7 @@
       "group": "category",
       "subgroup": "shoes",
       "passed": true,
-      "elapsed_sec": 2.5964,
+      "elapsed_sec": 1.3944,
       "category_pass": true,
       "expected": {
         "category": "shoes",
@@ -6839,7 +6839,7 @@
       "group": "category",
       "subgroup": "shoes",
       "passed": true,
-      "elapsed_sec": 2.3153,
+      "elapsed_sec": 1.0615,
       "category_pass": true,
       "expected": {
         "category": "shoes",
@@ -7080,7 +7080,7 @@
       "group": "category",
       "subgroup": "shoes",
       "passed": true,
-      "elapsed_sec": 2.5024,
+      "elapsed_sec": 1.1905,
       "category_pass": true,
       "expected": {
         "category": "shoes",
@@ -7321,7 +7321,7 @@
       "group": "category",
       "subgroup": "shoes",
       "passed": true,
-      "elapsed_sec": 2.685,
+      "elapsed_sec": 1.3076,
       "category_pass": true,
       "expected": {
         "category": "shoes",
@@ -7562,7 +7562,7 @@
       "group": "category",
       "subgroup": "shoes",
       "passed": true,
-      "elapsed_sec": 2.4894,
+      "elapsed_sec": 1.2066,
       "category_pass": true,
       "expected": {
         "category": "shoes",
@@ -7803,7 +7803,7 @@
       "group": "category",
       "subgroup": "shoes",
       "passed": true,
-      "elapsed_sec": 2.5154,
+      "elapsed_sec": 1.2014,
       "category_pass": true,
       "expected": {
         "category": "shoes",
@@ -8044,7 +8044,7 @@
       "group": "category",
       "subgroup": "shoes",
       "passed": true,
-      "elapsed_sec": 2.5165,
+      "elapsed_sec": 1.1959,
       "category_pass": true,
       "expected": {
         "category": "shoes",
@@ -8285,7 +8285,7 @@
       "group": "category",
       "subgroup": "skirt",
       "passed": true,
-      "elapsed_sec": 3.386,
+      "elapsed_sec": 1.7621,
       "category_pass": true,
       "expected": {
         "category": "skirt",
@@ -8526,7 +8526,7 @@
       "group": "category",
       "subgroup": "skirt",
       "passed": true,
-      "elapsed_sec": 2.6605,
+      "elapsed_sec": 1.3268,
       "category_pass": true,
       "expected": {
         "category": "skirt",
@@ -8767,7 +8767,7 @@
       "group": "category",
       "subgroup": "skirt",
       "passed": true,
-      "elapsed_sec": 2.4444,
+      "elapsed_sec": 1.1017,
       "category_pass": true,
       "expected": {
         "category": "skirt",
@@ -9008,7 +9008,7 @@
       "group": "category",
       "subgroup": "skirt",
       "passed": false,
-      "elapsed_sec": 2.6145,
+      "elapsed_sec": 1.2902,
       "category_pass": false,
       "expected": {
         "category": "skirt",
@@ -9246,7 +9246,7 @@
       "group": "category",
       "subgroup": "skirt",
       "passed": true,
-      "elapsed_sec": 3.2186,
+      "elapsed_sec": 1.3977,
       "category_pass": true,
       "expected": {
         "category": "skirt",
@@ -9487,7 +9487,7 @@
       "group": "category",
       "subgroup": "skirt",
       "passed": true,
-      "elapsed_sec": 2.4031,
+      "elapsed_sec": 1.2422,
       "category_pass": true,
       "expected": {
         "category": "skirt",
@@ -9728,7 +9728,7 @@
       "group": "category",
       "subgroup": "skirt",
       "passed": true,
-      "elapsed_sec": 3.4189,
+      "elapsed_sec": 1.7223,
       "category_pass": true,
       "expected": {
         "category": "skirt",
@@ -9969,7 +9969,7 @@
       "group": "category",
       "subgroup": "skirt",
       "passed": true,
-      "elapsed_sec": 2.161,
+      "elapsed_sec": 1.0137,
       "category_pass": true,
       "expected": {
         "category": "skirt",
@@ -10210,7 +10210,7 @@
       "group": "category",
       "subgroup": "top",
       "passed": false,
-      "elapsed_sec": 2.7809,
+      "elapsed_sec": 1.4448,
       "category_pass": false,
       "expected": {
         "category": "top",
@@ -10451,7 +10451,7 @@
       "group": "category",
       "subgroup": "top",
       "passed": true,
-      "elapsed_sec": 2.4705,
+      "elapsed_sec": 1.1895,
       "category_pass": true,
       "expected": {
         "category": "top",
@@ -10692,7 +10692,7 @@
       "group": "category",
       "subgroup": "top",
       "passed": true,
-      "elapsed_sec": 2.5351,
+      "elapsed_sec": 1.2595,
       "category_pass": true,
       "expected": {
         "category": "top",
@@ -10936,7 +10936,7 @@
       "group": "category",
       "subgroup": "top",
       "passed": true,
-      "elapsed_sec": 3.2518,
+      "elapsed_sec": 1.5957,
       "category_pass": true,
       "expected": {
         "category": "top",
@@ -11180,7 +11180,7 @@
       "group": "category",
       "subgroup": "top",
       "passed": true,
-      "elapsed_sec": 2.5159,
+      "elapsed_sec": 1.2385,
       "category_pass": true,
       "expected": {
         "category": "top",
@@ -11424,7 +11424,7 @@
       "group": "category",
       "subgroup": "top",
       "passed": true,
-      "elapsed_sec": 3.009,
+      "elapsed_sec": 1.497,
       "category_pass": true,
       "expected": {
         "category": "top",
@@ -11668,7 +11668,7 @@
       "group": "category",
       "subgroup": "top",
       "passed": true,
-      "elapsed_sec": 2.5239,
+      "elapsed_sec": 1.1064,
       "category_pass": true,
       "expected": {
         "category": "top",
@@ -11909,7 +11909,7 @@
       "group": "category",
       "subgroup": "top",
       "passed": true,
-      "elapsed_sec": 2.3973,
+      "elapsed_sec": 1.0822,
       "category_pass": true,
       "expected": {
         "category": "top",
@@ -12150,7 +12150,7 @@
       "group": "color",
       "subgroup": "dark_gray_black",
       "passed": true,
-      "elapsed_sec": 2.6729,
+      "elapsed_sec": 1.2255,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -12393,7 +12393,7 @@
       "group": "color",
       "subgroup": "dark_gray_black",
       "passed": true,
-      "elapsed_sec": 2.2401,
+      "elapsed_sec": 1.0205,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -12636,7 +12636,7 @@
       "group": "color",
       "subgroup": "dark_gray_black",
       "passed": true,
-      "elapsed_sec": 2.5636,
+      "elapsed_sec": 1.2796,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -12879,7 +12879,7 @@
       "group": "color",
       "subgroup": "earth_brown",
       "passed": true,
-      "elapsed_sec": 2.6864,
+      "elapsed_sec": 1.3004,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -13122,7 +13122,7 @@
       "group": "color",
       "subgroup": "earth_brown",
       "passed": true,
-      "elapsed_sec": 2.1424,
+      "elapsed_sec": 1.0433,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -13365,7 +13365,7 @@
       "group": "color",
       "subgroup": "earth_brown",
       "passed": true,
-      "elapsed_sec": 2.173,
+      "elapsed_sec": 1.0876,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -13608,7 +13608,7 @@
       "group": "color",
       "subgroup": "elegant_purple",
       "passed": true,
-      "elapsed_sec": 2.2484,
+      "elapsed_sec": 1.123,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -13848,7 +13848,7 @@
       "group": "color",
       "subgroup": "elegant_purple",
       "passed": true,
-      "elapsed_sec": 2.3868,
+      "elapsed_sec": 1.1508,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -14091,7 +14091,7 @@
       "group": "color",
       "subgroup": "elegant_purple",
       "passed": true,
-      "elapsed_sec": 2.1705,
+      "elapsed_sec": 1.0675,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -14334,7 +14334,7 @@
       "group": "color",
       "subgroup": "fresh_blue",
       "passed": true,
-      "elapsed_sec": 2.3142,
+      "elapsed_sec": 1.1098,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -14574,7 +14574,7 @@
       "group": "color",
       "subgroup": "fresh_blue",
       "passed": true,
-      "elapsed_sec": 2.2111,
+      "elapsed_sec": 1.0558,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -14820,7 +14820,7 @@
       "group": "color",
       "subgroup": "fresh_blue",
       "passed": true,
-      "elapsed_sec": 2.3127,
+      "elapsed_sec": 1.1107,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -15066,7 +15066,7 @@
       "group": "color",
       "subgroup": "light_beige",
       "passed": true,
-      "elapsed_sec": 2.7882,
+      "elapsed_sec": 1.3063,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -15312,7 +15312,7 @@
       "group": "color",
       "subgroup": "light_beige",
       "passed": true,
-      "elapsed_sec": 2.113,
+      "elapsed_sec": 0.9883,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -15555,7 +15555,7 @@
       "group": "color",
       "subgroup": "light_beige",
       "passed": true,
-      "elapsed_sec": 2.4861,
+      "elapsed_sec": 1.2,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -15798,7 +15798,7 @@
       "group": "color",
       "subgroup": "natural_green",
       "passed": true,
-      "elapsed_sec": 2.3818,
+      "elapsed_sec": 1.1348,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -16038,7 +16038,7 @@
       "group": "color",
       "subgroup": "natural_green",
       "passed": true,
-      "elapsed_sec": 2.2404,
+      "elapsed_sec": 1.1021,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -16281,7 +16281,7 @@
       "group": "color",
       "subgroup": "natural_green",
       "passed": false,
-      "elapsed_sec": 2.1521,
+      "elapsed_sec": 1.0302,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -16524,7 +16524,7 @@
       "group": "color",
       "subgroup": "neutral_gray",
       "passed": true,
-      "elapsed_sec": 2.24,
+      "elapsed_sec": 1.0338,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -16767,7 +16767,7 @@
       "group": "color",
       "subgroup": "neutral_gray",
       "passed": true,
-      "elapsed_sec": 2.1339,
+      "elapsed_sec": 0.9846,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -17013,7 +17013,7 @@
       "group": "color",
       "subgroup": "neutral_gray",
       "passed": false,
-      "elapsed_sec": 2.2457,
+      "elapsed_sec": 1.0285,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -17256,7 +17256,7 @@
       "group": "color",
       "subgroup": "pattern",
       "passed": true,
-      "elapsed_sec": 2.2771,
+      "elapsed_sec": 1.0291,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -17496,7 +17496,7 @@
       "group": "color",
       "subgroup": "pattern",
       "passed": true,
-      "elapsed_sec": 2.2378,
+      "elapsed_sec": 1.0738,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -17739,7 +17739,7 @@
       "group": "color",
       "subgroup": "pattern",
       "passed": true,
-      "elapsed_sec": 2.4735,
+      "elapsed_sec": 1.2001,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -17985,7 +17985,7 @@
       "group": "color",
       "subgroup": "rose_pink",
       "passed": false,
-      "elapsed_sec": 2.2886,
+      "elapsed_sec": 1.0249,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -18231,7 +18231,7 @@
       "group": "color",
       "subgroup": "rose_pink",
       "passed": false,
-      "elapsed_sec": 2.3484,
+      "elapsed_sec": 1.1493,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -18474,7 +18474,7 @@
       "group": "color",
       "subgroup": "rose_pink",
       "passed": false,
-      "elapsed_sec": 2.1094,
+      "elapsed_sec": 0.9883,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -18717,7 +18717,7 @@
       "group": "color",
       "subgroup": "warm_orange_red",
       "passed": true,
-      "elapsed_sec": 2.4654,
+      "elapsed_sec": 1.1219,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -18957,7 +18957,7 @@
       "group": "color",
       "subgroup": "warm_orange_red",
       "passed": true,
-      "elapsed_sec": 2.2127,
+      "elapsed_sec": 1.1181,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -19200,7 +19200,7 @@
       "group": "color",
       "subgroup": "warm_orange_red",
       "passed": true,
-      "elapsed_sec": 2.3099,
+      "elapsed_sec": 1.0623,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -19443,7 +19443,7 @@
       "group": "edge_cases",
       "subgroup": "",
       "passed": true,
-      "elapsed_sec": 2.5752,
+      "elapsed_sec": 1.2478,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -19684,7 +19684,7 @@
       "group": "edge_cases",
       "subgroup": "",
       "passed": true,
-      "elapsed_sec": 2.2972,
+      "elapsed_sec": 1.0937,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -19928,7 +19928,7 @@
       "group": "edge_cases",
       "subgroup": "",
       "passed": true,
-      "elapsed_sec": 3.1034,
+      "elapsed_sec": 1.6168,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -20169,7 +20169,7 @@
       "group": "edge_cases",
       "subgroup": "",
       "passed": true,
-      "elapsed_sec": 3.7108,
+      "elapsed_sec": 1.794,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -20410,7 +20410,7 @@
       "group": "edge_cases",
       "subgroup": "",
       "passed": true,
-      "elapsed_sec": 2.7245,
+      "elapsed_sec": 1.3092,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -20651,7 +20651,7 @@
       "group": "edge_cases",
       "subgroup": "",
       "passed": true,
-      "elapsed_sec": 2.5904,
+      "elapsed_sec": 1.2885,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -20892,7 +20892,7 @@
       "group": "edge_cases",
       "subgroup": "",
       "passed": true,
-      "elapsed_sec": 2.5121,
+      "elapsed_sec": 1.1134,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -21130,7 +21130,7 @@
       "group": "edge_cases",
       "subgroup": "",
       "passed": true,
-      "elapsed_sec": 2.857,
+      "elapsed_sec": 1.4484,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -21374,7 +21374,7 @@
       "group": "edge_cases",
       "subgroup": "",
       "passed": true,
-      "elapsed_sec": 2.303,
+      "elapsed_sec": 1.098,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -21615,7 +21615,7 @@
       "group": "edge_cases",
       "subgroup": "",
       "passed": true,
-      "elapsed_sec": 2.5926,
+      "elapsed_sec": 1.396,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -21856,7 +21856,7 @@
       "group": "occasion",
       "subgroup": "business_casual",
       "passed": true,
-      "elapsed_sec": 2.2284,
+      "elapsed_sec": 0.9989,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -22101,7 +22101,7 @@
       "group": "occasion",
       "subgroup": "business_casual",
       "passed": true,
-      "elapsed_sec": 2.2884,
+      "elapsed_sec": 1.0648,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -22346,7 +22346,7 @@
       "group": "occasion",
       "subgroup": "business_casual",
       "passed": true,
-      "elapsed_sec": 2.3247,
+      "elapsed_sec": 1.115,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -22594,7 +22594,7 @@
       "group": "occasion",
       "subgroup": "business_casual",
       "passed": true,
-      "elapsed_sec": 2.3605,
+      "elapsed_sec": 1.1384,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -22842,7 +22842,7 @@
       "group": "occasion",
       "subgroup": "campus_casual",
       "passed": false,
-      "elapsed_sec": 2.505,
+      "elapsed_sec": 1.2055,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -23087,7 +23087,7 @@
       "group": "occasion",
       "subgroup": "campus_casual",
       "passed": true,
-      "elapsed_sec": 2.3463,
+      "elapsed_sec": 1.0664,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -23332,7 +23332,7 @@
       "group": "occasion",
       "subgroup": "campus_casual",
       "passed": true,
-      "elapsed_sec": 2.2572,
+      "elapsed_sec": 1.0341,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -23577,7 +23577,7 @@
       "group": "occasion",
       "subgroup": "campus_casual",
       "passed": true,
-      "elapsed_sec": 3.2326,
+      "elapsed_sec": 1.6482,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -23822,7 +23822,7 @@
       "group": "occasion",
       "subgroup": "professional",
       "passed": false,
-      "elapsed_sec": 2.6156,
+      "elapsed_sec": 1.2933,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -24067,7 +24067,7 @@
       "group": "occasion",
       "subgroup": "professional",
       "passed": true,
-      "elapsed_sec": 2.3053,
+      "elapsed_sec": 1.076,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -24312,7 +24312,7 @@
       "group": "occasion",
       "subgroup": "professional",
       "passed": true,
-      "elapsed_sec": 2.2039,
+      "elapsed_sec": 1.0611,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -24560,7 +24560,7 @@
       "group": "occasion",
       "subgroup": "professional",
       "passed": true,
-      "elapsed_sec": 2.1187,
+      "elapsed_sec": 1.0272,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -24808,7 +24808,7 @@
       "group": "occasion",
       "subgroup": "social",
       "passed": false,
-      "elapsed_sec": 2.7717,
+      "elapsed_sec": 1.3724,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -25053,7 +25053,7 @@
       "group": "occasion",
       "subgroup": "social",
       "passed": true,
-      "elapsed_sec": 2.2921,
+      "elapsed_sec": 1.1045,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -25295,7 +25295,7 @@
       "group": "occasion",
       "subgroup": "social",
       "passed": true,
-      "elapsed_sec": 2.5715,
+      "elapsed_sec": 1.4458,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -25540,7 +25540,7 @@
       "group": "occasion",
       "subgroup": "social",
       "passed": true,
-      "elapsed_sec": 2.6476,
+      "elapsed_sec": 1.3054,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -25785,7 +25785,7 @@
       "group": "season",
       "subgroup": "autumn",
       "passed": true,
-      "elapsed_sec": 2.635,
+      "elapsed_sec": 1.3699,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -26030,7 +26030,7 @@
       "group": "season",
       "subgroup": "autumn",
       "passed": true,
-      "elapsed_sec": 2.4111,
+      "elapsed_sec": 1.2488,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -26275,7 +26275,7 @@
       "group": "season",
       "subgroup": "autumn",
       "passed": true,
-      "elapsed_sec": 2.4884,
+      "elapsed_sec": 1.1263,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -26520,7 +26520,7 @@
       "group": "season",
       "subgroup": "autumn",
       "passed": true,
-      "elapsed_sec": 2.4117,
+      "elapsed_sec": 1.0463,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -26765,7 +26765,7 @@
       "group": "season",
       "subgroup": "spring",
       "passed": false,
-      "elapsed_sec": 2.2708,
+      "elapsed_sec": 1.1279,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -27010,7 +27010,7 @@
       "group": "season",
       "subgroup": "spring",
       "passed": true,
-      "elapsed_sec": 2.3529,
+      "elapsed_sec": 1.1592,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -27255,7 +27255,7 @@
       "group": "season",
       "subgroup": "spring",
       "passed": true,
-      "elapsed_sec": 2.3121,
+      "elapsed_sec": 1.1056,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -27500,7 +27500,7 @@
       "group": "season",
       "subgroup": "spring",
       "passed": false,
-      "elapsed_sec": 2.274,
+      "elapsed_sec": 1.0598,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -27745,7 +27745,7 @@
       "group": "season",
       "subgroup": "summer",
       "passed": true,
-      "elapsed_sec": 2.3833,
+      "elapsed_sec": 1.1168,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -27987,7 +27987,7 @@
       "group": "season",
       "subgroup": "summer",
       "passed": true,
-      "elapsed_sec": 2.4095,
+      "elapsed_sec": 1.1737,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -28229,7 +28229,7 @@
       "group": "season",
       "subgroup": "summer",
       "passed": true,
-      "elapsed_sec": 2.2749,
+      "elapsed_sec": 1.1098,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -28471,7 +28471,7 @@
       "group": "season",
       "subgroup": "summer",
       "passed": true,
-      "elapsed_sec": 2.137,
+      "elapsed_sec": 1.0775,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -28713,7 +28713,7 @@
       "group": "season",
       "subgroup": "winter",
       "passed": true,
-      "elapsed_sec": 2.3761,
+      "elapsed_sec": 1.273,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -28958,7 +28958,7 @@
       "group": "season",
       "subgroup": "winter",
       "passed": true,
-      "elapsed_sec": 2.5655,
+      "elapsed_sec": 1.367,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -29203,7 +29203,7 @@
       "group": "season",
       "subgroup": "winter",
       "passed": true,
-      "elapsed_sec": 2.3359,
+      "elapsed_sec": 1.1518,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -29448,7 +29448,7 @@
       "group": "season",
       "subgroup": "winter",
       "passed": true,
-      "elapsed_sec": 2.4333,
+      "elapsed_sec": 1.3063,
       "category_pass": false,
       "expected": {
         "category": "",

@@ -6,7 +6,13 @@ from typing import Any
 import cv2
 import numpy as np
 
-from models.clip_model import predict_topk, score_texts
+from models.clip_model import (
+    predict_topk,
+    score_texts,
+    encode_image_feature,
+    predict_topk_with_image_feature,
+    score_texts_with_image_feature,
+)
 from models.yolo_detector import detect_main_subject_bbox
 
 
@@ -88,9 +94,15 @@ class PromptScore:
     results: list[dict[str, Any]]
 
 
-def _score_label_group_softmax(image, labels, topk=5) -> PromptScore:
-    results = predict_topk(image, labels, topk=min(topk, len(labels)))
+def _score_label_group_softmax(image_features, labels, topk=5) -> PromptScore:
+    results = predict_topk_with_image_feature(
+        image_features,
+        labels,
+        topk=min(topk, len(labels)),
+    )
+
     best = results[0]
+
     return PromptScore(
         best_label=best["label"],
         best_score=float(best["score"]),
@@ -98,9 +110,9 @@ def _score_label_group_softmax(image, labels, topk=5) -> PromptScore:
     )
 
 
-def _score_label_group_raw(image, labels, topk=5) -> PromptScore:
+def _score_label_group_raw(image_features, labels, topk=5) -> PromptScore:
     results = sorted(
-        score_texts(image, labels),
+        score_texts_with_image_feature(image_features, labels),
         key=lambda x: x["score"],
         reverse=True,
     )
@@ -177,6 +189,7 @@ def _estimate_foreground_components(image) -> dict[str, float]:
 
 
 def validate_fashion_input(image):
+    image_features = encode_image_feature(image)
     """
     嚴格模式：
     只接受「單件衣物 + 乾淨背景 + 沒有人 + 非多件」圖片。
@@ -188,12 +201,13 @@ def validate_fashion_input(image):
     3. 加入 valid rescue rule：
        若 valid 明顯強於 invalid，優先保留正常商品圖/平拍圖。
     """
-    valid_softmax = _score_label_group_softmax(image, VALID_LABELS, topk=5)
-    invalid_softmax = _score_label_group_softmax(image, INVALID_LABELS, topk=5)
+    valid_softmax = _score_label_group_softmax(image_features, VALID_LABELS, topk=5)
+    invalid_softmax = _score_label_group_softmax(image_features, INVALID_LABELS, topk=5)
 
-    valid_raw = _score_label_group_raw(image, VALID_LABELS, topk=5)
+    valid_raw = _score_label_group_raw(image_features, VALID_LABELS, topk=5)
+
     invalid_raw_groups = {
-        group_name: _score_label_group_raw(image, labels, topk=3)
+        group_name: _score_label_group_raw(image_features, labels, topk=3)
         for group_name, labels in INVALID_LABEL_GROUPS.items()
     }
 
@@ -390,7 +404,10 @@ def detect_image_route(image):
     在嚴格單件衣物模式下，通過驗證的圖片一律當作 product。
     這個函式先保留，避免 app.py 其他地方暫時壞掉。
     """
-    result = _score_label_group_softmax(image, VALID_LABELS, topk=5)
+
+    image_features = encode_image_feature(image)
+
+    result = _score_label_group_softmax(image_features, VALID_LABELS, topk=5)
 
     return {
         "route": "product",
