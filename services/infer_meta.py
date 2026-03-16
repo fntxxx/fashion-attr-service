@@ -97,10 +97,10 @@ def infer_occasions(main_category: str, fine_category: str) -> dict[str, Any]:
             "professional": 0.36,
         },
         "cardigan": {
-            "campus_casual": 0.55,
-            "social": 0.50,
-            "business_casual": 0.68,
-            "professional": 0.44,
+            "campus_casual": 0.42,
+            "social": 0.46,
+            "business_casual": 0.72,
+            "professional": 0.50,
         },
         "denim_jacket": {
             "campus_casual": 0.82,
@@ -109,10 +109,10 @@ def infer_occasions(main_category: str, fine_category: str) -> dict[str, Any]:
             "professional": 0.08,
         },
         "blazer": {
-            "campus_casual": 0.20,
-            "social": 0.50,
-            "business_casual": 0.84,
-            "professional": 0.90,
+            "campus_casual": 0.08,
+            "social": 0.44,
+            "business_casual": 0.88,
+            "professional": 0.92,
         },
         "coat": {
             "campus_casual": 0.42,
@@ -145,16 +145,16 @@ def infer_occasions(main_category: str, fine_category: str) -> dict[str, Any]:
             "professional": 0.08,
         },
         "trousers": {
-            "campus_casual": 0.36,
-            "social": 0.44,
-            "business_casual": 0.84,
-            "professional": 0.74,
+            "campus_casual": 0.22,
+            "social": 0.40,
+            "business_casual": 0.86,
+            "professional": 0.78,
         },
         "wide_leg_pants": {
-            "campus_casual": 0.58,
-            "social": 0.56,
-            "business_casual": 0.54,
-            "professional": 0.28,
+            "campus_casual": 0.28,
+            "social": 0.38,
+            "business_casual": 0.72,
+            "professional": 0.64,
         },
         "leggings": {
             "campus_casual": 0.72,
@@ -199,10 +199,10 @@ def infer_occasions(main_category: str, fine_category: str) -> dict[str, Any]:
             "professional": 0.04,
         },
         "boots": {
-            "campus_casual": 0.46,
-            "social": 0.54,
-            "business_casual": 0.46,
-            "professional": 0.20,
+            "campus_casual": 0.36,
+            "social": 0.48,
+            "business_casual": 0.58,
+            "professional": 0.24,
         },
         "sandals": {
             "campus_casual": 0.72,
@@ -211,16 +211,16 @@ def infer_occasions(main_category: str, fine_category: str) -> dict[str, Any]:
             "professional": 0.04,
         },
         "heels": {
-            "campus_casual": 0.08,
-            "social": 0.72,
-            "business_casual": 0.52,
-            "professional": 0.44,
+            "campus_casual": 0.06,
+            "social": 0.68,
+            "business_casual": 0.58,
+            "professional": 0.64,
         },
         "flats": {
-            "campus_casual": 0.34,
-            "social": 0.42,
-            "business_casual": 0.62,
-            "professional": 0.48,
+            "campus_casual": 0.22,
+            "social": 0.34,
+            "business_casual": 0.72,
+            "professional": 0.56,
         },
         "bucket_hat": {
             "campus_casual": 0.72,
@@ -243,6 +243,24 @@ def infer_occasions(main_category: str, fine_category: str) -> dict[str, Any]:
     }
 
     score_map = fine_overrides.get(fine_category, base_scores)
+    score_map = dict(score_map)
+
+    outer_like_fine_categories = {
+        "denim_jacket",
+        "cardigan",
+        "blazer",
+        "coat",
+        "puffer_jacket",
+        "vest",
+        "windbreaker",
+        "sweatshirt",
+    }
+
+    if fine_category in outer_like_fine_categories:
+        score_map["campus_casual"] = min(score_map.get("campus_casual", 0.0), 0.60)
+        score_map["business_casual"] = max(score_map.get("business_casual", 0.0), 0.62)
+        score_map["professional"] = max(score_map.get("professional", 0.0), 0.36)
+
     candidates = _build_candidate_list(score_map, label_map)
     selected = _pick_multi_selected(candidates, threshold=0.62, max_selected=2)
 
@@ -286,8 +304,8 @@ def infer_seasons(main_category: str, fine_category: str) -> dict[str, Any]:
         },
         "shirt": {
             "spring": 0.72,
-            "summer": 0.38,
-            "autumn": 0.74,
+            "summer": 0.40,
+            "autumn": 0.66,
             "winter": 0.18,
         },
         "hoodie": {
@@ -309,10 +327,10 @@ def infer_seasons(main_category: str, fine_category: str) -> dict[str, Any]:
             "winter": 0.92,
         },
         "cardigan": {
-            "spring": 0.58,
-            "summer": 0.10,
-            "autumn": 0.80,
-            "winter": 0.62,
+            "spring": 0.72,
+            "summer": 0.08,
+            "autumn": 0.72,
+            "winter": 0.60,
         },
         "denim_jacket": {
             "spring": 0.54,
@@ -327,16 +345,16 @@ def infer_seasons(main_category: str, fine_category: str) -> dict[str, Any]:
             "winter": 0.44,
         },
         "coat": {
-            "spring": 0.18,
-            "summer": 0.02,
-            "autumn": 0.62,
-            "winter": 0.94,
+            "spring": 0.10,
+            "summer": 0.01,
+            "autumn": 0.48,
+            "winter": 0.96,
         },
         "puffer_jacket": {
-            "spring": 0.08,
+            "spring": 0.04,
             "summer": 0.01,
-            "autumn": 0.42,
-            "winter": 0.98,
+            "autumn": 0.28,
+            "winter": 0.99,
         },
         "vest": {
             "spring": 0.42,
@@ -455,6 +473,26 @@ def infer_seasons(main_category: str, fine_category: str) -> dict[str, Any]:
     }
 
     score_map = fine_overrides.get(fine_category, base_scores)
+    score_map = dict(score_map)
+
+    outer_like_fine_categories = {
+        "denim_jacket",
+        "cardigan",
+        "blazer",
+        "coat",
+        "puffer_jacket",
+        "vest",
+        "windbreaker",
+        "sweatshirt",
+    }
+
+    if fine_category in outer_like_fine_categories:
+        score_map["summer"] = min(score_map.get("summer", 0.0), 0.12)
+        score_map["winter"] = max(score_map.get("winter", 0.0), 0.64)
+
+    if fine_category in {"denim_jacket", "sweatshirt"}:
+        score_map["autumn"] = min(score_map.get("autumn", 0.0), 0.68)
+        score_map["winter"] = max(score_map.get("winter", 0.0), 0.72)
     candidates = _build_candidate_list(score_map, label_map)
     selected = _pick_multi_selected(candidates, threshold=0.58, max_selected=2)
 

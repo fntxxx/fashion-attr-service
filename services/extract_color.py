@@ -1,303 +1,295 @@
+from __future__ import annotations
+
+from collections import Counter
+from typing import Tuple
+
 import numpy as np
 from PIL import Image
 
-from utils.color_map import map_color
+
+def _resize_for_color(image: Image.Image, max_side: int = 256) -> Image.Image:
+    img = image.convert("RGB")
+    w, h = img.size
+    scale = min(max_side / max(w, h), 1.0)
+    nw = max(1, int(w * scale))
+    nh = max(1, int(h * scale))
+    return img.resize((nw, nh))
 
 
-def _center_weight_mask(h, w):
-    y = np.linspace(-1.0, 1.0, h)
-    x = np.linspace(-1.0, 1.0, w)
-    xx, yy = np.meshgrid(x, y)
-    dist = np.sqrt(xx * xx + yy * yy)
-
-    weights = 1.15 - np.clip(dist, 0, 1.15)
-    weights = np.clip(weights, 0.05, None)
-    return weights
-
-
-def _rgb_to_hsv_np(rgb):
-    rgb = rgb.astype(np.float32) / 255.0
+def _rgb_to_hsv_np(arr: np.ndarray) -> np.ndarray:
+    """
+    arr: uint8 RGB, shape (N, 3)
+    return: float HSV
+      H: 0~360
+      S: 0~1
+      V: 0~1
+    """
+    rgb = arr.astype(np.float32) / 255.0
     r = rgb[:, 0]
     g = rgb[:, 1]
     b = rgb[:, 2]
 
-    maxc = np.max(rgb, axis=1)
-    minc = np.min(rgb, axis=1)
-    diff = maxc - minc
+    cmax = np.max(rgb, axis=1)
+    cmin = np.min(rgb, axis=1)
+    delta = cmax - cmin
 
-    h = np.zeros_like(maxc)
-    s = np.zeros_like(maxc)
-    v = maxc
+    h = np.zeros_like(cmax)
 
-    nonzero = maxc > 0
-    s[nonzero] = diff[nonzero] / maxc[nonzero]
+    mask = delta > 1e-6
 
-    mask = diff > 1e-6
+    r_mask = (cmax == r) & mask
+    g_mask = (cmax == g) & mask
+    b_mask = (cmax == b) & mask
 
-    idx = (maxc == r) & mask
-    h[idx] = ((g[idx] - b[idx]) / diff[idx]) % 6
-
-    idx = (maxc == g) & mask
-    h[idx] = ((b[idx] - r[idx]) / diff[idx]) + 2
-
-    idx = (maxc == b) & mask
-    h[idx] = ((r[idx] - g[idx]) / diff[idx]) + 4
+    h[r_mask] = ((g[r_mask] - b[r_mask]) / delta[r_mask]) % 6
+    h[g_mask] = ((b[g_mask] - r[g_mask]) / delta[g_mask]) + 2
+    h[b_mask] = ((r[b_mask] - g[b_mask]) / delta[b_mask]) + 4
 
     h = h * 60.0
-    h = np.where(h < 0, h + 360.0, h)
 
-    return np.stack([h, s * 255.0, v * 255.0], axis=1)
+    s = np.zeros_like(cmax)
+    nonzero = cmax > 1e-6
+    s[nonzero] = delta[nonzero] / cmax[nonzero]
 
+    v = cmax
 
-def _weighted_kmeans(rgb_pixels, weights, k=4, max_iter=12):
-    n = len(rgb_pixels)
-    if n == 0:
-        return None, None
-
-    if n < k:
-        mean_rgb = np.average(rgb_pixels, axis=0, weights=weights)
-        centers = np.array([mean_rgb], dtype=np.float32)
-        labels = np.zeros(n, dtype=np.int32)
-        return centers, labels
-
-    rng = np.random.default_rng(42)
-    init_idx = rng.choice(n, size=k, replace=False)
-    centers = rgb_pixels[init_idx].copy()
-
-    for _ in range(max_iter):
-        dists = np.sum((rgb_pixels[:, None, :] - centers[None, :, :]) ** 2, axis=2)
-        labels = np.argmin(dists, axis=1)
-
-        new_centers = []
-        for i in range(k):
-            cluster_mask = labels == i
-            if not np.any(cluster_mask):
-                new_centers.append(centers[i])
-                continue
-
-            cluster_pixels = rgb_pixels[cluster_mask]
-            cluster_weights = weights[cluster_mask]
-            center = np.average(cluster_pixels, axis=0, weights=cluster_weights)
-            new_centers.append(center)
-
-        new_centers = np.array(new_centers, dtype=np.float32)
-
-        if np.allclose(centers, new_centers, atol=1.0):
-            centers = new_centers
-            break
-
-        centers = new_centers
-
-    return centers, labels
+    return np.stack([h, s, v], axis=1)
 
 
-def _choose_dominant_cluster(centers, labels, weights):
-    if centers is None or labels is None or len(centers) == 0:
-        return None, []
-
-    hsv_centers = _rgb_to_hsv_np(centers)
-    cluster_infos = []
-
-    total_weight = float(np.sum(weights)) if len(weights) > 0 else 1.0
-
-    for i in range(len(centers)):
-        cluster_mask = labels == i
-        if not np.any(cluster_mask):
-            continue
-
-        cluster_weight = float(np.sum(weights[cluster_mask]))
-        ratio = cluster_weight / max(total_weight, 1e-6)
-
-        h, s, v = hsv_centers[i]
-        score = cluster_weight
-
-        # 太白、太亮、太低彩度，通常偏背景或白條紋
-        if v > 210 and s < 35:
-            score *= 0.35
-
-        # 過灰通常不是主色
-        if s < 28:
-            score *= 0.65
-
-        # 中等亮度且有彩度，通常比較像布料主色
-        if 45 < v < 200 and s > 40:
-            score *= 1.18
-
-        cluster_infos.append({
-            "index": i,
-            "rgb": centers[i],
-            "hsv": hsv_centers[i],
-            "weight": cluster_weight,
-            "ratio": ratio,
-            "dominant_score": float(score),
-        })
-
-    if not cluster_infos:
-        return None, []
-
-    cluster_infos = sorted(cluster_infos, key=lambda x: x["dominant_score"], reverse=True)
-    dominant = cluster_infos[0]
-    return dominant, cluster_infos
-
-
-def _hue_distance(h1, h2):
-    diff = abs(h1 - h2)
-    return min(diff, 360.0 - diff)
-
-
-def _rgb_distance(c1, c2):
-    return float(np.linalg.norm(np.array(c1) - np.array(c2)))
-
-
-def _is_pattern_like(cluster_infos):
+def _center_weight_mask(h: int, w: int) -> np.ndarray:
     """
-    更保守的花紋判斷：
-    只抓真正多色 / 條紋 / 印花，
-    盡量排除：
-    - 單色衣物陰影
-    - 牛仔洗色
-    - 光影造成的深淺變化
+    中央權重較高，降低背景干擾。
     """
-    if len(cluster_infos) < 2:
+    yy, xx = np.mgrid[0:h, 0:w]
+    cy = (h - 1) / 2.0
+    cx = (w - 1) / 2.0
+    dy = (yy - cy) / max(h / 2.0, 1.0)
+    dx = (xx - cx) / max(w / 2.0, 1.0)
+    dist = np.sqrt(dx * dx + dy * dy)
+    weight = 1.15 - np.clip(dist, 0.0, 1.0)
+    return np.clip(weight, 0.15, 1.15)
+
+
+def _estimate_foreground(image: Image.Image) -> np.ndarray:
+    """
+    便宜版前景估計：
+    - 用邊界顏色估背景
+    - 排除太接近背景的像素
+    """
+    img = _resize_for_color(image, 256)
+    arr = np.array(img).astype(np.int16)
+    h, w, _ = arr.shape
+
+    border = np.concatenate(
+        [
+            arr[:8, :, :].reshape(-1, 3),
+            arr[-8:, :, :].reshape(-1, 3),
+            arr[:, :8, :].reshape(-1, 3),
+            arr[:, -8:, :].reshape(-1, 3),
+        ],
+        axis=0,
+    )
+    bg = border.mean(axis=0)
+    diff = np.sqrt(((arr - bg) ** 2).sum(axis=2))
+
+    # 與背景差太小的點視為背景
+    fg_mask = diff > 18
+
+    # 如果前景太少，退回全圖
+    if fg_mask.mean() < 0.08:
+        fg_mask = np.ones((h, w), dtype=bool)
+
+    return fg_mask
+
+
+def _weighted_hsv_hist(hsv: np.ndarray, weights: np.ndarray) -> Counter:
+    """
+    把 HSV 粗量化後做加權統計，提升穩定性。
+    """
+    h_bin = np.floor(hsv[:, 0] / 15).astype(int)     # 24 bins
+    s_bin = np.floor(hsv[:, 1] / 0.12).astype(int)   # 約 9 bins
+    v_bin = np.floor(hsv[:, 2] / 0.12).astype(int)   # 約 9 bins
+
+    counter: Counter = Counter()
+    for hb, sb, vb, wt in zip(h_bin, s_bin, v_bin, weights):
+        counter[(hb, sb, vb)] += float(wt)
+
+    return counter
+
+
+def _is_pattern(hsv: np.ndarray, weights: np.ndarray) -> bool:
+    total = float(np.sum(weights))
+    if total <= 0:
         return False
 
-    meaningful_clusters = []
-    for info in cluster_infos:
-        ratio = float(info["ratio"])
-        if ratio < 0.12:
-            continue
-        meaningful_clusters.append(info)
+    hue = hsv[:, 0]
+    sat = hsv[:, 1]
+    val = hsv[:, 2]
 
-    if len(meaningful_clusters) < 2:
+    colorful = weights[sat >= 0.20]
+    colorful_ratio = float(np.sum(colorful) / total) if total else 0.0
+
+    bright = weights[val >= 0.35]
+    bright_ratio = float(np.sum(bright) / total) if total else 0.0
+
+    hue_mask = sat >= 0.18
+    if np.sum(hue_mask) < 20:
         return False
 
-    primary = meaningful_clusters[0]
-    p_h, p_s, p_v = [float(x) for x in primary["hsv"]]
-    p_ratio = float(primary["ratio"])
+    hue_bins = np.floor(hue[hue_mask] / 20).astype(int)
+    hue_counter: Counter = Counter()
+    for hb, wt in zip(hue_bins, weights[hue_mask]):
+        hue_counter[int(hb)] += float(wt)
 
-    def is_near_neutral(h, s, v):
-        return s < 35 or v < 55 or v > 225
+    dominant = hue_counter.most_common(1)[0][1] if hue_counter else 0.0
+    dominant_ratio = dominant / total if total else 1.0
 
-    def same_family(h1, s1, v1, h2, s2, v2):
-        hue_gap = _hue_distance(h1, h2)
-        sv_gap = abs(s1 - s2) + abs(v1 - v2)
-
-        # 同色系深淺變化：像純色裙、外套、牛仔洗色
-        if hue_gap < 18:
-            return True
-
-        # 藍色 / 牛仔常見洗色，不當成花紋
-        if 160 <= h1 <= 250 and 160 <= h2 <= 250 and hue_gap < 28:
-            return True
-
-        # 低彩度亮部 / 陰影，不當成花紋
-        if sv_gap < 70 and hue_gap < 28:
-            return True
-
-        return False
-
-    strong_pattern_count = 0
-    light_stripe_count = 0
-
-    for secondary in meaningful_clusters[1:]:
-        s_h, s_s, s_v = [float(x) for x in secondary["hsv"]]
-        s_ratio = float(secondary["ratio"])
-
-        hue_gap = _hue_distance(p_h, s_h)
-        rgb_gap = _rgb_distance(primary["rgb"], secondary["rgb"])
-        sv_gap = abs(p_s - s_s) + abs(p_v - s_v)
-
-        if same_family(p_h, p_s, p_v, s_h, s_s, s_v):
-            continue
-
-        # 白條紋 / 淺色條紋
-        is_secondary_light = s_v > 190 and s_s < 38
-        is_primary_colored = p_s > 42 and 45 < p_v < 190
-
-        if p_ratio >= 0.32 and s_ratio >= 0.18 and is_secondary_light and is_primary_colored:
-            light_stripe_count += 1
-            continue
-
-        # 真正多色 / 印花
-        if p_ratio >= 0.26 and s_ratio >= 0.18:
-            if hue_gap >= 28 or rgb_gap >= 68 or sv_gap >= 105:
-                strong_pattern_count += 1
-
-    if strong_pattern_count >= 1:
+    # 原本主規則
+    if colorful_ratio >= 0.30 and bright_ratio >= 0.30 and dominant_ratio <= 0.58:
         return True
 
-    if light_stripe_count >= 1:
+    # 偏暗花紋：顏色夠分散，但整體亮度偏低
+    if colorful_ratio >= 0.50 and bright_ratio >= 0.18 and dominant_ratio <= 0.45:
         return True
 
-    # 第三群以上也要夠強，且不能都只是同色深淺
-    if len(meaningful_clusters) >= 3:
-        top3 = meaningful_clusters[:3]
-        valid_groups = []
-
-        for info in top3:
-            h, s, v = [float(x) for x in info["hsv"]]
-            if is_near_neutral(h, s, v):
-                continue
-            valid_groups.append(info)
-
-        if len(valid_groups) >= 2:
-            hue_gaps = []
-            for i in range(len(valid_groups)):
-                for j in range(i + 1, len(valid_groups)):
-                    h1 = float(valid_groups[i]["hsv"][0])
-                    h2 = float(valid_groups[j]["hsv"][0])
-                    hue_gaps.append(_hue_distance(h1, h2))
-
-            if any(gap >= 26 for gap in hue_gaps):
-                ratios = [float(x["ratio"]) for x in valid_groups]
-                if sum(ratios[:2]) >= 0.42:
-                    return True
+    # 低彩度亮色花紋：像淺色條紋、淡色印花
+    if colorful_ratio >= 0.20 and bright_ratio >= 0.85 and dominant_ratio <= 0.12:
+        return True
 
     return False
 
 
-def extract_color(image: Image.Image):
-    img = image.resize((180, 180)).convert("RGB")
-    rgb = np.array(img).astype(np.float32)
+def _classify_color_from_hsv(hsv: np.ndarray, weights: np.ndarray) -> str:
+    total = float(np.sum(weights))
+    if total <= 0:
+        return "灰色系"
 
-    h, w, _ = rgb.shape
-    weights_2d = _center_weight_mask(h, w)
+    hue = hsv[:, 0]
+    sat = hsv[:, 1]
+    val = hsv[:, 2]
 
-    r = rgb[:, :, 0]
-    g = rgb[:, :, 1]
-    b = rgb[:, :, 2]
+    # 深色先判
+    very_dark_ratio = float(np.sum(weights[val <= 0.22]) / total)
+    dark_ratio = float(np.sum(weights[val <= 0.30]) / total)
+    low_sat_ratio = float(np.sum(weights[sat <= 0.16]) / total)
 
-    max_rgb = np.max(rgb, axis=2)
-    min_rgb = np.min(rgb, axis=2)
-    diff_rgb = max_rgb - min_rgb
+    if very_dark_ratio >= 0.58:
+        return "黑色系"
 
-    # 排除背景 / 白邊
-    background_like = (
-        ((max_rgb > 235) & (diff_rgb < 18)) |
-        ((r > 190) & (g > 190) & (b > 190) & (diff_rgb < 20))
-    )
+    # 白 / 米 / 灰
+    if low_sat_ratio >= 0.68:
+        avg_v = float(np.average(val, weights=weights))
+        avg_s = float(np.average(sat, weights=weights))
+        avg_h = float(np.average(hue, weights=weights))
 
-    valid_mask = ~background_like
+        if avg_v >= 0.88 and avg_s <= 0.08:
+            return "白色系"
 
-    if np.sum(valid_mask) < 300:
-        valid_mask = np.ones((h, w), dtype=bool)
+        # 米色通常亮、低到中低飽和，且偏黃棕區
+        if avg_v >= 0.58 and avg_s <= 0.22 and (30 <= avg_h <= 70):
+            return "米色系"
 
-    flat_rgb = rgb[valid_mask]
-    flat_weights = weights_2d[valid_mask].astype(np.float32)
+        if avg_v <= 0.34 or dark_ratio >= 0.52:
+            return "黑色系"
 
-    centers, labels = _weighted_kmeans(flat_rgb, flat_weights, k=4, max_iter=12)
-    dominant_info, cluster_infos = _choose_dominant_cluster(centers, labels, flat_weights)
+        return "灰色系"
 
-    if dominant_info is None:
-        dominant_rgb = np.average(flat_rgb, axis=0, weights=flat_weights)
-        dominant_hsv = _rgb_to_hsv_np(np.array([dominant_rgb], dtype=np.float32))[0]
-        return map_color(rgb=dominant_rgb, hsv=dominant_hsv)
+    # 有彩色時，用主色相判斷
+    hist = _weighted_hsv_hist(hsv, weights)
+    top_bin, _ = hist.most_common(1)[0]
+    hb, sb, vb = top_bin
 
-    # 先判斷是否屬於花紋 / 多色
-    if _is_pattern_like(cluster_infos):
+    h_center = hb * 15 + 7.5
+    s_center = sb * 0.12 + 0.06
+    v_center = vb * 0.12 + 0.06
+
+    # 卡其 / 咖啡
+    if 15 <= h_center <= 60 and s_center <= 0.45:
+
+        if v_center >= 0.60 and s_center <= 0.30:
+            return "米色系"
+
+        if v_center >= 0.45:
+            return "卡其色系"
+
+        return "咖啡色系"
+
+    # 紅 / 橘 / 粉
+    if (h_center >= 345 or h_center < 20):
+        # 深暖棕常被量化到 0~20 度，先擋掉
+        if 0.28 <= s_center <= 0.55 and v_center <= 0.52:
+            return "咖啡色系"
+        return "紅色系"
+
+    if 20 <= h_center < 45:
+
+        # 暗棕，即使飽和稍高，也先視為咖啡
+        if v_center <= 0.28:
+            return "咖啡色系"
+
+        if s_center <= 0.56 and v_center <= 0.62:
+            return "咖啡色系"
+
+        return "紅色系"
+
+    if 45 <= h_center < 85:
+        # 黃綠偏卡其的情況
+        if s_center <= 0.32 and v_center >= 0.5:
+            return "卡其色系"
+        return "綠色系"
+
+    if 85 <= h_center < 170:
+        return "綠色系"
+
+    # blue / denim
+    if 170 <= h_center < 255:
+
+        # washed denim
+        if v_center >= 0.70 and s_center <= 0.30:
+            return "藍色系"
+
+        return "藍色系"
+
+    if 255 <= h_center < 320:
+        return "紫色系"
+
+    if 320 <= h_center < 345:
+
+        # pink detection
+        if v_center >= 0.65 and s_center <= 0.45:
+            return "紅色系"
+
+        return "紅色系"
+
+    return "灰色系"
+
+
+def extract_color(image: Image.Image) -> str:
+    """
+    回傳舊系統相容色系：
+    白色系 / 米色系 / 黑色系 / 灰色系 / 卡其色系 / 咖啡色系 /
+    紅色系 / 綠色系 / 藍色系 / 紫色系 / 花紋圖案
+    """
+    img = _resize_for_color(image, 256)
+    arr = np.array(img)
+    h, w, _ = arr.shape
+
+    fg_mask = _estimate_foreground(img)
+    center_w = _center_weight_mask(h, w)
+
+    pixels = arr.reshape(-1, 3)
+    fg = fg_mask.reshape(-1)
+    weights = center_w.reshape(-1)
+
+    pixels = pixels[fg]
+    weights = weights[fg]
+
+    if len(pixels) == 0:
+        return "灰色系"
+
+    hsv = _rgb_to_hsv_np(pixels)
+
+    if _is_pattern(hsv, weights):
         return "花紋圖案"
 
-    dominant_rgb = dominant_info["rgb"]
-    dominant_hsv = dominant_info["hsv"]
-
-    return map_color(rgb=dominant_rgb, hsv=dominant_hsv)
+    return _classify_color_from_hsv(hsv, weights)

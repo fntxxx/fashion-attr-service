@@ -248,7 +248,7 @@ def validate_fashion_input(image):
     # 就不該因為 YOLO 的弱誤判直接擋掉。
     valid_rescue = bool(
         valid_max >= 0.240 and
-        margin >= 0.028 and
+        margin >= 0.022 and
         person_clip_score <= valid_max - 0.020 and
         non_fashion_clip_score <= valid_max - 0.030 and
         multi_item_clip_score <= valid_max - 0.018
@@ -260,7 +260,6 @@ def validate_fashion_input(image):
     # 改成較保守：
     # 1. 很大的 person 框 + 不低的 score
     # 2. YOLO 與 person CLIP 同時支持
-    # 3. 單靠 person CLIP 大幅超過 valid
     strong_person_signal = bool(
         (
             person_detected and
@@ -272,14 +271,20 @@ def validate_fashion_input(image):
             person_score >= 0.30 and
             person_area_ratio >= 0.10 and
             person_clip_score >= valid_max - 0.001
-        ) or
-        (
-            person_clip_score > valid_max + 0.0045
         )
     )
 
+    # 單件商品圖保護：
+    # 若畫面只有單一明顯主體、valid 分數夠高，且 person bbox 沒大到像完整人像，
+    # 就不要因為弱 person 訊號直接擋掉
+    single_item_rescue = bool(
+        valid_max >= 0.26 and
+        large_components == 1 and
+        person_area_ratio <= 0.35
+    )
+
     # rescue 成立時，覆蓋掉弱人物誤判
-    if valid_rescue and person_clip_score < valid_max:
+    if (valid_rescue or single_item_rescue) and person_clip_score < valid_max:
         strong_person_signal = False
 
     strong_multi_item_signal = bool(
@@ -412,6 +417,8 @@ def detect_coarse_fashion_type(image):
             "a straight skirt product photo",
             "a midi skirt laid flat",
             "a long skirt product photo",
+            "a denim skirt product photo",
+            "a skirt with a single continuous lower panel and no separated legs",
         ],
         "dress": [
             "a product photo of a dress",
