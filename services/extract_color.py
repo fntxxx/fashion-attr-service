@@ -141,8 +141,53 @@ def _is_pattern(hsv: np.ndarray, weights: np.ndarray) -> bool:
     for hb, wt in zip(hue_bins, weights[hue_mask]):
         hue_counter[int(hb)] += float(wt)
 
-    dominant = hue_counter.most_common(1)[0][1] if hue_counter else 0.0
+    sorted_bins = hue_counter.most_common()
+    dominant_bin = sorted_bins[0][0] if sorted_bins else 0
+    dominant = sorted_bins[0][1] if sorted_bins else 0.0
+    second = sorted_bins[1][1] if len(sorted_bins) > 1 else 0.0
+    third = sorted_bins[2][1] if len(sorted_bins) > 2 else 0.0
+
     dominant_ratio = dominant / total if total else 1.0
+    top2_ratio = (dominant + second) / total if total else 1.0
+    top3_ratio = (dominant + second + third) / total if total else 1.0
+    active_bins = len(sorted_bins)
+
+    # 相鄰色相群聚保護（含環狀相鄰）
+    # 例如：
+    # - 綠色群：1,2,3
+    # - 紅橘群：17,0,1
+    neighbor_bins = {
+        (dominant_bin - 1) % 18,
+        dominant_bin,
+        (dominant_bin + 1) % 18,
+    }
+    neighbor_ratio = (
+        sum(hue_counter.get(b, 0.0) for b in neighbor_bins) / total
+        if total else 1.0
+    )
+
+    # 只對暖色主群做相鄰 hue 保護，避免紅橘鞋款被誤抓成 pattern。
+    # bins:
+    # 17 -> 340~360
+    # 0  ->   0~20
+    # 1  ->  20~40
+    is_warm_hue_cluster = dominant_bin in {17, 0, 1}
+
+    if (
+        is_warm_hue_cluster
+        and neighbor_ratio >= 0.55
+        and dominant_ratio >= 0.30
+        and colorful_ratio >= 0.35
+    ):
+        return False
+
+    # 單色保護 1
+    if active_bins <= 3 and top2_ratio >= 0.72 and colorful_ratio >= 0.35:
+        return False
+
+    # 單色保護 2
+    if active_bins <= 4 and dominant_ratio >= 0.22 and top3_ratio >= 0.82:
+        return False
 
     # 原本主規則
     if colorful_ratio >= 0.30 and bright_ratio >= 0.30 and dominant_ratio <= 0.58:

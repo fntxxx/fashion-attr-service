@@ -15,12 +15,10 @@ LABELS_FILE = Path("labels_full_template.csv")
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 
 TARGET_SUBGROUPS = {
-    "earth_brown",
-    "rose_pink",
     "pattern",
-    "light_beige",
+    "elegant_purple",
+    "natural_green",
     "warm_orange_red",
-    "neutral_gray",
 }
 
 
@@ -64,6 +62,10 @@ def subgroup_to_expected_color(subgroup: str) -> Optional[str]:
         "light_beige": "米色系",
         "warm_orange_red": "紅色系",
         "neutral_gray": "灰色系",
+        "elegant_purple": "紫色系",
+        "natural_green": "綠色系",
+        "fresh_blue": "藍色系",
+        "dark_gray_black": "黑色系",
     }
     return mapping.get(subgroup)
 

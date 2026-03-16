@@ -17,11 +17,8 @@ from services.extract_color import (
 DATASET_DIR = Path(r"D:\DevData\attr_quality_testset")
 
 TARGET_FILES = [
-    "color_earth_brown_shoes_03.jpg",
-    "color_earth_brown_top_01.jpg",
-    "color_pattern_skirt_02.jpg",
-    "color_pattern_top_01.jpg",
-    "color_rose_pink_top_01.jpg",
+    "color_natural_green_top_01.jpg",
+    "color_warm_orange_red_shoes_03.jpg",
 ]
 
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
@@ -81,9 +78,23 @@ def main():
             hist = {}
             for hb, wt in zip(hue_bins, weights[hue_mask]):
                 hist[int(hb)] = hist.get(int(hb), 0.0) + float(wt)
-            dominant_ratio = max(hist.values()) / total if total else 1.0
+
+            sorted_bins = sorted(hist.items(), key=lambda x: x[1], reverse=True)
+
+            dominant = sorted_bins[0][1] if sorted_bins else 0.0
+            second = sorted_bins[1][1] if len(sorted_bins) > 1 else 0.0
+            third = sorted_bins[2][1] if len(sorted_bins) > 2 else 0.0
+
+            dominant_ratio = dominant / total if total else 1.0
+            top2_ratio = (dominant + second) / total if total else 1.0
+            top3_ratio = (dominant + second + third) / total if total else 1.0
+            active_bins = len(sorted_bins)
         else:
+            sorted_bins = []
             dominant_ratio = 1.0
+            top2_ratio = 1.0
+            top3_ratio = 1.0
+            active_bins = 0
 
         low_sat_ratio = float(np.sum(weights[sat <= 0.16]) / total) if total else 0.0
         very_dark_ratio = float(np.sum(weights[val <= 0.22]) / total) if total else 0.0
@@ -105,12 +116,16 @@ def main():
         print(f"colorful_ratio={colorful_ratio:.4f}")
         print(f"bright_ratio={bright_ratio:.4f}")
         print(f"dominant_ratio={dominant_ratio:.4f}")
+        print(f"top2_ratio={top2_ratio:.4f}")
+        print(f"top3_ratio={top3_ratio:.4f}")
+        print(f"active_bins={active_bins}")
         print(f"hue_mask_count={hue_mask_count}")
         print(f"low_sat_ratio={low_sat_ratio:.4f}")
         print(f"very_dark_ratio={very_dark_ratio:.4f}")
         print(f"dark_ratio={dark_ratio:.4f}")
         print(f"avg_h={avg_h:.2f}, avg_s={avg_s:.4f}, avg_v={avg_v:.4f}")
         print(f"h_center={h_center:.2f}, s_center={s_center:.4f}, v_center={v_center:.4f}")
+        print(f"top hue bins={sorted_bins[:5]}")
 
 
 if __name__ == "__main__":
