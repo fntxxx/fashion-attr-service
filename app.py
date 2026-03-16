@@ -2,6 +2,7 @@ from fastapi import FastAPI, UploadFile, File
 from PIL import Image
 import io
 
+from models.clip_model import encode_image_feature
 from services.classify_category import classify_category
 from services.extract_color import extract_color
 from services.infer_meta import (
@@ -116,7 +117,12 @@ async def predict(image: UploadFile = File(...)):
         }
 
     route = "product"
-    coarse_info = detect_coarse_fashion_type(original_img)
+    image_features = encode_image_feature(original_img)
+
+    coarse_info = detect_coarse_fashion_type(
+        original_img,
+        image_features=image_features
+    )
 
     detection = {
         "detected": False,
@@ -128,7 +134,10 @@ async def predict(image: UploadFile = File(...)):
 
     working_img = original_img
 
-    category_result = classify_category(working_img)
+    category_result = classify_category(
+        working_img,
+        image_features=image_features
+    )
     color_tone = extract_color(working_img)
     color_payload = build_color_payload(color_tone)
 

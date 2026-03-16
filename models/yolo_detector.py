@@ -59,7 +59,7 @@ def detect_main_subject_bbox(
             source=img,
             conf=conf,
             verbose=False,
-            imgsz=640,
+            imgsz=320,
             device="cpu",
         )
     except Exception as e:

@@ -1,4 +1,8 @@
-from models.clip_model import predict_best
+from models.clip_model import (
+    predict_best,
+    score_texts_with_image_feature,
+    encode_image_feature,
+)
 
 STAGE1_LABELS = {
     "headwear": "a clean product photo of a single hat or other headwear",
@@ -104,20 +108,42 @@ FINE_CATEGORY_LABEL_MAP = {
 }
 
 
-def _predict_from_label_map(image, label_map: dict):
+def _predict_from_label_map(image, label_map: dict, image_features=None):
     keys = list(label_map.keys())
     prompts = list(label_map.values())
 
-    best_prompt, score = predict_best(image, prompts)
+    if image_features is None:
+        image_features = encode_image_feature(image)
+
+    results = score_texts_with_image_feature(image_features, prompts)
+
+    results = sorted(results, key=lambda x: x["score"], reverse=True)
+
+    best_prompt = results[0]["label"]
+    score = results[0]["score"]
+
     best_index = prompts.index(best_prompt)
     best_key = keys[best_index]
 
     return best_key, float(score)
 
 
-def classify_category(image):
-    main_key, main_score = _predict_from_label_map(image, STAGE1_LABELS)
-    fine_key, fine_score = _predict_from_label_map(image, STAGE2_LABELS[main_key])
+def classify_category(image, image_features=None):
+
+    if image_features is None:
+        image_features = encode_image_feature(image)
+
+    main_key, main_score = _predict_from_label_map(
+        image,
+        STAGE1_LABELS,
+        image_features=image_features,
+    )
+
+    fine_key, fine_score = _predict_from_label_map(
+        image,
+        STAGE2_LABELS[main_key],
+        image_features=image_features,
+    )
 
     return {
         "mainCategoryKey": main_key,

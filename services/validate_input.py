@@ -419,7 +419,7 @@ def detect_image_route(image):
     }
 
 
-def detect_coarse_fashion_type(image):
+def detect_coarse_fashion_type ( image , image_features = None ):
     prompt_groups = {
         "pants": [
             "a product photo of pants",
@@ -475,7 +475,10 @@ def detect_coarse_fashion_type(image):
             flat_prompts.append(prompt)
             prompt_to_group[prompt] = group_key
 
-    results = score_texts(image, flat_prompts)
+    if image_features is None:
+        image_features = encode_image_feature(image)
+
+    results = score_texts_with_image_feature(image_features, flat_prompts)
 
     grouped_scores = {key: [] for key in prompt_groups.keys()}
     for item in results:
