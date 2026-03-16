@@ -2,7 +2,7 @@
   "api_url": "http://127.0.0.1:7860/predict",
   "dataset_dir": "D:\\DevData\\attr_quality_testset",
   "labels_file": "D:\\Projects\\fashion-attr-service\\labels_full_template.csv",
-  "script_elapsed_sec": 1394.4736,
+  "script_elapsed_sec": 335.6944,
   "summary": {
     "total_rows": 120,
     "valid_evaluated_rows": 120,
@@ -573,10 +573,10 @@
       "errors": []
     },
     "time": {
-      "total_elapsed_sec": 1394.4647,
-      "avg_elapsed_sec_per_item": 11.6205,
-      "max_elapsed_sec": 27.5915,
-      "min_elapsed_sec": 10.7406
+      "total_elapsed_sec": 335.645,
+      "avg_elapsed_sec_per_item": 2.797,
+      "max_elapsed_sec": 35.01,
+      "min_elapsed_sec": 2.1094
     }
   },
   "items": [
@@ -585,7 +585,7 @@
       "group": "category",
       "subgroup": "dress",
       "passed": true,
-      "elapsed_sec": 27.5915,
+      "elapsed_sec": 35.01,
       "category_pass": true,
       "expected": {
         "category": "dress",
@@ -823,7 +823,7 @@
       "group": "category",
       "subgroup": "dress",
       "passed": true,
-      "elapsed_sec": 11.5132,
+      "elapsed_sec": 3.1728,
       "category_pass": true,
       "expected": {
         "category": "dress",
@@ -1023,8 +1023,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one skirt or one dress",
-            "valid_score": 0.2673704922199249,
-            "invalid_score": 0.24885639548301697
+            "valid_score": 0.2673705220222473,
+            "invalid_score": 0.24885636568069458
           }
         }
       },
@@ -1061,7 +1061,7 @@
       "group": "category",
       "subgroup": "dress",
       "passed": true,
-      "elapsed_sec": 11.9452,
+      "elapsed_sec": 3.2304,
       "category_pass": true,
       "expected": {
         "category": "dress",
@@ -1262,7 +1262,7 @@
           "validation": {
             "best_label": "a single isolated apparel item",
             "valid_score": 0.27875974774360657,
-            "invalid_score": 0.24639250338077545
+            "invalid_score": 0.24639247357845306
           }
         }
       },
@@ -1299,7 +1299,7 @@
       "group": "category",
       "subgroup": "dress",
       "passed": true,
-      "elapsed_sec": 11.0344,
+      "elapsed_sec": 2.4881,
       "category_pass": true,
       "expected": {
         "category": "dress",
@@ -1537,7 +1537,7 @@
       "group": "category",
       "subgroup": "dress",
       "passed": true,
-      "elapsed_sec": 11.1562,
+      "elapsed_sec": 2.6815,
       "category_pass": true,
       "expected": {
         "category": "dress",
@@ -1737,7 +1737,7 @@
           "bbox": null,
           "validation": {
             "best_label": "a front-view product image of a single garment",
-            "valid_score": 0.2762465178966522,
+            "valid_score": 0.27624648809432983,
             "invalid_score": 0.2506922781467438
           }
         }
@@ -1775,7 +1775,7 @@
       "group": "category",
       "subgroup": "dress",
       "passed": true,
-      "elapsed_sec": 11.0814,
+      "elapsed_sec": 2.4106,
       "category_pass": true,
       "expected": {
         "category": "dress",
@@ -1977,7 +1977,7 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one skirt or one dress",
-            "valid_score": 0.27585890889167786,
+            "valid_score": 0.275858998298645,
             "invalid_score": 0.252407431602478
           }
         }
@@ -2016,7 +2016,7 @@
       "group": "category",
       "subgroup": "dress",
       "passed": true,
-      "elapsed_sec": 11.2876,
+      "elapsed_sec": 2.8487,
       "category_pass": true,
       "expected": {
         "category": "dress",
@@ -2216,7 +2216,7 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one skirt or one dress",
-            "valid_score": 0.27601659297943115,
+            "valid_score": 0.2760166525840759,
             "invalid_score": 0.24885937571525574
           }
         }
@@ -2254,7 +2254,7 @@
       "group": "category",
       "subgroup": "dress",
       "passed": true,
-      "elapsed_sec": 11.833,
+      "elapsed_sec": 3.1134,
       "category_pass": true,
       "expected": {
         "category": "dress",
@@ -2454,8 +2454,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a front-view product image of a single garment",
-            "valid_score": 0.2836293578147888,
-            "invalid_score": 0.2551572024822235
+            "valid_score": 0.28362932801246643,
+            "invalid_score": 0.2551571726799011
           }
         }
       },
@@ -2492,7 +2492,7 @@
       "group": "category",
       "subgroup": "outer",
       "passed": true,
-      "elapsed_sec": 12.6409,
+      "elapsed_sec": 2.9817,
       "category_pass": true,
       "expected": {
         "category": "outer",
@@ -2733,7 +2733,7 @@
       "group": "category",
       "subgroup": "outer",
       "passed": true,
-      "elapsed_sec": 12.2287,
+      "elapsed_sec": 2.771,
       "category_pass": true,
       "expected": {
         "category": "outer",
@@ -2935,7 +2935,7 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one jacket",
-            "valid_score": 0.30403125286102295,
+            "valid_score": 0.30403122305870056,
             "invalid_score": 0.24241214990615845
           }
         }
@@ -2974,7 +2974,7 @@
       "group": "category",
       "subgroup": "outer",
       "passed": false,
-      "elapsed_sec": 13.3277,
+      "elapsed_sec": 2.4487,
       "category_pass": false,
       "expected": {
         "category": "outer",
@@ -3176,8 +3176,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a single clothing item centered on a clean background",
-            "valid_score": 0.3034380376338959,
-            "invalid_score": 0.2485368698835373
+            "valid_score": 0.30343806743621826,
+            "invalid_score": 0.2485368847846985
           }
         }
       },
@@ -3215,7 +3215,7 @@
       "group": "category",
       "subgroup": "outer",
       "passed": true,
-      "elapsed_sec": 10.9334,
+      "elapsed_sec": 2.5926,
       "category_pass": true,
       "expected": {
         "category": "outer",
@@ -3418,7 +3418,7 @@
           "validation": {
             "best_label": "a product image of one jacket",
             "valid_score": 0.2874911427497864,
-            "invalid_score": 0.2419992983341217
+            "invalid_score": 0.24199925363063812
           }
         }
       },
@@ -3456,7 +3456,7 @@
       "group": "category",
       "subgroup": "outer",
       "passed": true,
-      "elapsed_sec": 11.239,
+      "elapsed_sec": 2.6278,
       "category_pass": true,
       "expected": {
         "category": "outer",
@@ -3659,7 +3659,7 @@
           "validation": {
             "best_label": "a product image of one jacket",
             "valid_score": 0.3011208474636078,
-            "invalid_score": 0.24633195996284485
+            "invalid_score": 0.24633193016052246
           }
         }
       },
@@ -3697,7 +3697,7 @@
       "group": "category",
       "subgroup": "outer",
       "passed": true,
-      "elapsed_sec": 11.8478,
+      "elapsed_sec": 2.9261,
       "category_pass": true,
       "expected": {
         "category": "outer",
@@ -3900,7 +3900,7 @@
           "validation": {
             "best_label": "a product image of one jacket",
             "valid_score": 0.31908440589904785,
-            "invalid_score": 0.22927474975585938
+            "invalid_score": 0.22927477955818176
           }
         }
       },
@@ -3938,7 +3938,7 @@
       "group": "category",
       "subgroup": "outer",
       "passed": true,
-      "elapsed_sec": 11.5823,
+      "elapsed_sec": 2.3444,
       "category_pass": true,
       "expected": {
         "category": "outer",
@@ -4140,8 +4140,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one jacket",
-            "valid_score": 0.286161333322525,
-            "invalid_score": 0.24080882966518402
+            "valid_score": 0.28616130352020264,
+            "invalid_score": 0.2408088743686676
           }
         }
       },
@@ -4179,7 +4179,7 @@
       "group": "category",
       "subgroup": "outer",
       "passed": true,
-      "elapsed_sec": 11.7823,
+      "elapsed_sec": 2.5797,
       "category_pass": true,
       "expected": {
         "category": "outer",
@@ -4381,8 +4381,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one jacket",
-            "valid_score": 0.31285834312438965,
-            "invalid_score": 0.22631675004959106
+            "valid_score": 0.31285831332206726,
+            "invalid_score": 0.22631676495075226
           }
         }
       },
@@ -4420,7 +4420,7 @@
       "group": "category",
       "subgroup": "pants",
       "passed": true,
-      "elapsed_sec": 11.4614,
+      "elapsed_sec": 3.0739,
       "category_pass": true,
       "expected": {
         "category": "pants",
@@ -4623,7 +4623,7 @@
           "validation": {
             "best_label": "a product image of one pair of pants",
             "valid_score": 0.28690141439437866,
-            "invalid_score": 0.2414105236530304
+            "invalid_score": 0.2414105087518692
           }
         }
       },
@@ -4661,7 +4661,7 @@
       "group": "category",
       "subgroup": "pants",
       "passed": true,
-      "elapsed_sec": 11.1298,
+      "elapsed_sec": 2.3682,
       "category_pass": true,
       "expected": {
         "category": "pants",
@@ -4864,7 +4864,7 @@
           "validation": {
             "best_label": "a product image of one pair of pants",
             "valid_score": 0.2837092876434326,
-            "invalid_score": 0.23849701881408691
+            "invalid_score": 0.23849698901176453
           }
         }
       },
@@ -4902,7 +4902,7 @@
       "group": "category",
       "subgroup": "pants",
       "passed": true,
-      "elapsed_sec": 11.6506,
+      "elapsed_sec": 2.9746,
       "category_pass": true,
       "expected": {
         "category": "pants",
@@ -5104,8 +5104,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one pair of pants",
-            "valid_score": 0.3040456175804138,
-            "invalid_score": 0.2688181698322296
+            "valid_score": 0.30404558777809143,
+            "invalid_score": 0.2688181400299072
           }
         }
       },
@@ -5143,7 +5143,7 @@
       "group": "category",
       "subgroup": "pants",
       "passed": true,
-      "elapsed_sec": 11.1271,
+      "elapsed_sec": 2.4391,
       "category_pass": true,
       "expected": {
         "category": "pants",
@@ -5343,8 +5343,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one pair of pants",
-            "valid_score": 0.3267134726047516,
-            "invalid_score": 0.25808125734329224
+            "valid_score": 0.326713502407074,
+            "invalid_score": 0.25808122754096985
           }
         }
       },
@@ -5381,7 +5381,7 @@
       "group": "category",
       "subgroup": "pants",
       "passed": true,
-      "elapsed_sec": 11.4281,
+      "elapsed_sec": 2.644,
       "category_pass": true,
       "expected": {
         "category": "pants",
@@ -5586,7 +5586,7 @@
           "validation": {
             "best_label": "a product image of one pair of pants",
             "valid_score": 0.3181609809398651,
-            "invalid_score": 0.25121304392814636
+            "invalid_score": 0.251213014125824
           }
         }
       },
@@ -5625,7 +5625,7 @@
       "group": "category",
       "subgroup": "pants",
       "passed": true,
-      "elapsed_sec": 11.0435,
+      "elapsed_sec": 2.2826,
       "category_pass": true,
       "expected": {
         "category": "pants",
@@ -5830,7 +5830,7 @@
           "validation": {
             "best_label": "a product image of one pair of pants",
             "valid_score": 0.30356574058532715,
-            "invalid_score": 0.2505054175853729
+            "invalid_score": 0.2505054473876953
           }
         }
       },
@@ -5869,7 +5869,7 @@
       "group": "category",
       "subgroup": "pants",
       "passed": true,
-      "elapsed_sec": 11.3664,
+      "elapsed_sec": 2.617,
       "category_pass": true,
       "expected": {
         "category": "pants",
@@ -6074,7 +6074,7 @@
           "validation": {
             "best_label": "a product image of one pair of pants",
             "valid_score": 0.3179166316986084,
-            "invalid_score": 0.25038886070251465
+            "invalid_score": 0.25038889050483704
           }
         }
       },
@@ -6113,7 +6113,7 @@
       "group": "category",
       "subgroup": "pants",
       "passed": true,
-      "elapsed_sec": 11.3914,
+      "elapsed_sec": 2.6862,
       "category_pass": true,
       "expected": {
         "category": "pants",
@@ -6317,8 +6317,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one pair of pants",
-            "valid_score": 0.3238946795463562,
-            "invalid_score": 0.24399742484092712
+            "valid_score": 0.3238946497440338,
+            "invalid_score": 0.24399739503860474
           }
         }
       },
@@ -6357,7 +6357,7 @@
       "group": "category",
       "subgroup": "shoes",
       "passed": true,
-      "elapsed_sec": 11.3203,
+      "elapsed_sec": 2.8868,
       "category_pass": true,
       "expected": {
         "category": "shoes",
@@ -6559,8 +6559,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one pair of shoes",
-            "valid_score": 0.28911298513412476,
-            "invalid_score": 0.23523558676242828
+            "valid_score": 0.28911292552948,
+            "invalid_score": 0.2352355271577835
           }
         }
       },
@@ -6598,7 +6598,7 @@
       "group": "category",
       "subgroup": "shoes",
       "passed": true,
-      "elapsed_sec": 11.4584,
+      "elapsed_sec": 2.5964,
       "category_pass": true,
       "expected": {
         "category": "shoes",
@@ -6800,7 +6800,7 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one pair of shoes",
-            "valid_score": 0.27545440196990967,
+            "valid_score": 0.2754543721675873,
             "invalid_score": 0.23914608359336853
           }
         }
@@ -6839,7 +6839,7 @@
       "group": "category",
       "subgroup": "shoes",
       "passed": true,
-      "elapsed_sec": 11.2977,
+      "elapsed_sec": 2.3153,
       "category_pass": true,
       "expected": {
         "category": "shoes",
@@ -7041,7 +7041,7 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one pair of shoes",
-            "valid_score": 0.2779500484466553,
+            "valid_score": 0.2779500186443329,
             "invalid_score": 0.21979853510856628
           }
         }
@@ -7080,7 +7080,7 @@
       "group": "category",
       "subgroup": "shoes",
       "passed": true,
-      "elapsed_sec": 11.3146,
+      "elapsed_sec": 2.5024,
       "category_pass": true,
       "expected": {
         "category": "shoes",
@@ -7282,8 +7282,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one pair of shoes",
-            "valid_score": 0.27072685956954956,
-            "invalid_score": 0.2106320858001709
+            "valid_score": 0.2707267999649048,
+            "invalid_score": 0.2106321156024933
           }
         }
       },
@@ -7321,7 +7321,7 @@
       "group": "category",
       "subgroup": "shoes",
       "passed": true,
-      "elapsed_sec": 11.7443,
+      "elapsed_sec": 2.685,
       "category_pass": true,
       "expected": {
         "category": "shoes",
@@ -7523,7 +7523,7 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one pair of shoes",
-            "valid_score": 0.2748143672943115,
+            "valid_score": 0.27481433749198914,
             "invalid_score": 0.214456245303154
           }
         }
@@ -7562,7 +7562,7 @@
       "group": "category",
       "subgroup": "shoes",
       "passed": true,
-      "elapsed_sec": 11.2174,
+      "elapsed_sec": 2.4894,
       "category_pass": true,
       "expected": {
         "category": "shoes",
@@ -7803,7 +7803,7 @@
       "group": "category",
       "subgroup": "shoes",
       "passed": true,
-      "elapsed_sec": 11.2709,
+      "elapsed_sec": 2.5154,
       "category_pass": true,
       "expected": {
         "category": "shoes",
@@ -8005,8 +8005,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one pair of shoes",
-            "valid_score": 0.27065128087997437,
-            "invalid_score": 0.2058604508638382
+            "valid_score": 0.270651251077652,
+            "invalid_score": 0.205860435962677
           }
         }
       },
@@ -8044,7 +8044,7 @@
       "group": "category",
       "subgroup": "shoes",
       "passed": true,
-      "elapsed_sec": 11.2851,
+      "elapsed_sec": 2.5165,
       "category_pass": true,
       "expected": {
         "category": "shoes",
@@ -8247,7 +8247,7 @@
           "validation": {
             "best_label": "a product image of one pair of shoes",
             "valid_score": 0.28090375661849976,
-            "invalid_score": 0.20980367064476013
+            "invalid_score": 0.20980370044708252
           }
         }
       },
@@ -8285,7 +8285,7 @@
       "group": "category",
       "subgroup": "skirt",
       "passed": true,
-      "elapsed_sec": 12.2053,
+      "elapsed_sec": 3.386,
       "category_pass": true,
       "expected": {
         "category": "skirt",
@@ -8487,8 +8487,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one skirt or one dress",
-            "valid_score": 0.32499194145202637,
-            "invalid_score": 0.24807816743850708
+            "valid_score": 0.32499203085899353,
+            "invalid_score": 0.24807819724082947
           }
         }
       },
@@ -8526,7 +8526,7 @@
       "group": "category",
       "subgroup": "skirt",
       "passed": true,
-      "elapsed_sec": 11.2003,
+      "elapsed_sec": 2.6605,
       "category_pass": true,
       "expected": {
         "category": "skirt",
@@ -8728,8 +8728,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one pair of pants",
-            "valid_score": 0.2993983328342438,
-            "invalid_score": 0.23915790021419525
+            "valid_score": 0.29939836263656616,
+            "invalid_score": 0.23915793001651764
           }
         }
       },
@@ -8767,7 +8767,7 @@
       "group": "category",
       "subgroup": "skirt",
       "passed": true,
-      "elapsed_sec": 10.9155,
+      "elapsed_sec": 2.4444,
       "category_pass": true,
       "expected": {
         "category": "skirt",
@@ -8969,8 +8969,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one skirt or one dress",
-            "valid_score": 0.2764159142971039,
-            "invalid_score": 0.23426054418087006
+            "valid_score": 0.27641594409942627,
+            "invalid_score": 0.23426052927970886
           }
         }
       },
@@ -9008,7 +9008,7 @@
       "group": "category",
       "subgroup": "skirt",
       "passed": false,
-      "elapsed_sec": 11.7612,
+      "elapsed_sec": 2.6145,
       "category_pass": false,
       "expected": {
         "category": "skirt",
@@ -9209,7 +9209,7 @@
           "validation": {
             "best_label": "a front-view product image of a single garment",
             "valid_score": 0.31003424525260925,
-            "invalid_score": 0.2765863537788391
+            "invalid_score": 0.2765863239765167
           }
         }
       },
@@ -9246,7 +9246,7 @@
       "group": "category",
       "subgroup": "skirt",
       "passed": true,
-      "elapsed_sec": 11.4077,
+      "elapsed_sec": 3.2186,
       "category_pass": true,
       "expected": {
         "category": "skirt",
@@ -9448,7 +9448,7 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one skirt or one dress",
-            "valid_score": 0.29912257194519043,
+            "valid_score": 0.2991226315498352,
             "invalid_score": 0.22036507725715637
           }
         }
@@ -9487,7 +9487,7 @@
       "group": "category",
       "subgroup": "skirt",
       "passed": true,
-      "elapsed_sec": 11.1364,
+      "elapsed_sec": 2.4031,
       "category_pass": true,
       "expected": {
         "category": "skirt",
@@ -9689,8 +9689,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one skirt or one dress",
-            "valid_score": 0.3031388521194458,
-            "invalid_score": 0.23409810662269592
+            "valid_score": 0.30313894152641296,
+            "invalid_score": 0.23409809172153473
           }
         }
       },
@@ -9728,7 +9728,7 @@
       "group": "category",
       "subgroup": "skirt",
       "passed": true,
-      "elapsed_sec": 11.9487,
+      "elapsed_sec": 3.4189,
       "category_pass": true,
       "expected": {
         "category": "skirt",
@@ -9930,7 +9930,7 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one skirt or one dress",
-            "valid_score": 0.3144081234931946,
+            "valid_score": 0.31440818309783936,
             "invalid_score": 0.2323329895734787
           }
         }
@@ -9969,7 +9969,7 @@
       "group": "category",
       "subgroup": "skirt",
       "passed": true,
-      "elapsed_sec": 10.775,
+      "elapsed_sec": 2.161,
       "category_pass": true,
       "expected": {
         "category": "skirt",
@@ -10171,7 +10171,7 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one skirt or one dress",
-            "valid_score": 0.32620906829833984,
+            "valid_score": 0.3262091279029846,
             "invalid_score": 0.2504520118236542
           }
         }
@@ -10210,7 +10210,7 @@
       "group": "category",
       "subgroup": "top",
       "passed": false,
-      "elapsed_sec": 11.9127,
+      "elapsed_sec": 2.7809,
       "category_pass": false,
       "expected": {
         "category": "top",
@@ -10412,7 +10412,7 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one jacket",
-            "valid_score": 0.32064089179039,
+            "valid_score": 0.32064083218574524,
             "invalid_score": 0.2597692608833313
           }
         }
@@ -10451,7 +10451,7 @@
       "group": "category",
       "subgroup": "top",
       "passed": true,
-      "elapsed_sec": 11.6764,
+      "elapsed_sec": 2.4705,
       "category_pass": true,
       "expected": {
         "category": "top",
@@ -10653,8 +10653,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a single clothing item centered on a clean background",
-            "valid_score": 0.30029985308647156,
-            "invalid_score": 0.2487172931432724
+            "valid_score": 0.3002997636795044,
+            "invalid_score": 0.24871733784675598
           }
         }
       },
@@ -10692,7 +10692,7 @@
       "group": "category",
       "subgroup": "top",
       "passed": true,
-      "elapsed_sec": 11.8135,
+      "elapsed_sec": 2.5351,
       "category_pass": true,
       "expected": {
         "category": "top",
@@ -10896,8 +10896,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one shirt",
-            "valid_score": 0.3099021315574646,
-            "invalid_score": 0.2509349286556244
+            "valid_score": 0.3099021017551422,
+            "invalid_score": 0.250934898853302
           }
         }
       },
@@ -10936,7 +10936,7 @@
       "group": "category",
       "subgroup": "top",
       "passed": true,
-      "elapsed_sec": 12.4155,
+      "elapsed_sec": 3.2518,
       "category_pass": true,
       "expected": {
         "category": "top",
@@ -11140,8 +11140,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one shirt",
-            "valid_score": 0.3205488622188568,
-            "invalid_score": 0.26485881209373474
+            "valid_score": 0.3205488324165344,
+            "invalid_score": 0.26485875248908997
           }
         }
       },
@@ -11180,7 +11180,7 @@
       "group": "category",
       "subgroup": "top",
       "passed": true,
-      "elapsed_sec": 11.1522,
+      "elapsed_sec": 2.5159,
       "category_pass": true,
       "expected": {
         "category": "top",
@@ -11384,8 +11384,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a single clothing item centered on a clean background",
-            "valid_score": 0.2951388657093048,
-            "invalid_score": 0.25062498450279236
+            "valid_score": 0.29513880610466003,
+            "invalid_score": 0.25062501430511475
           }
         }
       },
@@ -11424,7 +11424,7 @@
       "group": "category",
       "subgroup": "top",
       "passed": true,
-      "elapsed_sec": 11.6039,
+      "elapsed_sec": 3.009,
       "category_pass": true,
       "expected": {
         "category": "top",
@@ -11668,7 +11668,7 @@
       "group": "category",
       "subgroup": "top",
       "passed": true,
-      "elapsed_sec": 11.6147,
+      "elapsed_sec": 2.5239,
       "category_pass": true,
       "expected": {
         "category": "top",
@@ -11870,8 +11870,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one shirt",
-            "valid_score": 0.3261604905128479,
-            "invalid_score": 0.2722089886665344
+            "valid_score": 0.32616040110588074,
+            "invalid_score": 0.27220895886421204
           }
         }
       },
@@ -11909,7 +11909,7 @@
       "group": "category",
       "subgroup": "top",
       "passed": true,
-      "elapsed_sec": 11.5908,
+      "elapsed_sec": 2.3973,
       "category_pass": true,
       "expected": {
         "category": "top",
@@ -12111,7 +12111,7 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one shirt",
-            "valid_score": 0.33097997307777405,
+            "valid_score": 0.3309799134731293,
             "invalid_score": 0.2543630003929138
           }
         }
@@ -12150,7 +12150,7 @@
       "group": "color",
       "subgroup": "dark_gray_black",
       "passed": true,
-      "elapsed_sec": 11.8281,
+      "elapsed_sec": 2.6729,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -12353,7 +12353,7 @@
           "validation": {
             "best_label": "a product image of one jacket",
             "valid_score": 0.3081068992614746,
-            "invalid_score": 0.2468031942844391
+            "invalid_score": 0.24680325388908386
           }
         }
       },
@@ -12393,7 +12393,7 @@
       "group": "color",
       "subgroup": "dark_gray_black",
       "passed": true,
-      "elapsed_sec": 10.9699,
+      "elapsed_sec": 2.2401,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -12595,8 +12595,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one pair of shoes",
-            "valid_score": 0.2757638692855835,
-            "invalid_score": 0.2201622873544693
+            "valid_score": 0.2757638394832611,
+            "invalid_score": 0.2201622724533081
           }
         }
       },
@@ -12636,7 +12636,7 @@
       "group": "color",
       "subgroup": "dark_gray_black",
       "passed": true,
-      "elapsed_sec": 11.8055,
+      "elapsed_sec": 2.5636,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -12839,7 +12839,7 @@
           "validation": {
             "best_label": "a single isolated apparel item",
             "valid_score": 0.29995283484458923,
-            "invalid_score": 0.2462584227323532
+            "invalid_score": 0.24625848233699799
           }
         }
       },
@@ -12879,7 +12879,7 @@
       "group": "color",
       "subgroup": "earth_brown",
       "passed": true,
-      "elapsed_sec": 11.388,
+      "elapsed_sec": 2.6864,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -13082,7 +13082,7 @@
           "validation": {
             "best_label": "a product image of one pair of shoes",
             "valid_score": 0.2640714645385742,
-            "invalid_score": 0.21260975301265717
+            "invalid_score": 0.21260973811149597
           }
         }
       },
@@ -13122,7 +13122,7 @@
       "group": "color",
       "subgroup": "earth_brown",
       "passed": true,
-      "elapsed_sec": 11.0627,
+      "elapsed_sec": 2.1424,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -13324,8 +13324,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one skirt or one dress",
-            "valid_score": 0.3181905150413513,
-            "invalid_score": 0.23685292899608612
+            "valid_score": 0.3181905746459961,
+            "invalid_score": 0.2368529736995697
           }
         }
       },
@@ -13365,7 +13365,7 @@
       "group": "color",
       "subgroup": "earth_brown",
       "passed": true,
-      "elapsed_sec": 11.5564,
+      "elapsed_sec": 2.173,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -13568,7 +13568,7 @@
           "validation": {
             "best_label": "a single isolated apparel item",
             "valid_score": 0.26447123289108276,
-            "invalid_score": 0.23949070274829865
+            "invalid_score": 0.23949077725410461
           }
         }
       },
@@ -13608,7 +13608,7 @@
       "group": "color",
       "subgroup": "elegant_purple",
       "passed": true,
-      "elapsed_sec": 10.893,
+      "elapsed_sec": 2.2484,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -13808,7 +13808,7 @@
           "bbox": null,
           "validation": {
             "best_label": "a front-view product image of a single garment",
-            "valid_score": 0.26720356941223145,
+            "valid_score": 0.26720359921455383,
             "invalid_score": 0.26244494318962097
           }
         }
@@ -13848,7 +13848,7 @@
       "group": "color",
       "subgroup": "elegant_purple",
       "passed": true,
-      "elapsed_sec": 10.9498,
+      "elapsed_sec": 2.3868,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -14050,8 +14050,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one skirt or one dress",
-            "valid_score": 0.33554568886756897,
-            "invalid_score": 0.2449049949645996
+            "valid_score": 0.33554574847221375,
+            "invalid_score": 0.24490496516227722
           }
         }
       },
@@ -14091,7 +14091,7 @@
       "group": "color",
       "subgroup": "elegant_purple",
       "passed": true,
-      "elapsed_sec": 11.4046,
+      "elapsed_sec": 2.1705,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -14294,7 +14294,7 @@
           "validation": {
             "best_label": "a single clothing item centered on a clean background",
             "valid_score": 0.27195289731025696,
-            "invalid_score": 0.24137873947620392
+            "invalid_score": 0.2413787692785263
           }
         }
       },
@@ -14334,7 +14334,7 @@
       "group": "color",
       "subgroup": "fresh_blue",
       "passed": true,
-      "elapsed_sec": 10.9075,
+      "elapsed_sec": 2.3142,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -14534,7 +14534,7 @@
           "bbox": null,
           "validation": {
             "best_label": "a front-view product image of a single garment",
-            "valid_score": 0.2790622413158417,
+            "valid_score": 0.2790622115135193,
             "invalid_score": 0.2525315582752228
           }
         }
@@ -14574,7 +14574,7 @@
       "group": "color",
       "subgroup": "fresh_blue",
       "passed": true,
-      "elapsed_sec": 11.0358,
+      "elapsed_sec": 2.2111,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -14778,8 +14778,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one pair of pants",
-            "valid_score": 0.3000207841396332,
-            "invalid_score": 0.24654696881771088
+            "valid_score": 0.30002081394195557,
+            "invalid_score": 0.2465469390153885
           }
         }
       },
@@ -14820,7 +14820,7 @@
       "group": "color",
       "subgroup": "fresh_blue",
       "passed": true,
-      "elapsed_sec": 11.4937,
+      "elapsed_sec": 2.3127,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -15024,7 +15024,7 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one shirt",
-            "valid_score": 0.30251380801200867,
+            "valid_score": 0.3025137484073639,
             "invalid_score": 0.26588672399520874
           }
         }
@@ -15066,7 +15066,7 @@
       "group": "color",
       "subgroup": "light_beige",
       "passed": true,
-      "elapsed_sec": 11.5022,
+      "elapsed_sec": 2.7882,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -15271,7 +15271,7 @@
           "validation": {
             "best_label": "a product image of one pair of pants",
             "valid_score": 0.3181609809398651,
-            "invalid_score": 0.25121304392814636
+            "invalid_score": 0.251213014125824
           }
         }
       },
@@ -15312,7 +15312,7 @@
       "group": "color",
       "subgroup": "light_beige",
       "passed": true,
-      "elapsed_sec": 10.8971,
+      "elapsed_sec": 2.113,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -15555,7 +15555,7 @@
       "group": "color",
       "subgroup": "light_beige",
       "passed": true,
-      "elapsed_sec": 11.6294,
+      "elapsed_sec": 2.4861,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -15757,7 +15757,7 @@
           "bbox": null,
           "validation": {
             "best_label": "a single clothing item centered on a clean background",
-            "valid_score": 0.32544970512390137,
+            "valid_score": 0.325449675321579,
             "invalid_score": 0.2537970244884491
           }
         }
@@ -15798,7 +15798,7 @@
       "group": "color",
       "subgroup": "natural_green",
       "passed": true,
-      "elapsed_sec": 10.9718,
+      "elapsed_sec": 2.3818,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -16038,7 +16038,7 @@
       "group": "color",
       "subgroup": "natural_green",
       "passed": true,
-      "elapsed_sec": 11.5061,
+      "elapsed_sec": 2.2404,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -16240,8 +16240,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one jacket",
-            "valid_score": 0.30746734142303467,
-            "invalid_score": 0.23909392952919006
+            "valid_score": 0.3074672818183899,
+            "invalid_score": 0.23909397423267365
           }
         }
       },
@@ -16281,7 +16281,7 @@
       "group": "color",
       "subgroup": "natural_green",
       "passed": false,
-      "elapsed_sec": 11.4445,
+      "elapsed_sec": 2.1521,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -16483,7 +16483,7 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one shirt",
-            "valid_score": 0.3326674699783325,
+            "valid_score": 0.33266741037368774,
             "invalid_score": 0.27229684591293335
           }
         }
@@ -16524,7 +16524,7 @@
       "group": "color",
       "subgroup": "neutral_gray",
       "passed": true,
-      "elapsed_sec": 11.3262,
+      "elapsed_sec": 2.24,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -16726,8 +16726,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one jacket",
-            "valid_score": 0.3069040775299072,
-            "invalid_score": 0.2490931749343872
+            "valid_score": 0.30690404772758484,
+            "invalid_score": 0.24909311532974243
           }
         }
       },
@@ -16767,7 +16767,7 @@
       "group": "color",
       "subgroup": "neutral_gray",
       "passed": true,
-      "elapsed_sec": 10.9134,
+      "elapsed_sec": 2.1339,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -16972,7 +16972,7 @@
           "validation": {
             "best_label": "a product image of one pair of pants",
             "valid_score": 0.31665000319480896,
-            "invalid_score": 0.2508530616760254
+            "invalid_score": 0.250853031873703
           }
         }
       },
@@ -17013,7 +17013,7 @@
       "group": "color",
       "subgroup": "neutral_gray",
       "passed": false,
-      "elapsed_sec": 11.4332,
+      "elapsed_sec": 2.2457,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -17215,8 +17215,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a single isolated apparel item",
-            "valid_score": 0.3043278753757477,
-            "invalid_score": 0.24807672202587128
+            "valid_score": 0.30432790517807007,
+            "invalid_score": 0.24807678163051605
           }
         }
       },
@@ -17256,7 +17256,7 @@
       "group": "color",
       "subgroup": "pattern",
       "passed": true,
-      "elapsed_sec": 10.7406,
+      "elapsed_sec": 2.2771,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -17456,7 +17456,7 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one skirt or one dress",
-            "valid_score": 0.2638872563838959,
+            "valid_score": 0.26388728618621826,
             "invalid_score": 0.25664347410202026
           }
         }
@@ -17496,7 +17496,7 @@
       "group": "color",
       "subgroup": "pattern",
       "passed": true,
-      "elapsed_sec": 10.8135,
+      "elapsed_sec": 2.2378,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -17698,8 +17698,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one skirt or one dress",
-            "valid_score": 0.29637160897254944,
-            "invalid_score": 0.24275806546211243
+            "valid_score": 0.2963716685771942,
+            "invalid_score": 0.24275805056095123
           }
         }
       },
@@ -17739,7 +17739,7 @@
       "group": "color",
       "subgroup": "pattern",
       "passed": true,
-      "elapsed_sec": 12.6883,
+      "elapsed_sec": 2.4735,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -17943,8 +17943,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one shirt",
-            "valid_score": 0.2872498631477356,
-            "invalid_score": 0.24196526408195496
+            "valid_score": 0.28724977374076843,
+            "invalid_score": 0.24196529388427734
           }
         }
       },
@@ -17985,7 +17985,7 @@
       "group": "color",
       "subgroup": "rose_pink",
       "passed": false,
-      "elapsed_sec": 11.4778,
+      "elapsed_sec": 2.2886,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -18189,8 +18189,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a front-view product image of a single garment",
-            "valid_score": 0.2698933482170105,
-            "invalid_score": 0.24948255717754364
+            "valid_score": 0.2698933184146881,
+            "invalid_score": 0.24948258697986603
           }
         }
       },
@@ -18231,7 +18231,7 @@
       "group": "color",
       "subgroup": "rose_pink",
       "passed": false,
-      "elapsed_sec": 10.9795,
+      "elapsed_sec": 2.3484,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -18433,7 +18433,7 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one skirt or one dress",
-            "valid_score": 0.308415949344635,
+            "valid_score": 0.3084160089492798,
             "invalid_score": 0.25636082887649536
           }
         }
@@ -18474,7 +18474,7 @@
       "group": "color",
       "subgroup": "rose_pink",
       "passed": false,
-      "elapsed_sec": 11.414,
+      "elapsed_sec": 2.1094,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -18676,8 +18676,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one shirt",
-            "valid_score": 0.2869076728820801,
-            "invalid_score": 0.24835257232189178
+            "valid_score": 0.2869076132774353,
+            "invalid_score": 0.2483525574207306
           }
         }
       },
@@ -18717,7 +18717,7 @@
       "group": "color",
       "subgroup": "warm_orange_red",
       "passed": true,
-      "elapsed_sec": 10.9906,
+      "elapsed_sec": 2.4654,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -18917,7 +18917,7 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one skirt or one dress",
-            "valid_score": 0.28666508197784424,
+            "valid_score": 0.2866651117801666,
             "invalid_score": 0.2665892243385315
           }
         }
@@ -18957,7 +18957,7 @@
       "group": "color",
       "subgroup": "warm_orange_red",
       "passed": true,
-      "elapsed_sec": 11.1589,
+      "elapsed_sec": 2.2127,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -19159,8 +19159,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one pair of shoes",
-            "valid_score": 0.28192561864852905,
-            "invalid_score": 0.21429437398910522
+            "valid_score": 0.28192558884620667,
+            "invalid_score": 0.21429435908794403
           }
         }
       },
@@ -19200,7 +19200,7 @@
       "group": "color",
       "subgroup": "warm_orange_red",
       "passed": true,
-      "elapsed_sec": 11.4121,
+      "elapsed_sec": 2.3099,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -19402,8 +19402,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one shirt",
-            "valid_score": 0.2832075357437134,
-            "invalid_score": 0.25139373540878296
+            "valid_score": 0.2832074761390686,
+            "invalid_score": 0.25139376521110535
           }
         }
       },
@@ -19443,7 +19443,7 @@
       "group": "edge_cases",
       "subgroup": "",
       "passed": true,
-      "elapsed_sec": 11.9719,
+      "elapsed_sec": 2.5752,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -19646,7 +19646,7 @@
           "validation": {
             "best_label": "a single isolated apparel item",
             "valid_score": 0.2856212258338928,
-            "invalid_score": 0.23793025314807892
+            "invalid_score": 0.2379302829504013
           }
         }
       },
@@ -19684,7 +19684,7 @@
       "group": "edge_cases",
       "subgroup": "",
       "passed": true,
-      "elapsed_sec": 11.5843,
+      "elapsed_sec": 2.2972,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -19888,7 +19888,7 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one shirt",
-            "valid_score": 0.2882927656173706,
+            "valid_score": 0.28829270601272583,
             "invalid_score": 0.2532997131347656
           }
         }
@@ -19928,7 +19928,7 @@
       "group": "edge_cases",
       "subgroup": "",
       "passed": true,
-      "elapsed_sec": 12.4271,
+      "elapsed_sec": 3.1034,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -20130,7 +20130,7 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one jacket",
-            "valid_score": 0.2833251953125,
+            "valid_score": 0.2833251655101776,
             "invalid_score": 0.2352277785539627
           }
         }
@@ -20169,7 +20169,7 @@
       "group": "edge_cases",
       "subgroup": "",
       "passed": true,
-      "elapsed_sec": 12.7503,
+      "elapsed_sec": 3.7108,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -20371,8 +20371,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one jacket",
-            "valid_score": 0.31217509508132935,
-            "invalid_score": 0.24410417675971985
+            "valid_score": 0.31217506527900696,
+            "invalid_score": 0.24410423636436462
           }
         }
       },
@@ -20410,7 +20410,7 @@
       "group": "edge_cases",
       "subgroup": "",
       "passed": true,
-      "elapsed_sec": 11.1924,
+      "elapsed_sec": 2.7245,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -20612,8 +20612,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one skirt or one dress",
-            "valid_score": 0.29712674021720886,
-            "invalid_score": 0.24628466367721558
+            "valid_score": 0.297126829624176,
+            "invalid_score": 0.2462846338748932
           }
         }
       },
@@ -20651,7 +20651,7 @@
       "group": "edge_cases",
       "subgroup": "",
       "passed": true,
-      "elapsed_sec": 11.7173,
+      "elapsed_sec": 2.5904,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -20853,8 +20853,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one jacket",
-            "valid_score": 0.29976168274879456,
-            "invalid_score": 0.2503136396408081
+            "valid_score": 0.29976165294647217,
+            "invalid_score": 0.2503136992454529
           }
         }
       },
@@ -20892,7 +20892,7 @@
       "group": "edge_cases",
       "subgroup": "",
       "passed": true,
-      "elapsed_sec": 11.0547,
+      "elapsed_sec": 2.5121,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -21092,7 +21092,7 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one skirt or one dress",
-            "valid_score": 0.2860151529312134,
+            "valid_score": 0.28601521253585815,
             "invalid_score": 0.25412270426750183
           }
         }
@@ -21130,7 +21130,7 @@
       "group": "edge_cases",
       "subgroup": "",
       "passed": true,
-      "elapsed_sec": 12.0751,
+      "elapsed_sec": 2.857,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -21334,8 +21334,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one shirt",
-            "valid_score": 0.31598442792892456,
-            "invalid_score": 0.2593057453632355
+            "valid_score": 0.3159843683242798,
+            "invalid_score": 0.25930577516555786
           }
         }
       },
@@ -21374,7 +21374,7 @@
       "group": "edge_cases",
       "subgroup": "",
       "passed": true,
-      "elapsed_sec": 10.8627,
+      "elapsed_sec": 2.303,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -21576,8 +21576,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one skirt or one dress",
-            "valid_score": 0.3001404404640198,
-            "invalid_score": 0.23361650109291077
+            "valid_score": 0.30014050006866455,
+            "invalid_score": 0.23361654579639435
           }
         }
       },
@@ -21615,7 +21615,7 @@
       "group": "edge_cases",
       "subgroup": "",
       "passed": true,
-      "elapsed_sec": 11.8522,
+      "elapsed_sec": 2.5926,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -21818,7 +21818,7 @@
           "validation": {
             "best_label": "a single isolated apparel item",
             "valid_score": 0.2921767830848694,
-            "invalid_score": 0.2491828054189682
+            "invalid_score": 0.24918286502361298
           }
         }
       },
@@ -21856,7 +21856,7 @@
       "group": "occasion",
       "subgroup": "business_casual",
       "passed": true,
-      "elapsed_sec": 11.4084,
+      "elapsed_sec": 2.2284,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -22101,7 +22101,7 @@
       "group": "occasion",
       "subgroup": "business_casual",
       "passed": true,
-      "elapsed_sec": 11.0614,
+      "elapsed_sec": 2.2884,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -22305,8 +22305,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one pair of shoes",
-            "valid_score": 0.2758163809776306,
-            "invalid_score": 0.2125176340341568
+            "valid_score": 0.2758163511753082,
+            "invalid_score": 0.2125176638364792
           }
         }
       },
@@ -22346,7 +22346,7 @@
       "group": "occasion",
       "subgroup": "business_casual",
       "passed": true,
-      "elapsed_sec": 11.5579,
+      "elapsed_sec": 2.3247,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -22552,8 +22552,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one shirt",
-            "valid_score": 0.30172067880630493,
-            "invalid_score": 0.2478250414133072
+            "valid_score": 0.30172061920166016,
+            "invalid_score": 0.247825026512146
           }
         }
       },
@@ -22594,7 +22594,7 @@
       "group": "occasion",
       "subgroup": "business_casual",
       "passed": true,
-      "elapsed_sec": 11.0994,
+      "elapsed_sec": 2.3605,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -22800,8 +22800,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one pair of pants",
-            "valid_score": 0.3139954209327698,
-            "invalid_score": 0.25446632504463196
+            "valid_score": 0.3139953911304474,
+            "invalid_score": 0.2544662356376648
           }
         }
       },
@@ -22842,7 +22842,7 @@
       "group": "occasion",
       "subgroup": "campus_casual",
       "passed": false,
-      "elapsed_sec": 11.9063,
+      "elapsed_sec": 2.505,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -23046,8 +23046,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one jacket",
-            "valid_score": 0.2859450876712799,
-            "invalid_score": 0.2370395064353943
+            "valid_score": 0.2859451174736023,
+            "invalid_score": 0.2370394766330719
           }
         }
       },
@@ -23087,7 +23087,7 @@
       "group": "occasion",
       "subgroup": "campus_casual",
       "passed": true,
-      "elapsed_sec": 11.0985,
+      "elapsed_sec": 2.3463,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -23291,7 +23291,7 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one pair of pants",
-            "valid_score": 0.294301837682724,
+            "valid_score": 0.2943017780780792,
             "invalid_score": 0.2582719922065735
           }
         }
@@ -23332,7 +23332,7 @@
       "group": "occasion",
       "subgroup": "campus_casual",
       "passed": true,
-      "elapsed_sec": 11.0652,
+      "elapsed_sec": 2.2572,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -23537,7 +23537,7 @@
           "validation": {
             "best_label": "a product image of one pair of shoes",
             "valid_score": 0.2950078248977661,
-            "invalid_score": 0.22100535035133362
+            "invalid_score": 0.221005380153656
           }
         }
       },
@@ -23577,7 +23577,7 @@
       "group": "occasion",
       "subgroup": "campus_casual",
       "passed": true,
-      "elapsed_sec": 12.2955,
+      "elapsed_sec": 3.2326,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -23782,7 +23782,7 @@
           "validation": {
             "best_label": "a single clothing item centered on a clean background",
             "valid_score": 0.30179476737976074,
-            "invalid_score": 0.2419705092906952
+            "invalid_score": 0.24197055399417877
           }
         }
       },
@@ -23822,7 +23822,7 @@
       "group": "occasion",
       "subgroup": "professional",
       "passed": false,
-      "elapsed_sec": 13.0142,
+      "elapsed_sec": 2.6156,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -24027,7 +24027,7 @@
           "validation": {
             "best_label": "a product image of one jacket",
             "valid_score": 0.28452789783477783,
-            "invalid_score": 0.24440422654151917
+            "invalid_score": 0.24440424144268036
           }
         }
       },
@@ -24067,7 +24067,7 @@
       "group": "occasion",
       "subgroup": "professional",
       "passed": true,
-      "elapsed_sec": 12.7324,
+      "elapsed_sec": 2.3053,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -24312,7 +24312,7 @@
       "group": "occasion",
       "subgroup": "professional",
       "passed": true,
-      "elapsed_sec": 11.6296,
+      "elapsed_sec": 2.2039,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -24518,8 +24518,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one shirt",
-            "valid_score": 0.3142119348049164,
-            "invalid_score": 0.264608770608902
+            "valid_score": 0.314211905002594,
+            "invalid_score": 0.2646087408065796
           }
         }
       },
@@ -24560,7 +24560,7 @@
       "group": "occasion",
       "subgroup": "professional",
       "passed": true,
-      "elapsed_sec": 11.54,
+      "elapsed_sec": 2.1187,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -24766,7 +24766,7 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one pair of pants",
-            "valid_score": 0.3117120862007141,
+            "valid_score": 0.3117120563983917,
             "invalid_score": 0.26118749380111694
           }
         }
@@ -24808,7 +24808,7 @@
       "group": "occasion",
       "subgroup": "social",
       "passed": false,
-      "elapsed_sec": 11.3521,
+      "elapsed_sec": 2.7717,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -25053,7 +25053,7 @@
       "group": "occasion",
       "subgroup": "social",
       "passed": true,
-      "elapsed_sec": 12.0826,
+      "elapsed_sec": 2.2921,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -25255,7 +25255,7 @@
           "bbox": null,
           "validation": {
             "best_label": "a front-view product image of a single garment",
-            "valid_score": 0.27700668573379517,
+            "valid_score": 0.2770066559314728,
             "invalid_score": 0.24956196546554565
           }
         }
@@ -25295,7 +25295,7 @@
       "group": "occasion",
       "subgroup": "social",
       "passed": true,
-      "elapsed_sec": 11.3761,
+      "elapsed_sec": 2.5715,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -25499,8 +25499,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one pair of shoes",
-            "valid_score": 0.27595990896224976,
-            "invalid_score": 0.22452841699123383
+            "valid_score": 0.27595987915992737,
+            "invalid_score": 0.22452843189239502
           }
         }
       },
@@ -25540,7 +25540,7 @@
       "group": "occasion",
       "subgroup": "social",
       "passed": true,
-      "elapsed_sec": 11.1711,
+      "elapsed_sec": 2.6476,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -25744,7 +25744,7 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one skirt or one dress",
-            "valid_score": 0.32889264822006226,
+            "valid_score": 0.32889270782470703,
             "invalid_score": 0.2441057413816452
           }
         }
@@ -25785,7 +25785,7 @@
       "group": "season",
       "subgroup": "autumn",
       "passed": true,
-      "elapsed_sec": 11.5483,
+      "elapsed_sec": 2.635,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -26030,7 +26030,7 @@
       "group": "season",
       "subgroup": "autumn",
       "passed": true,
-      "elapsed_sec": 11.7262,
+      "elapsed_sec": 2.4111,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -26235,7 +26235,7 @@
           "validation": {
             "best_label": "a single isolated apparel item",
             "valid_score": 0.25616225600242615,
-            "invalid_score": 0.22546078264713287
+            "invalid_score": 0.22546081244945526
           }
         }
       },
@@ -26275,7 +26275,7 @@
       "group": "season",
       "subgroup": "autumn",
       "passed": true,
-      "elapsed_sec": 11.1653,
+      "elapsed_sec": 2.4884,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -26520,7 +26520,7 @@
       "group": "season",
       "subgroup": "autumn",
       "passed": true,
-      "elapsed_sec": 11.441,
+      "elapsed_sec": 2.4117,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -26724,7 +26724,7 @@
           "bbox": null,
           "validation": {
             "best_label": "a front-view product image of a single garment",
-            "valid_score": 0.2993648648262024,
+            "valid_score": 0.29936483502388,
             "invalid_score": 0.269549697637558
           }
         }
@@ -26765,7 +26765,7 @@
       "group": "season",
       "subgroup": "spring",
       "passed": false,
-      "elapsed_sec": 11.4461,
+      "elapsed_sec": 2.2708,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -26969,7 +26969,7 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one jacket",
-            "valid_score": 0.3011881411075592,
+            "valid_score": 0.3011881113052368,
             "invalid_score": 0.25434598326683044
           }
         }
@@ -27010,7 +27010,7 @@
       "group": "season",
       "subgroup": "spring",
       "passed": true,
-      "elapsed_sec": 11.2154,
+      "elapsed_sec": 2.3529,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -27215,7 +27215,7 @@
           "validation": {
             "best_label": "a product image of one pair of shoes",
             "valid_score": 0.28276312351226807,
-            "invalid_score": 0.21076540648937225
+            "invalid_score": 0.21076548099517822
           }
         }
       },
@@ -27255,7 +27255,7 @@
       "group": "season",
       "subgroup": "spring",
       "passed": true,
-      "elapsed_sec": 10.9527,
+      "elapsed_sec": 2.3121,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -27459,7 +27459,7 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one skirt or one dress",
-            "valid_score": 0.3037087619304657,
+            "valid_score": 0.3037087917327881,
             "invalid_score": 0.25402241945266724
           }
         }
@@ -27500,7 +27500,7 @@
       "group": "season",
       "subgroup": "spring",
       "passed": false,
-      "elapsed_sec": 10.8411,
+      "elapsed_sec": 2.274,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -27704,7 +27704,7 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one jacket",
-            "valid_score": 0.2883830666542053,
+            "valid_score": 0.28838303685188293,
             "invalid_score": 0.24871492385864258
           }
         }
@@ -27745,7 +27745,7 @@
       "group": "season",
       "subgroup": "summer",
       "passed": true,
-      "elapsed_sec": 11.431,
+      "elapsed_sec": 2.3833,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -27947,8 +27947,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one pair of shoes",
-            "valid_score": 0.2809905707836151,
-            "invalid_score": 0.219497412443161
+            "valid_score": 0.2809905409812927,
+            "invalid_score": 0.2194974273443222
           }
         }
       },
@@ -27987,7 +27987,7 @@
       "group": "season",
       "subgroup": "summer",
       "passed": true,
-      "elapsed_sec": 11.4105,
+      "elapsed_sec": 2.4095,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -28190,7 +28190,7 @@
           "validation": {
             "best_label": "a product image of one pair of pants",
             "valid_score": 0.29609423875808716,
-            "invalid_score": 0.24642352759838104
+            "invalid_score": 0.24642357230186462
           }
         }
       },
@@ -28229,7 +28229,7 @@
       "group": "season",
       "subgroup": "summer",
       "passed": true,
-      "elapsed_sec": 10.9148,
+      "elapsed_sec": 2.2749,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -28431,8 +28431,8 @@
           "bbox": null,
           "validation": {
             "best_label": "a single clothing item centered on a clean background",
-            "valid_score": 0.27013716101646423,
-            "invalid_score": 0.25368380546569824
+            "valid_score": 0.2701371908187866,
+            "invalid_score": 0.253683865070343
           }
         }
       },
@@ -28471,7 +28471,7 @@
       "group": "season",
       "subgroup": "summer",
       "passed": true,
-      "elapsed_sec": 11.4854,
+      "elapsed_sec": 2.137,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -28674,7 +28674,7 @@
           "validation": {
             "best_label": "a front-view product image of a single garment",
             "valid_score": 0.29275670647621155,
-            "invalid_score": 0.25158169865608215
+            "invalid_score": 0.25158172845840454
           }
         }
       },
@@ -28713,7 +28713,7 @@
       "group": "season",
       "subgroup": "winter",
       "passed": true,
-      "elapsed_sec": 11.3882,
+      "elapsed_sec": 2.3761,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -28917,7 +28917,7 @@
           "bbox": null,
           "validation": {
             "best_label": "a product image of one pair of shoes",
-            "valid_score": 0.2557526230812073,
+            "valid_score": 0.2557525932788849,
             "invalid_score": 0.21328124403953552
           }
         }
@@ -28958,7 +28958,7 @@
       "group": "season",
       "subgroup": "winter",
       "passed": true,
-      "elapsed_sec": 11.9055,
+      "elapsed_sec": 2.5655,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -29163,7 +29163,7 @@
           "validation": {
             "best_label": "a product image of one jacket",
             "valid_score": 0.29559874534606934,
-            "invalid_score": 0.22117474675178528
+            "invalid_score": 0.22117477655410767
           }
         }
       },
@@ -29203,7 +29203,7 @@
       "group": "season",
       "subgroup": "winter",
       "passed": true,
-      "elapsed_sec": 11.735,
+      "elapsed_sec": 2.3359,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -29408,7 +29408,7 @@
           "validation": {
             "best_label": "a product image of one jacket",
             "valid_score": 0.2867810130119324,
-            "invalid_score": 0.24342460930347443
+            "invalid_score": 0.24342456459999084
           }
         }
       },
@@ -29448,7 +29448,7 @@
       "group": "season",
       "subgroup": "winter",
       "passed": true,
-      "elapsed_sec": 11.7239,
+      "elapsed_sec": 2.4333,
       "category_pass": false,
       "expected": {
         "category": "",
@@ -29653,7 +29653,7 @@
           "validation": {
             "best_label": "a single isolated apparel item",
             "valid_score": 0.2969948947429657,
-            "invalid_score": 0.2545756995677948
+            "invalid_score": 0.2545757293701172
           }
         }
       },

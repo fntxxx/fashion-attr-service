@@ -8,6 +8,8 @@ _model = None
 _preprocess = None
 _tokenizer = None
 
+_text_feature_cache = {}
+
 
 def get_clip_model():
     global _model, _preprocess, _tokenizer
@@ -36,14 +38,24 @@ def _encode_image_and_texts(image: Image.Image, labels):
         labels = list(labels)
 
     image_input = preprocess(image).unsqueeze(0).to(DEVICE)
-    text_input = tokenizer(labels).to(DEVICE)
+
+    # labels 轉成 tuple 當 cache key
+    cache_key = tuple(labels)
+
+    if cache_key in _text_feature_cache:
+        text_features = _text_feature_cache[cache_key]
+    else:
+        text_input = tokenizer(labels).to(DEVICE)
+
+        with torch.no_grad():
+            text_features = model.encode_text(text_input)
+            text_features = text_features / text_features.norm(dim=-1, keepdim=True)
+
+        _text_feature_cache[cache_key] = text_features
 
     with torch.no_grad():
         image_features = model.encode_image(image_input)
-        text_features = model.encode_text(text_input)
-
         image_features = image_features / image_features.norm(dim=-1, keepdim=True)
-        text_features = text_features / text_features.norm(dim=-1, keepdim=True)
 
     return image_features, text_features, labels
 
