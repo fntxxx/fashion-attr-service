@@ -17,8 +17,7 @@ from services.extract_color import (
 DATASET_DIR = Path(r"D:\DevData\attr_quality_testset")
 
 TARGET_FILES = [
-    "color_natural_green_top_01.jpg",
-    "color_warm_orange_red_shoes_03.jpg",
+    "color_rose_pink_dress_03.jpg",
 ]
 
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}

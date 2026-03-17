@@ -25,6 +25,7 @@ COLOR_TONE_TO_UI = {
     "卡其色系": ["earth_brown"],
     "咖啡色系": ["earth_brown"],
     "紅色系": ["warm_orange_red"],
+    "粉紅色系": ["rose_pink"],
     "綠色系": ["natural_green"],
     "藍色系": ["fresh_blue"],
     "紫色系": ["elegant_purple"],

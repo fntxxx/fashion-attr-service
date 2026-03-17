@@ -218,24 +218,41 @@ def _classify_color_from_hsv(hsv: np.ndarray, weights: np.ndarray) -> str:
     dark_ratio = float(np.sum(weights[val <= 0.30]) / total)
     low_sat_ratio = float(np.sum(weights[sat <= 0.16]) / total)
 
-    if very_dark_ratio >= 0.58:
-        return "黑色系"
+    # ===== 淡粉（低飽和但偏紅）優先攔截 =====
+    avg_v = float(np.average(val, weights=weights))
+    avg_s = float(np.average(sat, weights=weights))
+    redish_ratio = float(
+        np.sum(weights[((hue >= 320) | (hue < 20))]) / total
+    )
+
+    pinkish_ratio = float(
+        np.sum(weights[
+            ((hue >= 320) | (hue < 20)) &
+            (sat >= 0.08) & (sat <= 0.70) &
+            (val >= 0.60)
+        ]) / total
+    )
+
+    if pinkish_ratio >= 0.55:
+        return "粉紅色系"
 
     # 白 / 米 / 灰
-    if low_sat_ratio >= 0.68:
+    if low_sat_ratio >= 0.60:
         avg_v = float(np.average(val, weights=weights))
         avg_s = float(np.average(sat, weights=weights))
-        avg_h = float(np.average(hue, weights=weights))
+        beigeish_ratio = float(
+            np.sum(weights[(hue >= 30) & (hue <= 70)]) / total
+        )
+
+        if avg_v <= 0.26 and dark_ratio >= 0.80:
+            return "黑色系"
 
         if avg_v >= 0.88 and avg_s <= 0.08:
             return "白色系"
 
         # 米色通常亮、低到中低飽和，且偏黃棕區
-        if avg_v >= 0.58 and avg_s <= 0.22 and (30 <= avg_h <= 70):
+        if avg_v >= 0.58 and avg_s <= 0.22 and beigeish_ratio >= 0.35:
             return "米色系"
-
-        if avg_v <= 0.34 or dark_ratio >= 0.52:
-            return "黑色系"
 
         return "灰色系"
 
@@ -261,9 +278,14 @@ def _classify_color_from_hsv(hsv: np.ndarray, weights: np.ndarray) -> str:
 
     # 紅 / 橘 / 粉
     if (h_center >= 345 or h_center < 20):
+        # rose pink：高亮 + 中低飽和
+        if 0.10 <= s_center <= 0.50 and v_center >= 0.60:
+            return "粉紅色系"
+
         # 深暖棕常被量化到 0~20 度，先擋掉
         if 0.28 <= s_center <= 0.55 and v_center <= 0.52:
             return "咖啡色系"
+
         return "紅色系"
 
     if 20 <= h_center < 45:
@@ -299,11 +321,8 @@ def _classify_color_from_hsv(hsv: np.ndarray, weights: np.ndarray) -> str:
         return "紫色系"
 
     if 320 <= h_center < 345:
-
-        # pink detection
-        if v_center >= 0.65 and s_center <= 0.45:
-            return "紅色系"
-
+        if 0.10 <= s_center <= 0.46 and v_center >= 0.58:
+            return "粉紅色系"
         return "紅色系"
 
     return "灰色系"
@@ -311,9 +330,9 @@ def _classify_color_from_hsv(hsv: np.ndarray, weights: np.ndarray) -> str:
 
 def extract_color(image: Image.Image) -> str:
     """
-    回傳舊系統相容色系：
+    回傳色系：
     白色系 / 米色系 / 黑色系 / 灰色系 / 卡其色系 / 咖啡色系 /
-    紅色系 / 綠色系 / 藍色系 / 紫色系 / 花紋圖案
+    紅色系 / 粉紅色系 / 綠色系 / 藍色系 / 紫色系 / 花紋圖案
     """
     img = _resize_for_color(image, 256)
     arr = np.array(img)
