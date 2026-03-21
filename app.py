@@ -2,7 +2,7 @@ from fastapi import FastAPI, UploadFile, File
 from PIL import Image
 import io
 
-from models.clip_model import encode_image_feature
+from models.clip_model import encode_image_feature, get_clip_model
 from services.classify_category import classify_category
 from services.extract_color import extract_color
 from services.infer_meta import (
@@ -20,6 +20,52 @@ from utils.color_tags import build_color_payload
 
 app = FastAPI()
 
+
+def run_warmup() -> dict:
+    try:
+        # 先確保 CLIP 模型已載入
+        get_clip_model()
+
+        # 用極小 dummy 圖走過主要路徑，讓推論前置初始化先完成
+        dummy = Image.new("RGB", (224, 224), (255, 255, 255))
+
+        image_features = encode_image_feature(dummy)
+
+        validation = validate_fashion_input(dummy)
+        coarse_info = detect_coarse_fashion_type(
+            dummy,
+            image_features=image_features,
+        )
+        category_result = classify_category(
+            dummy,
+            image_features=image_features,
+        )
+        color_tone = extract_color(dummy)
+        color_payload = build_color_payload(color_tone)
+
+        return {
+            "ok": True,
+            "service": "fashion-attr-service",
+            "warmup": {
+                "validation_best_label": validation["best_label"],
+                "coarse_type": coarse_info["coarse_type"],
+                "category": category_result["categoryKey"],
+                "color_tone": color_payload["colorTone"],
+            },
+        }
+    except Exception as e:
+        return {
+            "ok": False,
+            "service": "fashion-attr-service",
+            "error": str(e),
+        }
+
+
+@app.on_event("startup")
+def startup_event():
+    result = run_warmup()
+    if not result["ok"]:
+        raise RuntimeError(f"fashion-attr warmup failed: {result['error']}")
 
 CATEGORY_UI_OPTIONS = [
     ("top", "上衣"),
@@ -95,7 +141,19 @@ def build_category_selection(category_result: dict) -> dict:
 
 @app.get("/")
 def health():
-    return {"status": "ok"}
+    return {
+        "ok": True,
+        "service": "fashion-attr-service",
+        "endpoints": {
+            "warmup": "/warmup",
+            "predict": "POST /predict",
+        },
+    }
+
+
+@app.get("/warmup")
+def warmup():
+    return run_warmup()
 
 
 @app.post("/predict")
