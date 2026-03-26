@@ -11,7 +11,6 @@ from services.extract_color import (
     _center_weight_mask,
     _rgb_to_hsv_np,
     _weighted_hsv_hist,
-    _is_pattern,
 )
 
 DATASET_DIR = Path(r"D:\DevData\attr_quality_testset")
@@ -111,7 +110,6 @@ def main():
 
         print("=" * 80)
         print(fname)
-        print(f"is_pattern={_is_pattern(hsv, weights)}")
         print(f"colorful_ratio={colorful_ratio:.4f}")
         print(f"bright_ratio={bright_ratio:.4f}")
         print(f"dominant_ratio={dominant_ratio:.4f}")

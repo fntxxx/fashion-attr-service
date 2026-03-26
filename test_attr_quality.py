@@ -138,13 +138,11 @@ def evaluate_one(label_row: dict[str, Any]) -> dict[str, Any]:
             "elapsed_sec": round(elapsed_sec, 4),
         }
 
-    predicted_category = (
-        result.get("categorySelection", {}).get("selected")
-        or ""
-    )
-    predicted_colors = result.get("colors", {}).get("selected", []) or []
-    predicted_occasions = result.get("occasions", {}).get("selected", []) or []
-    predicted_seasons = result.get("seasons", {}).get("selected", []) or []
+    predicted_category = str(result.get("category") or "")
+    predicted_color = str(result.get("color") or "")
+    predicted_colors = [predicted_color] if predicted_color else []
+    predicted_occasions = result.get("occasion", []) or []
+    predicted_seasons = result.get("season", []) or []
 
     category_pass = predicted_category == label_row["expected_category"]
     expected_color_list = [label_row["expected_color"]] if label_row["expected_color"] else []
@@ -331,7 +329,7 @@ def summarize(results: list[dict[str, Any]]) -> dict[str, Any]:
                 "expected": r["expected"]["occasions"],
                 "predicted": r["actual"]["occasions"],
                 "main_category_key": r["actual"]["raw"].get("mainCategoryKey"),
-                "fine_category_key": r["actual"]["raw"].get("categoryKey"),
+                "name": r["actual"]["raw"].get("name"),
             }
             for r in occasion_rows
             if r["occasion_eval"]["hit_count"] == 0
@@ -344,7 +342,7 @@ def summarize(results: list[dict[str, Any]]) -> dict[str, Any]:
                 "expected": r["expected"]["seasons"],
                 "predicted": r["actual"]["seasons"],
                 "main_category_key": r["actual"]["raw"].get("mainCategoryKey"),
-                "fine_category_key": r["actual"]["raw"].get("categoryKey"),
+                "name": r["actual"]["raw"].get("name"),
             }
             for r in season_rows
             if r["season_eval"]["hit_count"] == 0

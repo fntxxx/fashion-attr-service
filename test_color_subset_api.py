@@ -27,8 +27,8 @@ IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 # 先測你目前最在意的 subgroup
 TARGET_SUBGROUPS = {
     "earth_brown",
+    "butter_yellow",
     "rose_pink",
-    "pattern",
     # 想加防退化保護時再打開
     # "light_beige",
     # "warm_orange_red",
@@ -83,19 +83,21 @@ def parse_predicted_color(data: Dict[str, Any]) -> Optional[str]:
     依優先順序抓 color 結果。
     """
 
-    # 1. 直接 colorTone
-    value = data.get("colorTone")
+    # 1. 直接 color
+    value = data.get("color")
     if isinstance(value, str) and value.strip():
         return value.strip()
 
-    # 2. colors.selected[0]
-    colors = data.get("colors")
-    if isinstance(colors, dict):
-        selected = colors.get("selected")
-        if isinstance(selected, list) and selected:
-            first = selected[0]
-            if isinstance(first, str) and first.strip():
-                return first.strip()
+    # 2. candidates.color[0].value
+    candidates = data.get("candidates")
+    if isinstance(candidates, dict):
+        color_candidates = candidates.get("color")
+        if isinstance(color_candidates, list) and color_candidates:
+            first = color_candidates[0]
+            if isinstance(first, dict):
+                value = first.get("value")
+                if isinstance(value, str) and value.strip():
+                    return value.strip()
 
     # 3. scores / nested 結構不處理，避免亂猜
     return None

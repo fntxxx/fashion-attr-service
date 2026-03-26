@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any
+from utils.scoring import build_candidates
 
 
 COLOR_UI_OPTIONS = [
@@ -8,46 +8,40 @@ COLOR_UI_OPTIONS = [
     ("dark_gray_black", "深灰黑"),
     ("neutral_gray", "中性灰"),
     ("earth_brown", "大地棕"),
+    ("butter_yellow", "奶油黃"),
     ("warm_orange_red", "暖橘紅"),
-    ("rose_pink", "粉嫩玫瑰"),
+    ("rose_pink", "粉桃紅"),
     ("natural_green", "自然綠"),
     ("fresh_blue", "清爽藍"),
     ("elegant_purple", "優雅紫"),
-    ("pattern", "花紋圖案"),
 ]
 
-
 COLOR_TONE_TO_UI = {
-    "白色系": ["light_beige"],
-    "米色系": ["light_beige"],
-    "黑色系": ["dark_gray_black"],
-    "灰色系": ["neutral_gray"],
-    "卡其色系": ["earth_brown"],
-    "咖啡色系": ["earth_brown"],
-    "紅色系": ["warm_orange_red"],
-    "粉紅色系": ["rose_pink"],
-    "綠色系": ["natural_green"],
-    "藍色系": ["fresh_blue"],
-    "紫色系": ["elegant_purple"],
-    "花紋圖案": ["pattern"],
+    "白色系": "light_beige",
+    "米色系": "light_beige",
+    "黑色系": "dark_gray_black",
+    "灰色系": "neutral_gray",
+    "卡其色系": "earth_brown",
+    "咖啡色系": "earth_brown",
+    "黃色系": "butter_yellow",
+    "紅色系": "warm_orange_red",
+    "粉紅色系": "rose_pink",
+    "綠色系": "natural_green",
+    "藍色系": "fresh_blue",
+    "紫色系": "elegant_purple",
 }
 
 COLOR_VALUE_TO_LABEL = {value: label for value, label in COLOR_UI_OPTIONS}
 
 
-def color_tone_to_tags(color_tone: str):
-    values = COLOR_TONE_TO_UI.get(color_tone, [])
-    return [COLOR_VALUE_TO_LABEL[value] for value in values]
+def _build_color_score_map(color_tone: str) -> dict[str, float]:
+    selected_value = COLOR_TONE_TO_UI.get(color_tone)
+    score_map: dict[str, float] = {}
 
-
-def _build_color_candidates(color_tone: str) -> list[dict[str, Any]]:
-    selected_values = set(COLOR_TONE_TO_UI.get(color_tone, []))
-    candidates = []
-
-    for value, label in COLOR_UI_OPTIONS:
+    for value, _label in COLOR_UI_OPTIONS:
         score = 0.04
 
-        if value in selected_values:
+        if value == selected_value:
             score = 0.92
 
         if color_tone in {"白色系", "米色系"}:
@@ -58,39 +52,39 @@ def _build_color_candidates(color_tone: str) -> list[dict[str, Any]]:
 
         if color_tone in {"黑色系", "灰色系"}:
             if value in {"dark_gray_black", "neutral_gray"}:
-                score = max(score, 0.72 if value not in selected_values else score)
+                score = max(score, 0.72 if value != selected_value else score)
 
-        if color_tone in {"卡其色系", "咖啡色系"}:
+        if color_tone in {"卡其色系", "咖啡色系", "黃色系"}:
             if value == "light_beige":
                 score = max(score, 0.24)
+            if color_tone == "黃色系" and value == "earth_brown":
+                score = max(score, 0.16)
 
-        if color_tone == "紅色系":
-            if value == "rose_pink":
-                score = max(score, 0.26)
+        if color_tone == "紅色系" and value == "rose_pink":
+            score = max(score, 0.26)
 
-        candidates.append({
-            "value": value,
-            "label": label,
-            "score": float(score),
-        })
+        if color_tone == "粉紅色系" and value == "warm_orange_red":
+            score = max(score, 0.18)
 
-    return sorted(candidates, key=lambda x: x["score"], reverse=True)
+        score_map[value] = float(score)
+
+    return score_map
 
 
 def build_color_payload(color_tone: str):
-    selected = COLOR_TONE_TO_UI.get(color_tone, [])
-    candidates = _build_color_candidates(color_tone)
+    label_map = {value: label for value, label in COLOR_UI_OPTIONS}
+    score_map = _build_color_score_map(color_tone)
+    candidates, normalized_map = build_candidates(score_map, label_map)
 
-    if not selected and candidates:
-        selected = [candidates[0]["value"]]
+    color_value = COLOR_TONE_TO_UI.get(color_tone)
+    if not color_value and candidates:
+        color_value = candidates[0]["value"]
+
+    color_label = COLOR_VALUE_TO_LABEL.get(color_value, "中性灰")
 
     return {
-        "colorTone": color_tone,
-        "colorTags": color_tone_to_tags(color_tone),
-        "colors": {
-            "selected": selected[:2],
-            "candidates": candidates,
-            "threshold": 0.58,
-            "maxSelected": 2,
-        },
+        "color": color_value,
+        "colorLabel": color_label,
+        "candidates": candidates,
+        "scoreMap": normalized_map,
     }

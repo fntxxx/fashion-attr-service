@@ -44,3 +44,15 @@ Runs the same warmup path used during startup and returns the warmup result.
 ### `POST /predict`
 
 Accepts a multipart file upload using the `image` field and returns clothing attribute prediction results.
+
+## Predict response shape
+
+`POST /predict` 成功時會回傳前端直接可用的欄位：
+
+- `name`: 衣物細類名稱
+- `category`: 單選類別 key
+- `color`: 單選色系 key
+- `occasion`: 多選場合 key 陣列
+- `season`: 多選季節 key 陣列
+
+另外會保留 `validation`、`scores`、`candidates` 等除錯與觀察欄位。

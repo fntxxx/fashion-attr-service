@@ -117,93 +117,6 @@ def _weighted_hsv_hist(hsv: np.ndarray, weights: np.ndarray) -> Counter:
     return counter
 
 
-def _is_pattern(hsv: np.ndarray, weights: np.ndarray) -> bool:
-    total = float(np.sum(weights))
-    if total <= 0:
-        return False
-
-    hue = hsv[:, 0]
-    sat = hsv[:, 1]
-    val = hsv[:, 2]
-
-    colorful = weights[sat >= 0.20]
-    colorful_ratio = float(np.sum(colorful) / total) if total else 0.0
-
-    bright = weights[val >= 0.35]
-    bright_ratio = float(np.sum(bright) / total) if total else 0.0
-
-    hue_mask = sat >= 0.18
-    if np.sum(hue_mask) < 20:
-        return False
-
-    hue_bins = np.floor(hue[hue_mask] / 20).astype(int)
-    hue_counter: Counter = Counter()
-    for hb, wt in zip(hue_bins, weights[hue_mask]):
-        hue_counter[int(hb)] += float(wt)
-
-    sorted_bins = hue_counter.most_common()
-    dominant_bin = sorted_bins[0][0] if sorted_bins else 0
-    dominant = sorted_bins[0][1] if sorted_bins else 0.0
-    second = sorted_bins[1][1] if len(sorted_bins) > 1 else 0.0
-    third = sorted_bins[2][1] if len(sorted_bins) > 2 else 0.0
-
-    dominant_ratio = dominant / total if total else 1.0
-    top2_ratio = (dominant + second) / total if total else 1.0
-    top3_ratio = (dominant + second + third) / total if total else 1.0
-    active_bins = len(sorted_bins)
-
-    # 相鄰色相群聚保護（含環狀相鄰）
-    # 例如：
-    # - 綠色群：1,2,3
-    # - 紅橘群：17,0,1
-    neighbor_bins = {
-        (dominant_bin - 1) % 18,
-        dominant_bin,
-        (dominant_bin + 1) % 18,
-    }
-    neighbor_ratio = (
-        sum(hue_counter.get(b, 0.0) for b in neighbor_bins) / total
-        if total else 1.0
-    )
-
-    # 只對暖色主群做相鄰 hue 保護，避免紅橘鞋款被誤抓成 pattern。
-    # bins:
-    # 17 -> 340~360
-    # 0  ->   0~20
-    # 1  ->  20~40
-    is_warm_hue_cluster = dominant_bin in {17, 0, 1}
-
-    if (
-        is_warm_hue_cluster
-        and neighbor_ratio >= 0.55
-        and dominant_ratio >= 0.30
-        and colorful_ratio >= 0.35
-    ):
-        return False
-
-    # 單色保護 1
-    if active_bins <= 3 and top2_ratio >= 0.72 and colorful_ratio >= 0.35:
-        return False
-
-    # 單色保護 2
-    if active_bins <= 4 and dominant_ratio >= 0.22 and top3_ratio >= 0.82:
-        return False
-
-    # 原本主規則
-    if colorful_ratio >= 0.30 and bright_ratio >= 0.30 and dominant_ratio <= 0.58:
-        return True
-
-    # 偏暗花紋：顏色夠分散，但整體亮度偏低
-    if colorful_ratio >= 0.50 and bright_ratio >= 0.18 and dominant_ratio <= 0.45:
-        return True
-
-    # 低彩度亮色花紋：像淺色條紋、淡色印花
-    if colorful_ratio >= 0.20 and bright_ratio >= 0.85 and dominant_ratio <= 0.12:
-        return True
-
-    return False
-
-
 def _classify_color_from_hsv(hsv: np.ndarray, weights: np.ndarray) -> str:
     total = float(np.sum(weights))
     if total <= 0:
@@ -303,7 +216,7 @@ def _classify_color_from_hsv(hsv: np.ndarray, weights: np.ndarray) -> str:
         # 黃綠偏卡其的情況
         if s_center <= 0.32 and v_center >= 0.5:
             return "卡其色系"
-        return "綠色系"
+        return "黃色系"
 
     if 85 <= h_center < 170:
         return "綠色系"
@@ -332,7 +245,7 @@ def extract_color(image: Image.Image) -> str:
     """
     回傳色系：
     白色系 / 米色系 / 黑色系 / 灰色系 / 卡其色系 / 咖啡色系 /
-    紅色系 / 粉紅色系 / 綠色系 / 藍色系 / 紫色系 / 花紋圖案
+    黃色系 / 紅色系 / 粉紅色系 / 綠色系 / 藍色系 / 紫色系
     """
     img = _resize_for_color(image, 256)
     arr = np.array(img)
@@ -353,7 +266,5 @@ def extract_color(image: Image.Image) -> str:
 
     hsv = _rgb_to_hsv_np(pixels)
 
-    if _is_pattern(hsv, weights):
-        return "花紋圖案"
 
     return _classify_color_from_hsv(hsv, weights)

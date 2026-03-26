@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Any
 
+from utils.scoring import build_candidates, pick_multi_selected
+
 
 OCCASION_OPTIONS = [
     ("social", "社交聚會"),
@@ -16,37 +18,6 @@ SEASON_OPTIONS = [
     ("autumn", "秋季"),
     ("winter", "冬季"),
 ]
-
-
-def _build_candidate_list(
-    score_map: dict[str, float],
-    label_map: dict[str, str],
-) -> list[dict[str, Any]]:
-    items = []
-    for key, label in label_map.items():
-        items.append({
-            "value": key,
-            "label": label,
-            "score": float(score_map.get(key, 0.0)),
-        })
-    return sorted(items, key=lambda x: x["score"], reverse=True)
-
-
-def _pick_multi_selected(
-    candidates: list[dict[str, Any]],
-    threshold: float,
-    max_selected: int,
-) -> list[str]:
-    selected = [
-        item["value"]
-        for item in candidates
-        if float(item["score"]) >= threshold
-    ][:max_selected]
-
-    if selected:
-        return selected
-
-    return [candidates[0]["value"]] if candidates else []
 
 
 def infer_occasions(main_category: str, fine_category: str) -> dict[str, Any]:
@@ -199,46 +170,46 @@ def infer_occasions(main_category: str, fine_category: str) -> dict[str, Any]:
             "professional": 0.04,
         },
         "boots": {
-            "campus_casual": 0.36,
-            "social": 0.48,
-            "business_casual": 0.58,
-            "professional": 0.24,
+            "campus_casual": 0.34,
+            "social": 0.44,
+            "business_casual": 0.20,
+            "professional": 0.08,
         },
         "sandals": {
-            "campus_casual": 0.72,
-            "social": 0.34,
+            "campus_casual": 0.58,
+            "social": 0.52,
             "business_casual": 0.08,
             "professional": 0.04,
         },
         "heels": {
-            "campus_casual": 0.06,
-            "social": 0.68,
-            "business_casual": 0.58,
-            "professional": 0.64,
+            "campus_casual": 0.12,
+            "social": 0.76,
+            "business_casual": 0.42,
+            "professional": 0.22,
         },
         "flats": {
-            "campus_casual": 0.22,
-            "social": 0.34,
-            "business_casual": 0.72,
-            "professional": 0.56,
+            "campus_casual": 0.26,
+            "social": 0.50,
+            "business_casual": 0.46,
+            "professional": 0.18,
         },
         "bucket_hat": {
             "campus_casual": 0.72,
-            "social": 0.22,
-            "business_casual": 0.04,
+            "social": 0.24,
+            "business_casual": 0.06,
             "professional": 0.02,
         },
         "beanie": {
-            "campus_casual": 0.68,
-            "social": 0.20,
+            "campus_casual": 0.66,
+            "social": 0.16,
             "business_casual": 0.04,
             "professional": 0.02,
         },
         "hat": {
-            "campus_casual": 0.50,
-            "social": 0.40,
-            "business_casual": 0.12,
-            "professional": 0.06,
+            "campus_casual": 0.52,
+            "social": 0.30,
+            "business_casual": 0.08,
+            "professional": 0.04,
         },
     }
 
@@ -261,8 +232,8 @@ def infer_occasions(main_category: str, fine_category: str) -> dict[str, Any]:
         score_map["business_casual"] = max(score_map.get("business_casual", 0.0), 0.62)
         score_map["professional"] = max(score_map.get("professional", 0.0), 0.36)
 
-    candidates = _build_candidate_list(score_map, label_map)
-    selected = _pick_multi_selected(candidates, threshold=0.62, max_selected=2)
+    candidates, _ = build_candidates(score_map, label_map)
+    selected = pick_multi_selected(candidates, threshold=0.20, max_selected=2)
 
     legacy_style = "casual"
     if "professional" in selected:
@@ -493,8 +464,9 @@ def infer_seasons(main_category: str, fine_category: str) -> dict[str, Any]:
     if fine_category in {"denim_jacket", "sweatshirt"}:
         score_map["autumn"] = min(score_map.get("autumn", 0.0), 0.68)
         score_map["winter"] = max(score_map.get("winter", 0.0), 0.72)
-    candidates = _build_candidate_list(score_map, label_map)
-    selected = _pick_multi_selected(candidates, threshold=0.58, max_selected=2)
+
+    candidates, _ = build_candidates(score_map, label_map)
+    selected = pick_multi_selected(candidates, threshold=0.22, max_selected=2)
 
     if selected == ["summer"]:
         legacy_season = "summer"

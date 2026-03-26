@@ -58,7 +58,7 @@ def subgroup_to_expected_color(subgroup: str) -> Optional[str]:
     mapping = {
         "earth_brown": "咖啡色系",
         "rose_pink": "粉紅色系",
-        "pattern": "花紋圖案",
+        "butter_yellow": "黃色系",
         "light_beige": "米色系",
         "warm_orange_red": "紅色系",
         "neutral_gray": "灰色系",

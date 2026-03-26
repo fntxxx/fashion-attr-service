@@ -1,8 +1,11 @@
+from typing import Dict
+
 from models.clip_model import (
-    predict_best,
     score_texts_with_image_feature,
     encode_image_feature,
 )
+from utils.scoring import build_candidates
+
 
 STAGE1_LABELS = {
     "headwear": "a clean product photo of a single hat or other headwear",
@@ -13,8 +16,6 @@ STAGE1_LABELS = {
     "shoes": "a clean product photo of a single pair of shoes",
 }
 
-# Demo 穩定版 taxonomy：
-# 先縮掉容易互相吸分、但對目前 demo 價值不高的細類。
 STAGE2_LABELS = {
     "headwear": {
         "bucket_hat": "a clean product photo of a single bucket hat",
@@ -73,7 +74,6 @@ FINE_CATEGORY_LABEL_MAP = {
     "bucket_hat": "漁夫帽",
     "beanie": "毛帽",
     "hat": "帽子",
-
     "t_shirt": "T 恤",
     "shirt": "襯衫",
     "tank_top": "背心",
@@ -87,19 +87,15 @@ FINE_CATEGORY_LABEL_MAP = {
     "puffer_jacket": "鋪棉外套",
     "vest": "背心外套",
     "windbreaker": "防風外套",
-
     "jeans": "牛仔褲",
     "trousers": "長褲",
     "wide_leg_pants": "寬褲",
     "leggings": "內搭褲",
     "shorts": "短褲",
-
     "mini_skirt": "短裙",
     "midi_skirt": "中長裙",
-
     "mini_dress": "短洋裝",
     "midi_dress": "中長洋裝",
-
     "sneakers": "休閒鞋",
     "boots": "靴子",
     "sandals": "涼鞋",
@@ -108,42 +104,58 @@ FINE_CATEGORY_LABEL_MAP = {
 }
 
 
-def _predict_from_label_map(image, label_map: dict, image_features=None):
-    keys = list(label_map.keys())
-    prompts = list(label_map.values())
+def _score_label_map_with_confidence(
+    image,
+    prompt_map: Dict[str, str],
+    display_label_map: Dict[str, str],
+    image_features=None,
+):
+    keys = list(prompt_map.keys())
+    prompts = list(prompt_map.values())
 
     if image_features is None:
         image_features = encode_image_feature(image)
 
-    results = score_texts_with_image_feature(image_features, prompts)
+    raw_results = score_texts_with_image_feature(image_features, prompts)
+    raw_score_map = {
+        key: float(raw_results[idx]["score"])
+        for idx, key in enumerate(keys)
+    }
 
-    results = sorted(results, key=lambda x: x["score"], reverse=True)
+    candidates, normalized_map = build_candidates(
+        raw_score_map,
+        {key: display_label_map[key] for key in keys},
+    )
 
-    best_prompt = results[0]["label"]
-    score = results[0]["score"]
-
-    best_index = prompts.index(best_prompt)
-    best_key = keys[best_index]
-
-    return best_key, float(score)
+    best = candidates[0]
+    return {
+        "best_key": str(best["value"]),
+        "best_score": float(best["score"]),
+        "candidates": candidates,
+        "score_map": normalized_map,
+        "raw_score_map": raw_score_map,
+    }
 
 
 def classify_category(image, image_features=None):
-
     if image_features is None:
         image_features = encode_image_feature(image)
 
-    main_key, main_score = _predict_from_label_map(
+    main_result = _score_label_map_with_confidence(
         image,
         STAGE1_LABELS,
+        MAIN_CATEGORY_LABEL_MAP,
         image_features=image_features,
     )
+    main_key = main_result["best_key"]
 
-    fine_key, fine_score = _predict_from_label_map(
+    fine_result = _score_label_map_with_confidence(
         image,
         STAGE2_LABELS[main_key],
+        FINE_CATEGORY_LABEL_MAP,
         image_features=image_features,
     )
+    fine_key = fine_result["best_key"]
 
     return {
         "mainCategoryKey": main_key,
@@ -151,8 +163,16 @@ def classify_category(image, image_features=None):
         "categoryKey": fine_key,
         "category": FINE_CATEGORY_LABEL_MAP[fine_key],
         "scores": {
-            "mainCategory": float(main_score),
-            "category": float(fine_score),
+            "mainCategory": float(main_result["best_score"]),
+            "category": float(fine_result["best_score"]),
         },
-        "score": float(fine_score),
+        "score": float(fine_result["best_score"]),
+        "candidates": {
+            "mainCategory": main_result["candidates"],
+            "category": fine_result["candidates"],
+        },
+        "candidateScoreMaps": {
+            "mainCategory": main_result["score_map"],
+            "category": fine_result["score_map"],
+        },
     }

@@ -36,12 +36,12 @@ def infer_color_from_filename(name: str) -> str:
         "dark_gray_black",
         "neutral_gray",
         "earth_brown",
+        "butter_yellow",
         "warm_orange_red",
         "rose_pink",
         "natural_green",
         "fresh_blue",
         "elegant_purple",
-        "pattern",
     ]
 
     for key in color_keys:
