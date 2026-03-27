@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from api_constants import (
+from fashion_attr_service.api.constants import (
     CATEGORY_UI_OPTIONS,
     CATEGORY_VALUE_TO_LABEL,
     MAIN_CATEGORY_TO_UI,

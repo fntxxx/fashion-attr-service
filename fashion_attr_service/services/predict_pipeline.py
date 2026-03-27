@@ -2,19 +2,19 @@ from __future__ import annotations
 
 from PIL import Image
 
-from models.clip_model import (
+from fashion_attr_service.models.fashion_siglip_model import (
     BACKEND_SPEC,
     MODEL_BACKEND,
     encode_image_feature,
     get_clip_model,
 )
-from services.classify_category import classify_category
-from services.extract_color import extract_color
-from services.infer_meta import infer_occasions, infer_seasons
-from services.postprocess_category import postprocess_category
-from services.validate_input import validate_fashion_input, detect_coarse_fashion_type
-from utils.color_tags import build_color_payload
-from api_formatters import build_predict_payload
+from fashion_attr_service.services.classify_category import classify_category
+from fashion_attr_service.services.extract_color import extract_color
+from fashion_attr_service.services.infer_meta import infer_occasions, infer_seasons
+from fashion_attr_service.services.postprocess_category import postprocess_category
+from fashion_attr_service.services.validate_input import validate_fashion_input, detect_coarse_fashion_type
+from fashion_attr_service.utils.color_tags import build_color_payload
+from fashion_attr_service.api.formatters import build_predict_payload
 
 
 def _normalize_pipeline_backend(model_backend: str | None = None) -> str:

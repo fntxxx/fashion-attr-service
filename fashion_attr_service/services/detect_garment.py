@@ -1,6 +1,6 @@
 from typing import Dict, Any
 
-from models.yolo_detector import detect_main_subject_bbox
+from fashion_attr_service.models.yolo_detector import detect_main_subject_bbox
 
 
 def _clip_bbox_to_image(image_size, bbox):

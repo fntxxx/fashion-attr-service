@@ -6,14 +6,14 @@ from typing import Any
 import cv2
 import numpy as np
 
-from models.clip_model import (
+from fashion_attr_service.models.fashion_siglip_model import (
     predict_topk,
     score_texts,
     encode_image_feature,
     predict_topk_with_image_feature,
     score_texts_with_image_feature,
 )
-from models.yolo_detector import detect_main_subject_bbox
+from fashion_attr_service.models.yolo_detector import detect_main_subject_bbox
 
 
 VALID_LABELS = [

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from utils.scoring import build_candidates, pick_multi_selected
+from fashion_attr_service.utils.scoring import build_candidates, pick_multi_selected
 
 
 OCCASION_OPTIONS = [

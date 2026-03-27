@@ -1,10 +1,10 @@
 from typing import Dict
 
-from models.clip_model import (
+from fashion_attr_service.models.fashion_siglip_model import (
     score_texts_with_image_feature,
     encode_image_feature,
 )
-from utils.scoring import build_candidates
+from fashion_attr_service.utils.scoring import build_candidates
 
 
 STAGE1_LABELS = {

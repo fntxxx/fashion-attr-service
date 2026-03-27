@@ -1,6 +1,6 @@
 from typing import Any, Optional, Dict, Tuple
 
-from services.shape_heuristics import estimate_pants_vs_skirt
+from fashion_attr_service.services.shape_heuristics import estimate_pants_vs_skirt
 
 
 UPPER_BODY_CATEGORY_MAP = {

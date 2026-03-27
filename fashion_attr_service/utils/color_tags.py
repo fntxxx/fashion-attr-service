@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from utils.scoring import build_candidates
+from fashion_attr_service.utils.scoring import build_candidates
 
 
 COLOR_UI_OPTIONS = [
