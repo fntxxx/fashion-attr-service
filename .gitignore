@@ -28,3 +28,7 @@ uploads/
 huggingface/
 
 yolov8n.pt
+# Test / debug artifacts
+artifacts/reports/*.json
+artifacts/weights/*.pt
+.pytest_cache/

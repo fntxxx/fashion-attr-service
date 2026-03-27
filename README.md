@@ -22,9 +22,35 @@ This Hugging Face Space serves the FastAPI Swagger UI directly at the root path:
 - `GET /warmup` → run warmup flow and report warmup result
 - `POST /predict` → upload an image file for clothing attribute prediction
 
+## Runtime structure
+
+```text
+.
+├─ app.py
+├─ fashion_attr_service/
+│  ├─ main.py
+│  ├─ api/
+│  ├─ models/
+│  ├─ services/
+│  └─ utils/
+├─ scripts/
+│  ├─ debug/
+│  ├─ eval/
+│  └─ labels/
+└─ artifacts/
+   ├─ labels/
+   ├─ reports/
+   └─ weights/
+```
+
+- `fashion_attr_service/`: API runtime 與推論流程。
+- `scripts/`: 測試、除錯、標註產生等開發期腳本。
+- `artifacts/`: 標註範本、報表、權重等非核心程式資產。
+- `app.py`: 部署入口 thin wrapper，讓 Docker / Uvicorn 啟動方式維持不變。
+
 ## Model backend
 
-The service now uses a single image-text backbone throughout the whole inference path:
+The service uses a single image-text backbone throughout the whole inference path:
 
 - `marqo_fashionsiglip` → `hf-hub:Marqo/marqo-fashionSigLIP`
 
@@ -39,31 +65,13 @@ Open the Space homepage to use the interactive API docs:
 
 From the Swagger UI, you can open `POST /predict`, click **Try it out**, upload an image with the `image` field, and execute the request directly in the browser.
 
-## Endpoints
+## Local run
 
-### `GET /health`
+Start the service locally:
 
-Returns a basic health / service metadata payload.
-
-### `GET /warmup`
-
-Runs the same warmup path used during startup and returns the warmup result.
-
-### `POST /predict`
-
-Accepts a multipart file upload using the `image` field and returns clothing attribute prediction results.
-
-## Predict response shape
-
-`POST /predict` 成功時會回傳前端直接可用的欄位：
-
-- `name`: 衣物細類名稱
-- `category`: 單選類別 key
-- `color`: 單選色系 key
-- `occasion`: 多選場合 key 陣列
-- `season`: 多選季節 key 陣列
-
-另外會保留 `validation`、`scores`、`candidates` 等除錯與觀察欄位。
+```bash
+uvicorn app:app --host 0.0.0.0 --port 7860 --reload
+```
 
 ## Model evaluation
 
@@ -89,10 +97,25 @@ Only inspect specific groups or subgroups:
 python test_attr_eval.py quality D:\DevData\attr_quality_testset --groups color --subgroups butter_yellow,rose_pink
 ```
 
-Input validation regression check
+Input validation regression check:
 
 ```bash
 python test_attr_eval.py validation D:\DevData\ai_testset
 ```
 
-The default report file is test_attr_eval_report.json.
+Default label file:
+
+- `artifacts/labels/labels_full_template.csv`
+
+Default report output:
+
+- `artifacts/reports/<dataset_name>_report_vN.json`
+
+## Development scripts
+
+- `python scripts/debug/debug_color_failures.py`
+- `python scripts/labels/generate_full_labels_template.py`
+- `python scripts/labels/generate_category_labels.py`
+- `python scripts/labels/check_labels.py`
+- `python scripts/labels/check_generated_labels.py`
+- `python scripts/labels/check_missing_labels.py`
