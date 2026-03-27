@@ -1,0 +1,1390 @@
+{
+  "dataset": {
+    "dataset_dir": "D:\\DevData\\attr_quality_testset",
+    "labels_file": "D:\\Projects\\fashion-attr-service\\labels_full_template.csv",
+    "rows": 117
+  },
+  "evaluation_rules": {
+    "same_candidate_labels": true,
+    "same_scoring_logic": true,
+    "same_normalization_logic": true,
+    "same_formatter_logic": true
+  },
+  "baseline": {
+    "model": {
+      "backend": "open_clip_vit_b32",
+      "model_name": "ViT-B-32"
+    },
+    "summary": {
+      "rows": 117,
+      "valid_rows": 117,
+      "error_rows": 0,
+      "avg_elapsed_sec": 0.5531,
+      "p95_elapsed_sec": 0.9454,
+      "category_top1_accuracy": 0.9375,
+      "category_top3_hit_rate": 0.8958333333333334,
+      "color_hit_rate": 0.9629629629629629,
+      "occasion_hit_rate": 0.6875,
+      "season_hit_rate": 0.8125,
+      "group_summary": {
+        "category": {
+          "rows": 48,
+          "category_top1_accuracy": 0.9375,
+          "category_top3_hit_rate": 0.8958333333333334,
+          "color_hit_rate": 0.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 48,
+            "color_rows": 0,
+            "occasion_rows": 0,
+            "season_rows": 0
+          }
+        },
+        "color": {
+          "rows": 27,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 0.9629629629629629,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 27,
+            "occasion_rows": 0,
+            "season_rows": 0
+          }
+        },
+        "edge_cases": {
+          "rows": 10,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 0.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 0,
+            "occasion_rows": 0,
+            "season_rows": 0
+          }
+        },
+        "occasion": {
+          "rows": 16,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 0.0,
+          "occasion_hit_rate": 0.6875,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 0,
+            "occasion_rows": 16,
+            "season_rows": 0
+          }
+        },
+        "season": {
+          "rows": 16,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 0.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.8125,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 0,
+            "occasion_rows": 0,
+            "season_rows": 16
+          }
+        }
+      },
+      "subgroup_summary": {
+        "category/dress": {
+          "rows": 8,
+          "category_top1_accuracy": 1.0,
+          "category_top3_hit_rate": 1.0,
+          "color_hit_rate": 0.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 8,
+            "color_rows": 0,
+            "occasion_rows": 0,
+            "season_rows": 0
+          }
+        },
+        "category/outer": {
+          "rows": 8,
+          "category_top1_accuracy": 0.875,
+          "category_top3_hit_rate": 0.75,
+          "color_hit_rate": 0.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 8,
+            "color_rows": 0,
+            "occasion_rows": 0,
+            "season_rows": 0
+          }
+        },
+        "category/pants": {
+          "rows": 8,
+          "category_top1_accuracy": 1.0,
+          "category_top3_hit_rate": 1.0,
+          "color_hit_rate": 0.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 8,
+            "color_rows": 0,
+            "occasion_rows": 0,
+            "season_rows": 0
+          }
+        },
+        "category/shoes": {
+          "rows": 8,
+          "category_top1_accuracy": 1.0,
+          "category_top3_hit_rate": 1.0,
+          "color_hit_rate": 0.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 8,
+            "color_rows": 0,
+            "occasion_rows": 0,
+            "season_rows": 0
+          }
+        },
+        "category/skirt": {
+          "rows": 8,
+          "category_top1_accuracy": 0.875,
+          "category_top3_hit_rate": 0.875,
+          "color_hit_rate": 0.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 8,
+            "color_rows": 0,
+            "occasion_rows": 0,
+            "season_rows": 0
+          }
+        },
+        "category/top": {
+          "rows": 8,
+          "category_top1_accuracy": 0.875,
+          "category_top3_hit_rate": 0.75,
+          "color_hit_rate": 0.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 8,
+            "color_rows": 0,
+            "occasion_rows": 0,
+            "season_rows": 0
+          }
+        },
+        "color/dark_gray_black": {
+          "rows": 3,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 1.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 3,
+            "occasion_rows": 0,
+            "season_rows": 0
+          }
+        },
+        "color/earth_brown": {
+          "rows": 3,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 1.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 3,
+            "occasion_rows": 0,
+            "season_rows": 0
+          }
+        },
+        "color/elegant_purple": {
+          "rows": 3,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 1.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 3,
+            "occasion_rows": 0,
+            "season_rows": 0
+          }
+        },
+        "color/fresh_blue": {
+          "rows": 3,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 1.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 3,
+            "occasion_rows": 0,
+            "season_rows": 0
+          }
+        },
+        "color/light_beige": {
+          "rows": 3,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 1.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 3,
+            "occasion_rows": 0,
+            "season_rows": 0
+          }
+        },
+        "color/natural_green": {
+          "rows": 3,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 0.6666666666666666,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 3,
+            "occasion_rows": 0,
+            "season_rows": 0
+          }
+        },
+        "color/neutral_gray": {
+          "rows": 3,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 1.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 3,
+            "occasion_rows": 0,
+            "season_rows": 0
+          }
+        },
+        "color/rose_pink": {
+          "rows": 3,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 1.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 3,
+            "occasion_rows": 0,
+            "season_rows": 0
+          }
+        },
+        "color/warm_orange_red": {
+          "rows": 3,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 1.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 3,
+            "occasion_rows": 0,
+            "season_rows": 0
+          }
+        },
+        "edge_cases/_": {
+          "rows": 10,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 0.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 0,
+            "occasion_rows": 0,
+            "season_rows": 0
+          }
+        },
+        "occasion/business_casual": {
+          "rows": 4,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 0.0,
+          "occasion_hit_rate": 0.75,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 0,
+            "occasion_rows": 4,
+            "season_rows": 0
+          }
+        },
+        "occasion/campus_casual": {
+          "rows": 4,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 0.0,
+          "occasion_hit_rate": 1.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 0,
+            "occasion_rows": 4,
+            "season_rows": 0
+          }
+        },
+        "occasion/professional": {
+          "rows": 4,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 0.0,
+          "occasion_hit_rate": 0.25,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 0,
+            "occasion_rows": 4,
+            "season_rows": 0
+          }
+        },
+        "occasion/social": {
+          "rows": 4,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 0.0,
+          "occasion_hit_rate": 0.75,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 0,
+            "occasion_rows": 4,
+            "season_rows": 0
+          }
+        },
+        "season/autumn": {
+          "rows": 4,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 0.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.75,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 0,
+            "occasion_rows": 0,
+            "season_rows": 4
+          }
+        },
+        "season/spring": {
+          "rows": 4,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 0.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.5,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 0,
+            "occasion_rows": 0,
+            "season_rows": 4
+          }
+        },
+        "season/summer": {
+          "rows": 4,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 0.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 1.0,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 0,
+            "occasion_rows": 0,
+            "season_rows": 4
+          }
+        },
+        "season/winter": {
+          "rows": 4,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 0.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 1.0,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 0,
+            "occasion_rows": 0,
+            "season_rows": 4
+          }
+        }
+      },
+      "category_confusion": [
+        {
+          "expected": "outer",
+          "predicted": "top",
+          "count": 1
+        },
+        {
+          "expected": "skirt",
+          "predicted": "dress",
+          "count": 1
+        },
+        {
+          "expected": "top",
+          "predicted": "outer",
+          "count": 1
+        }
+      ],
+      "errors": []
+    }
+  },
+  "candidate": {
+    "model": {
+      "backend": "marqo_fashionsiglip",
+      "model_name": "hf-hub:Marqo/marqo-fashionSigLIP"
+    },
+    "summary": {
+      "rows": 117,
+      "valid_rows": 117,
+      "error_rows": 0,
+      "avg_elapsed_sec": 0.6816,
+      "p95_elapsed_sec": 1.0155,
+      "category_top1_accuracy": 0.9375,
+      "category_top3_hit_rate": 0.9375,
+      "color_hit_rate": 0.9629629629629629,
+      "occasion_hit_rate": 0.75,
+      "season_hit_rate": 0.875,
+      "group_summary": {
+        "category": {
+          "rows": 48,
+          "category_top1_accuracy": 0.9375,
+          "category_top3_hit_rate": 0.9375,
+          "color_hit_rate": 0.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 48,
+            "color_rows": 0,
+            "occasion_rows": 0,
+            "season_rows": 0
+          }
+        },
+        "color": {
+          "rows": 27,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 0.9629629629629629,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 27,
+            "occasion_rows": 0,
+            "season_rows": 0
+          }
+        },
+        "edge_cases": {
+          "rows": 10,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 0.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 0,
+            "occasion_rows": 0,
+            "season_rows": 0
+          }
+        },
+        "occasion": {
+          "rows": 16,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 0.0,
+          "occasion_hit_rate": 0.75,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 0,
+            "occasion_rows": 16,
+            "season_rows": 0
+          }
+        },
+        "season": {
+          "rows": 16,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 0.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.875,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 0,
+            "occasion_rows": 0,
+            "season_rows": 16
+          }
+        }
+      },
+      "subgroup_summary": {
+        "category/dress": {
+          "rows": 8,
+          "category_top1_accuracy": 0.875,
+          "category_top3_hit_rate": 1.0,
+          "color_hit_rate": 0.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 8,
+            "color_rows": 0,
+            "occasion_rows": 0,
+            "season_rows": 0
+          }
+        },
+        "category/outer": {
+          "rows": 8,
+          "category_top1_accuracy": 0.875,
+          "category_top3_hit_rate": 0.875,
+          "color_hit_rate": 0.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 8,
+            "color_rows": 0,
+            "occasion_rows": 0,
+            "season_rows": 0
+          }
+        },
+        "category/pants": {
+          "rows": 8,
+          "category_top1_accuracy": 1.0,
+          "category_top3_hit_rate": 1.0,
+          "color_hit_rate": 0.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 8,
+            "color_rows": 0,
+            "occasion_rows": 0,
+            "season_rows": 0
+          }
+        },
+        "category/shoes": {
+          "rows": 8,
+          "category_top1_accuracy": 1.0,
+          "category_top3_hit_rate": 1.0,
+          "color_hit_rate": 0.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 8,
+            "color_rows": 0,
+            "occasion_rows": 0,
+            "season_rows": 0
+          }
+        },
+        "category/skirt": {
+          "rows": 8,
+          "category_top1_accuracy": 1.0,
+          "category_top3_hit_rate": 1.0,
+          "color_hit_rate": 0.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 8,
+            "color_rows": 0,
+            "occasion_rows": 0,
+            "season_rows": 0
+          }
+        },
+        "category/top": {
+          "rows": 8,
+          "category_top1_accuracy": 0.875,
+          "category_top3_hit_rate": 0.75,
+          "color_hit_rate": 0.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 8,
+            "color_rows": 0,
+            "occasion_rows": 0,
+            "season_rows": 0
+          }
+        },
+        "color/dark_gray_black": {
+          "rows": 3,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 1.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 3,
+            "occasion_rows": 0,
+            "season_rows": 0
+          }
+        },
+        "color/earth_brown": {
+          "rows": 3,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 1.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 3,
+            "occasion_rows": 0,
+            "season_rows": 0
+          }
+        },
+        "color/elegant_purple": {
+          "rows": 3,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 1.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 3,
+            "occasion_rows": 0,
+            "season_rows": 0
+          }
+        },
+        "color/fresh_blue": {
+          "rows": 3,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 1.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 3,
+            "occasion_rows": 0,
+            "season_rows": 0
+          }
+        },
+        "color/light_beige": {
+          "rows": 3,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 1.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 3,
+            "occasion_rows": 0,
+            "season_rows": 0
+          }
+        },
+        "color/natural_green": {
+          "rows": 3,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 0.6666666666666666,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 3,
+            "occasion_rows": 0,
+            "season_rows": 0
+          }
+        },
+        "color/neutral_gray": {
+          "rows": 3,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 1.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 3,
+            "occasion_rows": 0,
+            "season_rows": 0
+          }
+        },
+        "color/rose_pink": {
+          "rows": 3,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 1.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 3,
+            "occasion_rows": 0,
+            "season_rows": 0
+          }
+        },
+        "color/warm_orange_red": {
+          "rows": 3,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 1.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 3,
+            "occasion_rows": 0,
+            "season_rows": 0
+          }
+        },
+        "edge_cases/_": {
+          "rows": 10,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 0.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 0,
+            "occasion_rows": 0,
+            "season_rows": 0
+          }
+        },
+        "occasion/business_casual": {
+          "rows": 4,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 0.0,
+          "occasion_hit_rate": 0.75,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 0,
+            "occasion_rows": 4,
+            "season_rows": 0
+          }
+        },
+        "occasion/campus_casual": {
+          "rows": 4,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 0.0,
+          "occasion_hit_rate": 1.0,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 0,
+            "occasion_rows": 4,
+            "season_rows": 0
+          }
+        },
+        "occasion/professional": {
+          "rows": 4,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 0.0,
+          "occasion_hit_rate": 0.5,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 0,
+            "occasion_rows": 4,
+            "season_rows": 0
+          }
+        },
+        "occasion/social": {
+          "rows": 4,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 0.0,
+          "occasion_hit_rate": 0.75,
+          "season_hit_rate": 0.0,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 0,
+            "occasion_rows": 4,
+            "season_rows": 0
+          }
+        },
+        "season/autumn": {
+          "rows": 4,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 0.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.75,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 0,
+            "occasion_rows": 0,
+            "season_rows": 4
+          }
+        },
+        "season/spring": {
+          "rows": 4,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 0.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 1.0,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 0,
+            "occasion_rows": 0,
+            "season_rows": 4
+          }
+        },
+        "season/summer": {
+          "rows": 4,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 0.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 1.0,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 0,
+            "occasion_rows": 0,
+            "season_rows": 4
+          }
+        },
+        "season/winter": {
+          "rows": 4,
+          "category_top1_accuracy": 0.0,
+          "category_top3_hit_rate": 0.0,
+          "color_hit_rate": 0.0,
+          "occasion_hit_rate": 0.0,
+          "season_hit_rate": 0.75,
+          "counts": {
+            "category_rows": 0,
+            "color_rows": 0,
+            "occasion_rows": 0,
+            "season_rows": 4
+          }
+        }
+      },
+      "category_confusion": [
+        {
+          "expected": "dress",
+          "predicted": "top",
+          "count": 1
+        },
+        {
+          "expected": "outer",
+          "predicted": "top",
+          "count": 1
+        },
+        {
+          "expected": "top",
+          "predicted": "outer",
+          "count": 1
+        }
+      ],
+      "errors": []
+    }
+  },
+  "delta": {
+    "category_top1_accuracy": 0.0,
+    "category_top3_hit_rate": 0.041667,
+    "color_hit_rate": 0.0,
+    "occasion_hit_rate": 0.0625,
+    "season_hit_rate": 0.0625,
+    "avg_elapsed_sec": 0.1285,
+    "p95_elapsed_sec": 0.0701
+  },
+  "changed_cases": [
+    {
+      "file": "color_neutral_gray_outer_03.jpg",
+      "expected": {
+        "category": "",
+        "color": "neutral_gray",
+        "occasions": [],
+        "seasons": []
+      },
+      "baseline": {
+        "category": "outer",
+        "colors": [
+          "neutral_gray"
+        ],
+        "occasions": [
+          "business_casual",
+          "campus_casual"
+        ],
+        "seasons": [
+          "winter",
+          "autumn"
+        ]
+      },
+      "candidate": {
+        "category": "pants",
+        "colors": [
+          "neutral_gray"
+        ],
+        "occasions": [
+          "business_casual",
+          "professional"
+        ],
+        "seasons": [
+          "autumn",
+          "spring"
+        ]
+      }
+    },
+    {
+      "file": "color_rose_pink_dress_03.jpg",
+      "expected": {
+        "category": "",
+        "color": "rose_pink",
+        "occasions": [],
+        "seasons": []
+      },
+      "baseline": {
+        "category": "top",
+        "colors": [
+          "rose_pink"
+        ],
+        "occasions": [
+          "business_casual"
+        ],
+        "seasons": [
+          "spring",
+          "autumn"
+        ]
+      },
+      "candidate": {
+        "category": "dress",
+        "colors": [
+          "rose_pink"
+        ],
+        "occasions": [
+          "social"
+        ],
+        "seasons": [
+          "summer"
+        ]
+      }
+    },
+    {
+      "file": "dress_mini_black_01.webp",
+      "expected": {
+        "category": "dress",
+        "color": "",
+        "occasions": [],
+        "seasons": []
+      },
+      "baseline": {
+        "category": "dress",
+        "colors": [
+          "dark_gray_black"
+        ],
+        "occasions": [
+          "social"
+        ],
+        "seasons": [
+          "summer"
+        ]
+      },
+      "candidate": {
+        "category": "top",
+        "colors": [
+          "dark_gray_black"
+        ],
+        "occasions": [
+          "campus_casual"
+        ],
+        "seasons": [
+          "summer"
+        ]
+      }
+    },
+    {
+      "file": "edge_dress_skirt_confusion_01.webp",
+      "expected": {
+        "category": "",
+        "color": "",
+        "occasions": [],
+        "seasons": []
+      },
+      "baseline": {
+        "category": "skirt",
+        "colors": [
+          "light_beige"
+        ],
+        "occasions": [
+          "social",
+          "business_casual"
+        ],
+        "seasons": [
+          "autumn",
+          "spring"
+        ]
+      },
+      "candidate": {
+        "category": "dress",
+        "colors": [
+          "light_beige"
+        ],
+        "occasions": [
+          "social"
+        ],
+        "seasons": [
+          "summer"
+        ]
+      }
+    },
+    {
+      "file": "edge_hoodie_vs_jacket_04.webp",
+      "expected": {
+        "category": "",
+        "color": "",
+        "occasions": [],
+        "seasons": []
+      },
+      "baseline": {
+        "category": "outer",
+        "colors": [
+          "fresh_blue"
+        ],
+        "occasions": [
+          "business_casual",
+          "campus_casual"
+        ],
+        "seasons": [
+          "winter",
+          "autumn"
+        ]
+      },
+      "candidate": {
+        "category": "top",
+        "colors": [
+          "fresh_blue"
+        ],
+        "occasions": [
+          "campus_casual"
+        ],
+        "seasons": [
+          "autumn",
+          "winter"
+        ]
+      }
+    },
+    {
+      "file": "occasion_campus_casual_hoodie_02.webp",
+      "expected": {
+        "category": "",
+        "color": "",
+        "occasions": [
+          "campus_casual"
+        ],
+        "seasons": []
+      },
+      "baseline": {
+        "category": "outer",
+        "colors": [
+          "dark_gray_black"
+        ],
+        "occasions": [
+          "business_casual",
+          "campus_casual"
+        ],
+        "seasons": [
+          "winter",
+          "autumn"
+        ]
+      },
+      "candidate": {
+        "category": "top",
+        "colors": [
+          "dark_gray_black"
+        ],
+        "occasions": [
+          "campus_casual"
+        ],
+        "seasons": [
+          "autumn",
+          "winter"
+        ]
+      }
+    },
+    {
+      "file": "occasion_professional_blazer_01.jpg",
+      "expected": {
+        "category": "",
+        "color": "",
+        "occasions": [
+          "professional"
+        ],
+        "seasons": []
+      },
+      "baseline": {
+        "category": "outer",
+        "colors": [
+          "fresh_blue"
+        ],
+        "occasions": [
+          "business_casual",
+          "campus_casual"
+        ],
+        "seasons": [
+          "winter",
+          "autumn"
+        ]
+      },
+      "candidate": {
+        "category": "pants",
+        "colors": [
+          "fresh_blue"
+        ],
+        "occasions": [
+          "business_casual",
+          "professional"
+        ],
+        "seasons": [
+          "autumn",
+          "spring"
+        ]
+      }
+    },
+    {
+      "file": "occasion_social_blouse_04.png",
+      "expected": {
+        "category": "",
+        "color": "",
+        "occasions": [
+          "social"
+        ],
+        "seasons": []
+      },
+      "baseline": {
+        "category": "outer",
+        "colors": [
+          "light_beige"
+        ],
+        "occasions": [
+          "business_casual",
+          "campus_casual"
+        ],
+        "seasons": [
+          "winter",
+          "autumn"
+        ]
+      },
+      "candidate": {
+        "category": "top",
+        "colors": [
+          "light_beige"
+        ],
+        "occasions": [
+          "business_casual"
+        ],
+        "seasons": [
+          "spring",
+          "autumn"
+        ]
+      }
+    },
+    {
+      "file": "outer_cardigan_gray_06.jpg",
+      "expected": {
+        "category": "outer",
+        "color": "",
+        "occasions": [],
+        "seasons": []
+      },
+      "baseline": {
+        "category": "top",
+        "colors": [
+          "neutral_gray"
+        ],
+        "occasions": [
+          "business_casual",
+          "campus_casual"
+        ],
+        "seasons": [
+          "winter",
+          "autumn"
+        ]
+      },
+      "candidate": {
+        "category": "outer",
+        "colors": [
+          "neutral_gray"
+        ],
+        "occasions": [
+          "business_casual"
+        ],
+        "seasons": [
+          "spring",
+          "autumn"
+        ]
+      }
+    },
+    {
+      "file": "outer_coat_beige_03.jpg",
+      "expected": {
+        "category": "outer",
+        "color": "",
+        "occasions": [],
+        "seasons": []
+      },
+      "baseline": {
+        "category": "outer",
+        "colors": [
+          "light_beige"
+        ],
+        "occasions": [
+          "business_casual",
+          "campus_casual"
+        ],
+        "seasons": [
+          "winter",
+          "autumn"
+        ]
+      },
+      "candidate": {
+        "category": "top",
+        "colors": [
+          "light_beige"
+        ],
+        "occasions": [
+          "business_casual"
+        ],
+        "seasons": [
+          "spring",
+          "autumn"
+        ]
+      }
+    },
+    {
+      "file": "season_spring_cardigan_01.jpg",
+      "expected": {
+        "category": "",
+        "color": "",
+        "occasions": [],
+        "seasons": [
+          "spring"
+        ]
+      },
+      "baseline": {
+        "category": "outer",
+        "colors": [
+          "fresh_blue"
+        ],
+        "occasions": [
+          "business_casual",
+          "campus_casual"
+        ],
+        "seasons": [
+          "winter",
+          "autumn"
+        ]
+      },
+      "candidate": {
+        "category": "top",
+        "colors": [
+          "fresh_blue"
+        ],
+        "occasions": [
+          "business_casual"
+        ],
+        "seasons": [
+          "spring",
+          "autumn"
+        ]
+      }
+    },
+    {
+      "file": "season_spring_shirt_02.jpg",
+      "expected": {
+        "category": "",
+        "color": "",
+        "occasions": [],
+        "seasons": [
+          "spring"
+        ]
+      },
+      "baseline": {
+        "category": "outer",
+        "colors": [
+          "light_beige"
+        ],
+        "occasions": [
+          "business_casual",
+          "campus_casual"
+        ],
+        "seasons": [
+          "winter",
+          "autumn"
+        ]
+      },
+      "candidate": {
+        "category": "top",
+        "colors": [
+          "light_beige"
+        ],
+        "occasions": [
+          "business_casual"
+        ],
+        "seasons": [
+          "spring",
+          "autumn"
+        ]
+      }
+    },
+    {
+      "file": "skirt_long_blue_03.webp",
+      "expected": {
+        "category": "skirt",
+        "color": "",
+        "occasions": [],
+        "seasons": []
+      },
+      "baseline": {
+        "category": "dress",
+        "colors": [
+          "warm_orange_red"
+        ],
+        "occasions": [
+          "social"
+        ],
+        "seasons": [
+          "summer",
+          "spring"
+        ]
+      },
+      "candidate": {
+        "category": "skirt",
+        "colors": [
+          "warm_orange_red"
+        ],
+        "occasions": [
+          "social",
+          "business_casual"
+        ],
+        "seasons": [
+          "autumn",
+          "spring"
+        ]
+      }
+    }
+  ]
+}

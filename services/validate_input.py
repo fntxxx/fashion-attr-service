@@ -94,11 +94,12 @@ class PromptScore:
     results: list[dict[str, Any]]
 
 
-def _score_label_group_softmax(image_features, labels, topk=5) -> PromptScore:
+def _score_label_group_softmax(image_features, labels, topk=5, model_backend: str | None = None) -> PromptScore:
     results = predict_topk_with_image_feature(
         image_features,
         labels,
         topk=min(topk, len(labels)),
+        model_backend=model_backend,
     )
 
     best = results[0]
@@ -110,9 +111,9 @@ def _score_label_group_softmax(image_features, labels, topk=5) -> PromptScore:
     )
 
 
-def _score_label_group_raw(image_features, labels, topk=5) -> PromptScore:
+def _score_label_group_raw(image_features, labels, topk=5, model_backend: str | None = None) -> PromptScore:
     results = sorted(
-        score_texts_with_image_feature(image_features, labels),
+        score_texts_with_image_feature(image_features, labels, model_backend=model_backend),
         key=lambda x: x["score"],
         reverse=True,
     )
@@ -188,8 +189,9 @@ def _estimate_foreground_components(image) -> dict[str, float]:
     }
 
 
-def validate_fashion_input(image):
-    image_features = encode_image_feature(image)
+def validate_fashion_input(image, image_features=None, model_backend: str | None = None):
+    if image_features is None:
+        image_features = encode_image_feature(image, model_backend=model_backend)
     """
     嚴格模式：
     只接受「單件衣物 + 乾淨背景 + 沒有人 + 非多件」圖片。
@@ -201,13 +203,13 @@ def validate_fashion_input(image):
     3. 加入 valid rescue rule：
        若 valid 明顯強於 invalid，優先保留正常商品圖/平拍圖。
     """
-    valid_softmax = _score_label_group_softmax(image_features, VALID_LABELS, topk=5)
-    invalid_softmax = _score_label_group_softmax(image_features, INVALID_LABELS, topk=5)
+    valid_softmax = _score_label_group_softmax(image_features, VALID_LABELS, topk=5, model_backend=model_backend)
+    invalid_softmax = _score_label_group_softmax(image_features, INVALID_LABELS, topk=5, model_backend=model_backend)
 
-    valid_raw = _score_label_group_raw(image_features, VALID_LABELS, topk=5)
+    valid_raw = _score_label_group_raw(image_features, VALID_LABELS, topk=5, model_backend=model_backend)
 
     invalid_raw_groups = {
-        group_name: _score_label_group_raw(image_features, labels, topk=3)
+        group_name: _score_label_group_raw(image_features, labels, topk=3, model_backend=model_backend)
         for group_name, labels in INVALID_LABEL_GROUPS.items()
     }
 
@@ -261,11 +263,10 @@ def validate_fashion_input(image):
     # 若 valid 很明顯比 invalid 強，而且 person CLIP 並不接近 valid，
     # 就不該因為 YOLO 的弱誤判直接擋掉。
     valid_rescue = bool(
-        valid_max >= 0.240 and
-        margin >= 0.022 and
-        person_clip_score <= valid_max - 0.020 and
-        non_fashion_clip_score <= valid_max - 0.030 and
-        multi_item_clip_score <= valid_max - 0.018
+        margin >= 0.01 and
+        person_clip_score < valid_max and
+        non_fashion_clip_score < valid_max and
+        multi_item_clip_score < valid_max
     )
 
     # --------
@@ -292,7 +293,7 @@ def validate_fashion_input(image):
     # 若畫面只有單一明顯主體、valid 分數夠高，且 person bbox 沒大到像完整人像，
     # 就不要因為弱 person 訊號直接擋掉
     single_item_rescue = bool(
-        valid_max >= 0.26 and
+        margin >= 0.015 and
         large_components == 1 and
         person_area_ratio <= 0.35
     )
@@ -323,12 +324,11 @@ def validate_fashion_input(image):
     )
 
     is_valid_by_clip = bool(
-        valid_max >= 0.180 and
-        margin >= -0.0015
+        valid_max >= invalid_max - 0.005
     )
 
     is_valid = bool(
-        is_valid_by_clip and
+        (is_valid_by_clip or valid_rescue) and
         not strong_person_signal and
         not strong_multi_item_signal and
         not strong_non_fashion_signal and
@@ -399,15 +399,15 @@ def validate_fashion_input(image):
     }
 
 
-def detect_image_route(image):
+def detect_image_route(image, model_backend: str | None = None):
     """
     在嚴格單件衣物模式下，通過驗證的圖片一律當作 product。
     這個函式先保留，避免 app.py 其他地方暫時壞掉。
     """
 
-    image_features = encode_image_feature(image)
+    image_features = encode_image_feature(image, model_backend=model_backend)
 
-    result = _score_label_group_softmax(image_features, VALID_LABELS, topk=5)
+    result = _score_label_group_softmax(image_features, VALID_LABELS, topk=5, model_backend=model_backend)
 
     return {
         "route": "product",
@@ -419,7 +419,7 @@ def detect_image_route(image):
     }
 
 
-def detect_coarse_fashion_type ( image , image_features = None ):
+def detect_coarse_fashion_type(image, image_features=None, model_backend: str | None = None):
     prompt_groups = {
         "pants": [
             "a product photo of pants",
@@ -476,9 +476,9 @@ def detect_coarse_fashion_type ( image , image_features = None ):
             prompt_to_group[prompt] = group_key
 
     if image_features is None:
-        image_features = encode_image_feature(image)
+        image_features = encode_image_feature(image, model_backend=model_backend)
 
-    results = score_texts_with_image_feature(image_features, flat_prompts)
+    results = score_texts_with_image_feature(image_features, flat_prompts, model_backend=model_backend)
 
     grouped_scores = {key: [] for key in prompt_groups.keys()}
     for item in results:

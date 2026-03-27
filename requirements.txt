@@ -6,10 +6,20 @@ pillow==10.4.0
 numpy<2
 opencv-python-headless==4.10.0.84
 
+# --- PyTorch ---
 torch==2.2.2
 torchvision==0.17.2
+
+# --- HF stack ---
+transformers>=4.37
 huggingface-hub==0.24.6
 safetensors==0.4.4
+accelerate>=0.30.0
+sentencepiece
 
+# --- CLIP / SigLIP ---
 open_clip_torch==2.24.0
+timm
+
+# --- other ---
 ultralytics==8.2.79

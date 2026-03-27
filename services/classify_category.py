@@ -109,14 +109,15 @@ def _score_label_map_with_confidence(
     prompt_map: Dict[str, str],
     display_label_map: Dict[str, str],
     image_features=None,
+    model_backend: str | None = None,
 ):
     keys = list(prompt_map.keys())
     prompts = list(prompt_map.values())
 
     if image_features is None:
-        image_features = encode_image_feature(image)
+        image_features = encode_image_feature(image, model_backend=model_backend)
 
-    raw_results = score_texts_with_image_feature(image_features, prompts)
+    raw_results = score_texts_with_image_feature(image_features, prompts, model_backend=model_backend)
     raw_score_map = {
         key: float(raw_results[idx]["score"])
         for idx, key in enumerate(keys)
@@ -137,15 +138,16 @@ def _score_label_map_with_confidence(
     }
 
 
-def classify_category(image, image_features=None):
+def classify_category(image, image_features=None, model_backend: str | None = None):
     if image_features is None:
-        image_features = encode_image_feature(image)
+        image_features = encode_image_feature(image, model_backend=model_backend)
 
     main_result = _score_label_map_with_confidence(
         image,
         STAGE1_LABELS,
         MAIN_CATEGORY_LABEL_MAP,
         image_features=image_features,
+        model_backend=model_backend,
     )
     main_key = main_result["best_key"]
 
@@ -154,6 +156,7 @@ def classify_category(image, image_features=None):
         STAGE2_LABELS[main_key],
         FINE_CATEGORY_LABEL_MAP,
         image_features=image_features,
+        model_backend=model_backend,
     )
     fine_key = fine_result["best_key"]
 

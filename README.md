@@ -22,6 +22,15 @@ This Hugging Face Space serves the FastAPI Swagger UI directly at the root path:
 - `GET /warmup` → run warmup flow and report warmup result
 - `POST /predict` → upload an image file for clothing attribute prediction
 
+## Model backend
+
+The service keeps the existing FastAPI and post-processing flow, but the default image-text backbone is now controlled by `FASHION_ATTR_MODEL_BACKEND`:
+
+- `marqo_fashionsiglip` → `hf-hub:Marqo/marqo-fashionSigLIP`
+- `open_clip_vit_b32` → legacy `ViT-B-32` + `openai` weights
+
+If the environment variable is omitted, the service defaults to `marqo_fashionsiglip`.
+
 ## Swagger UI
 
 Open the Space homepage to use the interactive API docs:
@@ -56,3 +65,20 @@ Accepts a multipart file upload using the `image` field and returns clothing att
 - `season`: 多選季節 key 陣列
 
 另外會保留 `validation`、`scores`、`candidates` 等除錯與觀察欄位。
+
+## A/B evaluation
+
+Use the existing test set and run the direct-model A/B script locally:
+
+```bash
+python test_attr_quality_ab.py D:\DevData\attr_quality_testset
+```
+
+The script compares both backends under the same labels, scoring, normalization, and formatter expectations:
+
+- baseline: `open_clip_vit_b32`
+- candidate: `marqo_fashionsiglip`
+
+Output report:
+
+- `test_attr_quality_ab_report.json`
