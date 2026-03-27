@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+import os
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import numpy as np
 from PIL import Image
@@ -11,6 +12,19 @@ _MODEL_LOAD_FAILED = False
 
 PERSON_CLASS_ID = 0
 MODEL_NAME = "yolov8n.pt"
+
+
+def _resolve_model_path() -> str:
+    configured_path = os.getenv("FASHION_ATTR_YOLO_MODEL")
+    if configured_path:
+        return configured_path
+
+    project_root = Path(__file__).resolve().parents[2]
+    bundled_path = project_root / "artifacts" / "weights" / MODEL_NAME
+    if bundled_path.exists():
+        return str(bundled_path)
+
+    return MODEL_NAME
 
 
 def get_yolo_model():
@@ -25,10 +39,10 @@ def get_yolo_model():
     try:
         from ultralytics import YOLO
 
-        model_path = Path(MODEL_NAME)
+        model_path = Path(_resolve_model_path())
 
         # 若本地沒有模型檔，ultralytics 通常會自動下載官方權重
-        _MODEL = YOLO(str(model_path) if model_path.exists() else MODEL_NAME)
+        _MODEL = YOLO(str(model_path) if model_path.exists() else model_path.name)
         return _MODEL
     except Exception as e:
         print("get_yolo_model load failed:", e)
