@@ -199,6 +199,27 @@ def build_runner(args: argparse.Namespace) -> PredictRunner:
     return PipelinePredictRunner()
 
 
+def get_dataset_name(dataset_dir: Path) -> str:
+    resolved = dataset_dir.resolve()
+    return resolved.name or "dataset"
+
+
+def get_next_report_version(base_dir: Path, dataset_name: str) -> int:
+    version = 1
+    while (base_dir / f"{dataset_name}_report_v{version}.json").exists():
+        version += 1
+    return version
+
+
+def resolve_report_file_path(report_file_arg: str, dataset_dir: Path) -> Path:
+    if report_file_arg != str(DEFAULT_REPORT_FILE):
+        return Path(report_file_arg).resolve()
+
+    dataset_name = get_dataset_name(dataset_dir)
+    version = get_next_report_version(Path.cwd(), dataset_name)
+    return Path.cwd() / f"{dataset_name}_report_v{version}.json"
+
+
 def load_quality_labels(labels_file: Path) -> list[QualityLabelRow]:
     rows: list[QualityLabelRow] = []
     with labels_file.open("r", encoding="utf-8-sig", newline="") as file_obj:
@@ -721,7 +742,7 @@ def main() -> int:
         print(f"[ERROR] 找不到測試集資料夾：{dataset_dir}")
         return 1
 
-    report_file = Path(args.report_file)
+    report_file = resolve_report_file_path(args.report_file, dataset_dir)
     runner = build_runner(args)
 
     if args.task == "validation":
