@@ -67,8 +67,32 @@ Accepts a multipart file upload using the `image` field and returns clothing att
 
 ## Model evaluation
 
-Use the existing test set and run the current-model evaluation script locally:
+Use the unified single-model evaluation entry locally.
+
+### Quality evaluation for rule / postprocess changes
+
+Run the fixed quality test set directly against the in-process pipeline:
 
 ```bash
-python test_attr_quality_ab.py D:\DevData\attr_quality_testset
+python test_attr_eval.py quality D:\DevData\attr_quality_testset
 ```
+
+Call the local API instead:
+
+```bash
+python test_attr_eval.py quality D:\DevData\attr_quality_testset --runner api --api-url http://127.0.0.1:7860/predict
+```
+
+Only inspect specific groups or subgroups:
+
+```bash
+python test_attr_eval.py quality D:\DevData\attr_quality_testset --groups color --subgroups butter_yellow,rose_pink
+```
+
+Input validation regression check
+
+```bash
+python test_attr_eval.py validation D:\DevData\ai_testset
+```
+
+The default report file is test_attr_eval_report.json.
