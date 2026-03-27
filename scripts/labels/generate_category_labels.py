@@ -2,7 +2,7 @@ import csv
 from pathlib import Path
 
 DATASET_DIR = Path(r"D:\DevData\attr_quality_testset\category")
-OUTPUT_FILE = Path("labels_category_generated.csv")
+OUTPUT_FILE = Path("artifacts/labels/labels_category_generated.csv")
 
 CATEGORY_DEFAULTS = {
     "top": {

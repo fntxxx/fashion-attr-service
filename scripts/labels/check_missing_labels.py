@@ -2,7 +2,7 @@ import csv
 from pathlib import Path
 
 DATASET_DIR = Path(r"D:\DevData\attr_quality_testset")
-LABELS_FILE = Path("labels_category_generated.csv")
+LABELS_FILE = Path("artifacts/labels/labels_category_generated.csv")
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 
 

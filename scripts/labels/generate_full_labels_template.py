@@ -4,7 +4,7 @@ import csv
 from pathlib import Path
 
 DATASET_DIR = Path(r"D:\DevData\attr_quality_testset")
-OUTPUT_FILE = Path("labels_full_template.csv")
+OUTPUT_FILE = Path("artifacts/labels/labels_full_template.csv")
 
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 

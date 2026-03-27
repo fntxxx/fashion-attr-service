@@ -5,7 +5,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-from services.extract_color import (
+from fashion_attr_service.services.extract_color import (
     _resize_for_color,
     _estimate_foreground,
     _center_weight_mask,
