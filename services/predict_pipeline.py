@@ -3,10 +3,10 @@ from __future__ import annotations
 from PIL import Image
 
 from models.clip_model import (
-    DEFAULT_MODEL_BACKEND,
+    BACKEND_SPEC,
+    MODEL_BACKEND,
     encode_image_feature,
     get_clip_model,
-    resolve_backend,
 )
 from services.classify_category import classify_category
 from services.extract_color import extract_color
@@ -17,13 +17,19 @@ from utils.color_tags import build_color_payload
 from api_formatters import build_predict_payload
 
 
-def _resolve_pipeline_backend(model_backend: str | None = None) -> str:
-    return resolve_backend(model_backend or DEFAULT_MODEL_BACKEND).key
+def _normalize_pipeline_backend(model_backend: str | None = None) -> str:
+    if model_backend is None:
+        return MODEL_BACKEND
+
+    backend_key = model_backend.strip().lower()
+    if backend_key != MODEL_BACKEND:
+        raise ValueError(f"Unsupported model backend: {backend_key}. Supported: {MODEL_BACKEND}")
+
+    return MODEL_BACKEND
 
 
 def run_warmup(model_backend: str | None = None) -> dict:
-    backend_key = _resolve_pipeline_backend(model_backend)
-    backend_spec = resolve_backend(backend_key)
+    backend_key = _normalize_pipeline_backend(model_backend)
 
     try:
         get_clip_model(backend_key)
@@ -40,8 +46,8 @@ def run_warmup(model_backend: str | None = None) -> dict:
             "ok": True,
             "service": "fashion-attr-service",
             "model": {
-                "backend": backend_spec.key,
-                "model_name": backend_spec.model_name,
+                "backend": BACKEND_SPEC.key,
+                "model_name": BACKEND_SPEC.model_name,
             },
             "warmup": {
                 "validation_best_label": validation["best_label"],
@@ -55,15 +61,15 @@ def run_warmup(model_backend: str | None = None) -> dict:
             "ok": False,
             "service": "fashion-attr-service",
             "model": {
-                "backend": backend_spec.key,
-                "model_name": backend_spec.model_name,
+                "backend": BACKEND_SPEC.key,
+                "model_name": BACKEND_SPEC.model_name,
             },
             "error": str(e),
         }
 
 
 def predict_attributes(original_img, model_backend: str | None = None) -> dict:
-    backend_key = _resolve_pipeline_backend(model_backend)
+    backend_key = _normalize_pipeline_backend(model_backend)
 
     image_features = encode_image_feature(original_img, model_backend=backend_key)
     validation = validate_fashion_input(original_img, image_features=image_features, model_backend=backend_key)

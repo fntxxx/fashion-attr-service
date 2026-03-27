@@ -1,84 +1,62 @@
 from __future__ import annotations
 
-import os
 from dataclasses import dataclass
 from typing import Iterable
 
-import open_clip
 import torch
+from open_clip import create_model_and_transforms, get_tokenizer
 from PIL import Image
 
-DEVICE = os.getenv("FASHION_ATTR_DEVICE", "cpu")
-
-DEFAULT_MODEL_BACKEND = os.getenv("FASHION_ATTR_MODEL_BACKEND", "marqo_fashionsiglip")
-LEGACY_MODEL_BACKEND = "open_clip_vit_b32"
-CANDIDATE_MODEL_BACKEND = "marqo_fashionsiglip"
+DEVICE = "cpu"
+MODEL_BACKEND = "marqo_fashionsiglip"
+MODEL_NAME = "hf-hub:Marqo/marqo-fashionSigLIP"
 
 
 @dataclass(frozen=True)
 class ClipBackendSpec:
     key: str
     model_name: str
-    pretrained: str | None
 
 
-BACKEND_SPECS: dict[str, ClipBackendSpec] = {
-    LEGACY_MODEL_BACKEND: ClipBackendSpec(
-        key=LEGACY_MODEL_BACKEND,
-        model_name="ViT-B-32",
-        pretrained="openai",
-    ),
-    CANDIDATE_MODEL_BACKEND: ClipBackendSpec(
-        key=CANDIDATE_MODEL_BACKEND,
-        model_name="hf-hub:Marqo/marqo-fashionSigLIP",
-        pretrained=None,
-    ),
-}
+BACKEND_SPEC = ClipBackendSpec(
+    key=MODEL_BACKEND,
+    model_name=MODEL_NAME,
+)
 
-_model_cache: dict[str, torch.nn.Module] = {}
-_preprocess_cache: dict[str, object] = {}
-_tokenizer_cache: dict[str, object] = {}
-_text_feature_cache: dict[tuple[str, tuple[str, ...]], torch.Tensor] = {}
+_model = None
+_preprocess = None
+_tokenizer = None
+_text_feature_cache: dict[tuple[str, ...], torch.Tensor] = {}
 
 
-def resolve_backend(model_backend: str | None = None) -> ClipBackendSpec:
-    backend_key = (model_backend or DEFAULT_MODEL_BACKEND).strip().lower()
-    if backend_key not in BACKEND_SPECS:
-        supported = ", ".join(sorted(BACKEND_SPECS.keys()))
-        raise ValueError(f"Unsupported model backend: {backend_key}. Supported: {supported}")
-    return BACKEND_SPECS[backend_key]
+def _normalize_backend(model_backend: str | None = None) -> str:
+    if model_backend is None:
+        return MODEL_BACKEND
 
+    backend_key = model_backend.strip().lower()
+    if backend_key != MODEL_BACKEND:
+        raise ValueError(f"Unsupported model backend: {backend_key}. Supported: {MODEL_BACKEND}")
+
+    return MODEL_BACKEND
 
 
 def get_clip_model(model_backend: str | None = None):
-    backend = resolve_backend(model_backend)
+    global _model, _preprocess, _tokenizer
 
-    if backend.key not in _model_cache:
-        if backend.pretrained:
-            model, _, preprocess = open_clip.create_model_and_transforms(
-                backend.model_name,
-                pretrained=backend.pretrained,
-            )
-        else:
-            model, _, preprocess = open_clip.create_model_and_transforms(
-                backend.model_name,
-            )
+    _normalize_backend(model_backend)
 
-        tokenizer = open_clip.get_tokenizer(backend.model_name)
+    if _model is None:
+        model, _, preprocess = create_model_and_transforms(MODEL_NAME)
+        tokenizer = get_tokenizer(MODEL_NAME)
 
         model = model.to(DEVICE)
         model.eval()
 
-        _model_cache[backend.key] = model
-        _preprocess_cache[backend.key] = preprocess
-        _tokenizer_cache[backend.key] = tokenizer
+        _model = model
+        _preprocess = preprocess
+        _tokenizer = tokenizer
 
-    return (
-        _model_cache[backend.key],
-        _preprocess_cache[backend.key],
-        _tokenizer_cache[backend.key],
-    )
-
+    return _model, _preprocess, _tokenizer
 
 
 def _ensure_list(labels: Iterable[str]) -> list[str]:
@@ -87,15 +65,14 @@ def _ensure_list(labels: Iterable[str]) -> list[str]:
     return list(labels)
 
 
-
 def _encode_image_and_texts(image: Image.Image, labels, model_backend: str | None = None):
-    backend = resolve_backend(model_backend)
-    model, preprocess, tokenizer = get_clip_model(backend.key)
+    _normalize_backend(model_backend)
+    model, preprocess, tokenizer = get_clip_model()
 
     labels = _ensure_list(labels)
     image_input = preprocess(image).unsqueeze(0).to(DEVICE)
 
-    cache_key = (backend.key, tuple(labels))
+    cache_key = tuple(labels)
 
     if cache_key in _text_feature_cache:
         text_features = _text_feature_cache[cache_key]
@@ -113,7 +90,6 @@ def _encode_image_and_texts(image: Image.Image, labels, model_backend: str | Non
         image_features = image_features / image_features.norm(dim=-1, keepdim=True)
 
     return image_features, text_features, labels
-
 
 
 def score_texts(image: Image.Image, labels, model_backend: str | None = None):
@@ -139,7 +115,6 @@ def score_texts(image: Image.Image, labels, model_backend: str | None = None):
     return results
 
 
-
 def predict_topk(image: Image.Image, labels, topk=3, model_backend: str | None = None):
     """
     給同一批 labels 做內部排序用。
@@ -163,17 +138,15 @@ def predict_topk(image: Image.Image, labels, topk=3, model_backend: str | None =
     return results
 
 
-
 def predict_best(image: Image.Image, labels, model_backend: str | None = None):
     results = predict_topk(image, labels, topk=1, model_backend=model_backend)
     best = results[0]
     return best["label"], best["score"]
 
 
-
 def encode_image_feature(image: Image.Image, model_backend: str | None = None):
-    backend = resolve_backend(model_backend)
-    model, preprocess, _ = get_clip_model(backend.key)
+    _normalize_backend(model_backend)
+    model, preprocess, _ = get_clip_model()
 
     image_input = preprocess(image).unsqueeze(0).to(DEVICE)
 
@@ -184,13 +157,12 @@ def encode_image_feature(image: Image.Image, model_backend: str | None = None):
     return image_features
 
 
-
 def score_texts_with_image_feature(image_features, labels, model_backend: str | None = None):
-    backend = resolve_backend(model_backend)
-    model, _, tokenizer = get_clip_model(backend.key)
+    _normalize_backend(model_backend)
+    model, _, tokenizer = get_clip_model()
 
     labels = _ensure_list(labels)
-    cache_key = (backend.key, tuple(labels))
+    cache_key = tuple(labels)
 
     if cache_key in _text_feature_cache:
         text_features = _text_feature_cache[cache_key]
@@ -213,7 +185,6 @@ def score_texts_with_image_feature(image_features, labels, model_backend: str | 
         })
 
     return results
-
 
 
 def predict_topk_with_image_feature(image_features, labels, topk=3, model_backend: str | None = None):

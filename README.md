@@ -24,12 +24,11 @@ This Hugging Face Space serves the FastAPI Swagger UI directly at the root path:
 
 ## Model backend
 
-The service keeps the existing FastAPI and post-processing flow, but the default image-text backbone is now controlled by `FASHION_ATTR_MODEL_BACKEND`:
+The service now uses a single image-text backbone throughout the whole inference path:
 
 - `marqo_fashionsiglip` → `hf-hub:Marqo/marqo-fashionSigLIP`
-- `open_clip_vit_b32` → legacy `ViT-B-32` + `openai` weights
 
-If the environment variable is omitted, the service defaults to `marqo_fashionsiglip`.
+There is no backend switch or fallback path in the service runtime.
 
 ## Swagger UI
 
@@ -66,19 +65,10 @@ Accepts a multipart file upload using the `image` field and returns clothing att
 
 另外會保留 `validation`、`scores`、`candidates` 等除錯與觀察欄位。
 
-## A/B evaluation
+## Model evaluation
 
-Use the existing test set and run the direct-model A/B script locally:
+Use the existing test set and run the current-model evaluation script locally:
 
 ```bash
 python test_attr_quality_ab.py D:\DevData\attr_quality_testset
 ```
-
-The script compares both backends under the same labels, scoring, normalization, and formatter expectations:
-
-- baseline: `open_clip_vit_b32`
-- candidate: `marqo_fashionsiglip`
-
-Output report:
-
-- `test_attr_quality_ab_report.json`
