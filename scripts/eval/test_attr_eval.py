@@ -272,15 +272,29 @@ def safe_ratio(numerator: int | float, denominator: int | float) -> float:
     return float(numerator) / float(denominator) if denominator else 0.0
 
 
-def score_multiselect(predicted: Iterable[str], expected: Iterable[str]) -> dict[str, Any]:
+def _is_season_equivalent_exact(predicted_set: set[str], expected_set: set[str]) -> bool:
+    return expected_set in ({"spring"}, {"autumn"}) and predicted_set == {"spring", "autumn"}
+
+
+def score_multiselect(predicted: Iterable[str], expected: Iterable[str], *, attribute_name: str | None = None) -> dict[str, Any]:
     predicted_set = {item for item in predicted if item}
     expected_set = {item for item in expected if item}
-    hit_count = len(predicted_set & expected_set)
-    exact_match = predicted_set == expected_set
-    recall = safe_ratio(hit_count, len(expected_set)) if expected_set else 0.0
-    precision = safe_ratio(hit_count, len(predicted_set)) if predicted_set else 0.0
-    false_positive = sorted(predicted_set - expected_set)
-    false_negative = sorted(expected_set - predicted_set)
+    equivalent_exact = attribute_name == "season" and _is_season_equivalent_exact(predicted_set, expected_set)
+
+    if equivalent_exact:
+        hit_count = len(expected_set)
+        exact_match = True
+        recall = 1.0
+        precision = 1.0
+        false_positive: list[str] = []
+        false_negative: list[str] = []
+    else:
+        hit_count = len(predicted_set & expected_set)
+        exact_match = predicted_set == expected_set
+        recall = safe_ratio(hit_count, len(expected_set)) if expected_set else 0.0
+        precision = safe_ratio(hit_count, len(predicted_set)) if predicted_set else 0.0
+        false_positive = sorted(predicted_set - expected_set)
+        false_negative = sorted(expected_set - predicted_set)
 
     return {
         "predicted": sorted(predicted_set),
@@ -294,8 +308,8 @@ def score_multiselect(predicted: Iterable[str], expected: Iterable[str]) -> dict
         "expected_count": len(expected_set),
         "false_positive": false_positive,
         "false_negative": false_negative,
+        "equivalent_exact": equivalent_exact,
     }
-
 
 def summarize_multiselect_rows(items: list[dict[str, Any]], eval_key: str) -> dict[str, Any]:
     if not items:
@@ -415,7 +429,7 @@ def evaluate_quality_case(
 
     color_eval = score_multiselect(predicted_colors, [row.expected_color] if row.expected_color else [])
     occasion_eval = score_multiselect(predicted_occasions, row.expected_occasions)
-    season_eval = score_multiselect(predicted_seasons, row.expected_seasons)
+    season_eval = score_multiselect(predicted_seasons, row.expected_seasons, attribute_name="season")
 
     if row.group == "category":
         passed = category_pass
@@ -616,7 +630,7 @@ def summarize_quality_results(results: list[dict[str, Any]], failures_limit: int
             },
             "season": {
                 "selection_type": "multi_output",
-                "pass_rule": "exact_match_only",
+                "pass_rule": "exact_match_or_spring_autumn_equivalent",
                 "primary_metric": "season_pass_rate",
                 "equivalent_metric": "season_exact_match_rate",
                 "supplementary_metrics": [

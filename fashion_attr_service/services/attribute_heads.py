@@ -69,31 +69,31 @@ OCCASION_PRIORS: dict[str, dict[str, float]] = {
 SEASON_PRIORS: dict[str, dict[str, float]] = {
     "tank_top": {"spring": 0.36, "summer": 0.92, "autumn": 0.14, "winter": 0.04},
     "t_shirt": {"spring": 0.70, "summer": 0.76, "autumn": 0.48, "winter": 0.10},
-    "shirt": {"spring": 0.72, "summer": 0.40, "autumn": 0.66, "winter": 0.18},
+    "shirt": {"spring": 0.76, "summer": 0.52, "autumn": 0.56, "winter": 0.18},
     "hoodie": {"spring": 0.44, "summer": 0.06, "autumn": 0.82, "winter": 0.70},
     "sweatshirt": {"spring": 0.42, "summer": 0.04, "autumn": 0.84, "winter": 0.72},
-    "knit_sweater": {"spring": 0.22, "summer": 0.02, "autumn": 0.74, "winter": 0.92},
-    "cardigan": {"spring": 0.80, "summer": 0.08, "autumn": 0.62, "winter": 0.58},
+    "knit_sweater": {"spring": 0.18, "summer": 0.02, "autumn": 0.66, "winter": 0.94},
+    "cardigan": {"spring": 0.82, "summer": 0.08, "autumn": 0.52, "winter": 0.60},
     "denim_jacket": {"spring": 0.54, "summer": 0.06, "autumn": 0.80, "winter": 0.56},
     "blazer": {"spring": 0.58, "summer": 0.18, "autumn": 0.72, "winter": 0.44},
     "coat": {"spring": 0.10, "summer": 0.01, "autumn": 0.48, "winter": 0.96},
     "puffer_jacket": {"spring": 0.04, "summer": 0.01, "autumn": 0.28, "winter": 0.99},
     "vest": {"spring": 0.42, "summer": 0.26, "autumn": 0.66, "winter": 0.34},
     "windbreaker": {"spring": 0.62, "summer": 0.16, "autumn": 0.74, "winter": 0.32},
-    "jeans": {"spring": 0.64, "summer": 0.18, "autumn": 0.74, "winter": 0.44},
-    "trousers": {"spring": 0.62, "summer": 0.22, "autumn": 0.74, "winter": 0.40},
+    "jeans": {"spring": 0.54, "summer": 0.20, "autumn": 0.76, "winter": 0.50},
+    "trousers": {"spring": 0.58, "summer": 0.28, "autumn": 0.76, "winter": 0.48},
     "wide_leg_pants": {"spring": 0.58, "summer": 0.30, "autumn": 0.70, "winter": 0.34},
     "leggings": {"spring": 0.26, "summer": 0.02, "autumn": 0.70, "winter": 0.88},
     "shorts": {"spring": 0.34, "summer": 0.96, "autumn": 0.18, "winter": 0.02},
     "mini_skirt": {"spring": 0.72, "summer": 0.66, "autumn": 0.38, "winter": 0.08},
-    "midi_skirt": {"spring": 0.58, "summer": 0.42, "autumn": 0.68, "winter": 0.24},
+    "midi_skirt": {"spring": 0.62, "summer": 0.50, "autumn": 0.58, "winter": 0.22},
     "mini_dress": {"spring": 0.60, "summer": 0.82, "autumn": 0.32, "winter": 0.06},
     "midi_dress": {"spring": 0.56, "summer": 0.58, "autumn": 0.56, "winter": 0.16},
     "sneakers": {"spring": 0.66, "summer": 0.46, "autumn": 0.68, "winter": 0.26},
-    "boots": {"spring": 0.18, "summer": 0.02, "autumn": 0.68, "winter": 0.94},
+    "boots": {"spring": 0.18, "summer": 0.02, "autumn": 0.74, "winter": 0.84},
     "sandals": {"spring": 0.28, "summer": 0.96, "autumn": 0.08, "winter": 0.01},
     "heels": {"spring": 0.42, "summer": 0.52, "autumn": 0.42, "winter": 0.12},
-    "flats": {"spring": 0.62, "summer": 0.46, "autumn": 0.40, "winter": 0.12},
+    "flats": {"spring": 0.64, "summer": 0.40, "autumn": 0.34, "winter": 0.12},
     "bucket_hat": {"spring": 0.48, "summer": 0.64, "autumn": 0.20, "winter": 0.06},
     "beanie": {"spring": 0.12, "summer": 0.01, "autumn": 0.46, "winter": 0.92},
     "hat": {"spring": 0.44, "summer": 0.62, "autumn": 0.24, "winter": 0.08},
@@ -101,6 +101,21 @@ SEASON_PRIORS: dict[str, dict[str, float]] = {
 
 DEFAULT_OCCASION_PRIOR = {"social": 0.28, "campus_casual": 0.32, "business_casual": 0.26, "professional": 0.20}
 DEFAULT_SEASON_PRIOR = {"spring": 0.55, "summer": 0.20, "autumn": 0.58, "winter": 0.30}
+
+MAIN_CATEGORY_OCCASION_PRIORS: dict[str, dict[str, float]] = {
+    "upper_body": {"social": 0.38, "campus_casual": 0.42, "business_casual": 0.44, "professional": 0.30},
+    "pants": {"social": 0.28, "campus_casual": 0.36, "business_casual": 0.54, "professional": 0.46},
+    "skirt": {"social": 0.54, "campus_casual": 0.34, "business_casual": 0.38, "professional": 0.22},
+    "dress": {"social": 0.66, "campus_casual": 0.26, "business_casual": 0.38, "professional": 0.18},
+    "shoes": {"social": 0.40, "campus_casual": 0.48, "business_casual": 0.34, "professional": 0.18},
+    "headwear": {"social": 0.22, "campus_casual": 0.62, "business_casual": 0.12, "professional": 0.06},
+}
+
+OCCASION_FINE_CATEGORY_PRIOR_STRENGTH: dict[str, float] = {
+    "shirt": 0.15,
+    "shorts": 0.08,
+    "sneakers": 0.08,
+}
 
 
 OCCASION_PROMPTS: dict[str, list[str]] = {
@@ -361,6 +376,47 @@ SEASON_SELECTION = AttributeSelectionConfig(
     third_strong_score=0.26,
 )
 
+OCCASION_FINE_CATEGORY_SECONDARY_PROFILE: dict[tuple[str, str, str], dict[str, float]] = {
+    ("professional", "business_casual", "blazer"): {"min_score": 0.44, "min_ratio": 0.93, "max_gap": 0.035},
+    ("professional", "business_casual", "trousers"): {"min_score": 0.40, "min_ratio": 0.80, "max_gap": 0.10},
+    ("professional", "business_casual", "wide_leg_pants"): {"min_score": 0.35, "min_ratio": 0.80, "max_gap": 0.09},
+    ("business_casual", "professional", "shirt"): {"min_score": 0.25, "min_ratio": 0.54, "max_gap": 0.23},
+    ("business_casual", "professional", "trousers"): {"min_score": 0.34, "min_ratio": 0.72, "max_gap": 0.13},
+    ("business_casual", "professional", "wide_leg_pants"): {"min_score": 0.33, "min_ratio": 0.74, "max_gap": 0.12},
+    ("social", "professional", "heels"): {"min_score": 0.10, "min_ratio": 0.16, "max_gap": 0.50},
+}
+
+SEASON_FINE_CATEGORY_CAPS: dict[str, int] = {
+    "boots": 2,
+    "flats": 2,
+    "heels": 2,
+    "shirt": 3,
+    "cardigan": 3,
+    "jeans": 3,
+    "trousers": 3,
+    "midi_skirt": 3,
+}
+
+SEASON_FINE_CATEGORY_SECONDARY_PROFILE: dict[tuple[str, str, str], dict[str, float]] = {
+    ("winter", "autumn", "boots"): {"min_score": 0.34, "min_ratio": 0.68, "max_gap": 0.17},
+    ("winter", "autumn", "knit_sweater"): {"min_score": 0.40, "min_ratio": 0.80, "max_gap": 0.10},
+    ("autumn", "spring", "jeans"): {"min_score": 0.26, "min_ratio": 0.62, "max_gap": 0.18, "strong_score": 0.28, "allow_relaxed_thresholds": True},
+    ("autumn", "spring", "trousers"): {"min_score": 0.26, "min_ratio": 0.62, "max_gap": 0.18, "strong_score": 0.28, "allow_relaxed_thresholds": True},
+    ("spring", "summer", "flats"): {"min_score": 0.30, "min_ratio": 0.74, "max_gap": 0.11},
+    ("spring", "autumn", "shirt"): {"min_score": 0.25, "min_ratio": 0.62, "max_gap": 0.18, "strong_score": 0.27, "allow_relaxed_thresholds": True},
+    ("spring", "autumn", "cardigan"): {"min_score": 0.26, "min_ratio": 0.62, "max_gap": 0.18, "strong_score": 0.27, "allow_relaxed_thresholds": True},
+    ("spring", "autumn", "midi_skirt"): {"min_score": 0.24, "min_ratio": 0.60, "max_gap": 0.18, "strong_score": 0.26, "allow_relaxed_thresholds": True},
+}
+
+SEASON_FINE_CATEGORY_THIRD_PROFILE: dict[tuple[str, str, str, str], dict[str, float]] = {
+    ("autumn", "spring", "summer", "shirt"): {"min_score": 0.18, "min_ratio": 0.24, "max_gap_from_second": 0.17, "allow_below_label_floor": True, "allow_relaxed_thresholds": True},
+    ("autumn", "spring", "summer", "midi_skirt"): {"min_score": 0.18, "min_ratio": 0.24, "max_gap_from_second": 0.17, "allow_below_label_floor": True, "allow_relaxed_thresholds": True},
+    ("spring", "autumn", "winter", "cardigan"): {"min_score": 0.14, "min_ratio": 0.32, "max_gap_from_second": 0.23, "allow_below_label_floor": True, "allow_relaxed_thresholds": True},
+    ("autumn", "spring", "winter", "blazer"): {"min_score": 0.15, "min_ratio": 0.30, "max_gap_from_second": 0.22, "allow_below_label_floor": True, "allow_relaxed_thresholds": True},
+    ("autumn", "spring", "winter", "jeans"): {"min_score": 0.12, "min_ratio": 0.24, "max_gap_from_second": 0.24, "allow_below_label_floor": True, "allow_relaxed_thresholds": True},
+    ("autumn", "spring", "winter", "trousers"): {"min_score": 0.11, "min_ratio": 0.24, "max_gap_from_second": 0.24, "allow_below_label_floor": True, "allow_relaxed_thresholds": True},
+}
+
 
 def _mean(values: Sequence[float]) -> float:
     return float(sum(values) / len(values)) if values else 0.0
@@ -372,6 +428,26 @@ def _build_prior_map(
     category_prior_map: Mapping[str, Mapping[str, float]],
 ) -> dict[str, float]:
     return dict(category_prior_map.get(fine_category, default_prior))
+
+
+def _blend_prior_maps(
+    primary_map: Mapping[str, float],
+    secondary_map: Mapping[str, float] | None = None,
+    *,
+    primary_weight: float = 0.7,
+) -> dict[str, float]:
+    if not secondary_map:
+        return dict(primary_map)
+
+    secondary_weight = max(0.0, 1.0 - primary_weight)
+    merged: dict[str, float] = {}
+    for label in set(primary_map.keys()) | set(secondary_map.keys()):
+        merged[label] = float(primary_map.get(label, 0.0) * primary_weight + secondary_map.get(label, 0.0) * secondary_weight)
+    return merged
+
+
+def _resolve_occasion_prior_strength(fine_category: str) -> float:
+    return float(OCCASION_FINE_CATEGORY_PRIOR_STRENGTH.get(fine_category, 0.18))
 
 
 def _score_prompt_ensemble(
@@ -473,6 +549,8 @@ def _is_allowed_occasion_pair(primary: str, secondary: str, fine_category: str, 
 
 
 def _season_category_cap(fine_category: str) -> int:
+    if fine_category in SEASON_FINE_CATEGORY_CAPS:
+        return int(SEASON_FINE_CATEGORY_CAPS[fine_category])
     return 3 if fine_category in SEASON_THREE_LABEL_CATEGORIES else 2
 
 
@@ -500,6 +578,32 @@ def _is_allowed_season_pair(primary: str, secondary: str, fine_category: str, se
     return True
 
 
+
+
+def _resolve_pair_profile(
+    *,
+    attribute_name: str,
+    primary_label: str,
+    secondary_label: str,
+    fine_category: str,
+) -> Mapping[str, float]:
+    if attribute_name == "occasion":
+        return OCCASION_FINE_CATEGORY_SECONDARY_PROFILE.get((primary_label, secondary_label, fine_category), {})
+    if attribute_name == "season":
+        return SEASON_FINE_CATEGORY_SECONDARY_PROFILE.get((primary_label, secondary_label, fine_category), {})
+    return {}
+
+
+def _resolve_third_season_profile(
+    *,
+    primary_label: str,
+    secondary_label: str,
+    candidate_label: str,
+    fine_category: str,
+) -> Mapping[str, float]:
+    return SEASON_FINE_CATEGORY_THIRD_PROFILE.get((primary_label, secondary_label, candidate_label, fine_category), {})
+
+
 def _can_add_secondary_label(
     *,
     primary: Mapping[str, Any],
@@ -514,11 +618,21 @@ def _can_add_secondary_label(
     ratio = candidate_score / max(top_score, 1e-6)
     label = str(candidate["value"])
 
-    min_floor = _resolve_label_floor(config, label)
+    profile = _resolve_pair_profile(
+        attribute_name=attribute_name,
+        primary_label=str(primary["value"]),
+        secondary_label=label,
+        fine_category=fine_category,
+    )
+    allow_relaxed_thresholds = bool(profile.get("allow_relaxed_thresholds"))
+    min_floor = max(_resolve_label_floor(config, label), float(profile.get("min_score", 0.0)))
+    resolved_ratio = float(profile.get("min_ratio", config.second_relative_ratio)) if allow_relaxed_thresholds else max(config.second_relative_ratio, float(profile.get("min_ratio", 0.0)))
+    resolved_gap = float(profile.get("max_gap", config.second_max_gap)) if allow_relaxed_thresholds else min(config.second_max_gap, float(profile.get("max_gap", config.second_max_gap)))
+    resolved_strong_score = float(profile.get("strong_score", config.second_strong_score)) if allow_relaxed_thresholds else max(config.second_strong_score, float(profile.get("strong_score", 0.0)))
     pass_score = candidate_score >= min_floor
-    pass_ratio = ratio >= config.second_relative_ratio
-    pass_gap = gap <= config.second_max_gap
-    strong_score = candidate_score >= config.second_strong_score
+    pass_ratio = ratio >= resolved_ratio
+    pass_gap = gap <= resolved_gap
+    strong_score = candidate_score >= resolved_strong_score
 
     allowed_pair = True
     if attribute_name == "occasion":
@@ -538,6 +652,10 @@ def _can_add_secondary_label(
         "strong_score": strong_score,
         "allowed_pair": allowed_pair,
         "min_floor": min_floor,
+        "resolved_ratio": resolved_ratio,
+        "resolved_gap": resolved_gap,
+        "resolved_strong_score": resolved_strong_score,
+        "profile": dict(profile),
     }
 
 
@@ -556,10 +674,23 @@ def _can_add_third_season_label(
     gap_from_second = second_score - candidate_score
     label = str(candidate["value"])
 
-    min_floor = max(_resolve_label_floor(config, label), config.third_strong_score)
+    profile = _resolve_third_season_profile(
+        primary_label=str(primary["value"]),
+        secondary_label=str(secondary["value"]),
+        candidate_label=label,
+        fine_category=fine_category,
+    )
+    base_floor = max(_resolve_label_floor(config, label), config.third_strong_score)
+    if profile.get("allow_below_label_floor"):
+        min_floor = float(profile.get("min_score", config.third_strong_score))
+    else:
+        min_floor = max(base_floor, float(profile.get("min_score", config.third_strong_score)))
+    allow_relaxed_thresholds = bool(profile.get("allow_relaxed_thresholds"))
+    resolved_ratio = float(profile.get("min_ratio", config.third_relative_ratio)) if allow_relaxed_thresholds else max(config.third_relative_ratio, float(profile.get("min_ratio", 0.0)))
+    resolved_gap = float(profile.get("max_gap_from_second", config.third_max_gap)) if allow_relaxed_thresholds else min(config.third_max_gap, float(profile.get("max_gap_from_second", config.third_max_gap)))
     pass_score = candidate_score >= min_floor
-    pass_ratio = ratio_to_top >= config.third_relative_ratio
-    pass_gap = gap_from_second <= config.third_max_gap
+    pass_ratio = ratio_to_top >= resolved_ratio
+    pass_gap = gap_from_second <= resolved_gap
     allowed_pair_primary = _is_allowed_season_pair(str(primary["value"]), label, fine_category, candidate_score)
     allowed_pair_secondary = _is_allowed_season_pair(str(secondary["value"]), label, fine_category, candidate_score)
     accepted = pass_score and pass_ratio and pass_gap and allowed_pair_primary and allowed_pair_secondary
@@ -574,6 +705,9 @@ def _can_add_third_season_label(
         "allowed_pair_primary": allowed_pair_primary,
         "allowed_pair_secondary": allowed_pair_secondary,
         "min_floor": min_floor,
+        "resolved_ratio": resolved_ratio,
+        "resolved_gap": resolved_gap,
+        "profile": dict(profile),
     }
 
 
@@ -675,16 +809,17 @@ def _select_seasons(
 
 
 def infer_occasions(image_features, main_category: str, fine_category: str) -> dict[str, Any]:
-    del main_category
     label_map = {value: label for value, label in OCCASION_OPTIONS}
-    prior_map = _build_prior_map(fine_category, DEFAULT_OCCASION_PRIOR, OCCASION_PRIORS)
+    fine_prior_map = _build_prior_map(fine_category, DEFAULT_OCCASION_PRIOR, OCCASION_PRIORS)
+    main_prior_map = MAIN_CATEGORY_OCCASION_PRIORS.get(main_category)
+    prior_map = _blend_prior_maps(fine_prior_map, main_prior_map, primary_weight=0.74)
 
     scored = _score_prompt_ensemble(
         image_features,
         OCCASION_PROMPTS,
         label_map,
         prior_map=prior_map,
-        prior_bias_strength=0.18,
+        prior_bias_strength=_resolve_occasion_prior_strength(fine_category),
         candidate_temperature=0.06,
     )
     selection = _select_occasions(scored["candidates"], config=OCCASION_SELECTION, fine_category=fine_category)
@@ -931,10 +1066,10 @@ def _build_color_stat_prior_map(stats: Mapping[str, float]) -> dict[str, float]:
     if red_ratio >= 0.22 and avg_sat >= 0.18:
         prior["warm_orange_red"] = max(prior["warm_orange_red"], 0.88)
 
-    if green_ratio >= 0.22:
+    if green_ratio >= 0.28 and avg_sat >= 0.14 and low_sat_ratio <= 0.72:
         prior["natural_green"] = max(prior["natural_green"], 0.88)
 
-    if blue_ratio >= 0.22:
+    if blue_ratio >= 0.28 and avg_sat >= 0.14 and low_sat_ratio <= 0.72:
         prior["fresh_blue"] = max(prior["fresh_blue"], 0.88)
 
     return prior
@@ -956,9 +1091,9 @@ def _resolve_color_from_stats(stats: Mapping[str, float]) -> str | None:
         return "dark_gray_black"
     if yellow_ratio >= 0.24 and avg_val >= 0.60:
         return "butter_yellow"
-    if green_ratio >= 0.24:
+    if green_ratio >= 0.26 and avg_sat >= 0.14 and low_sat_ratio <= 0.72:
         return "natural_green"
-    if blue_ratio >= 0.24:
+    if blue_ratio >= 0.26 and avg_sat >= 0.14 and low_sat_ratio <= 0.72:
         return "fresh_blue"
     if red_ratio >= 0.24 and avg_sat >= 0.18:
         return "warm_orange_red"
@@ -986,10 +1121,33 @@ def _resolve_ambiguous_color(
         frozenset({"butter_yellow", "light_beige"}),
         frozenset({"butter_yellow", "earth_brown"}),
         frozenset({"earth_brown", "warm_orange_red"}),
+        frozenset({"rose_pink", "warm_orange_red"}),
+        frozenset({"elegant_purple", "fresh_blue"}),
+        frozenset({"fresh_blue", "natural_green"}),
         frozenset({"dark_gray_black", "neutral_gray"}),
     }
     if gap > 0.08 or frozenset({top_value, second_value}) not in ambiguous_pairs:
         return None
+
+    avg_sat = float(stats.get("avg_sat", 0.0))
+    avg_val = float(stats.get("avg_val", 0.0))
+    low_sat_ratio = float(stats.get("low_sat_ratio", 0.0))
+    red_ratio = float(stats.get("red_ratio", 0.0))
+    warm_ratio = float(stats.get("warm_ratio", 0.0))
+
+    pair = frozenset({top_value, second_value})
+    if pair == frozenset({"earth_brown", "warm_orange_red"}) and low_sat_ratio >= 0.50 and avg_sat <= 0.24 and avg_val <= 0.80:
+        return "earth_brown"
+    if pair == frozenset({"rose_pink", "warm_orange_red"}) and avg_val >= 0.82 and low_sat_ratio >= 0.52:
+        return "rose_pink"
+    if pair == frozenset({"butter_yellow", "light_beige"}) and avg_val >= 0.88 and warm_ratio >= 0.90 and red_ratio >= 0.05:
+        return "butter_yellow"
+    if pair == frozenset({"fresh_blue", "natural_green"}) and avg_sat <= 0.16 and low_sat_ratio >= 0.56:
+        return "fresh_blue" if float(stats.get("blue_ratio", 0.0)) >= float(stats.get("green_ratio", 0.0)) else "natural_green"
+    if pair == frozenset({"elegant_purple", "fresh_blue"}) and avg_sat <= 0.12 and avg_val >= 0.82:
+        return "elegant_purple"
+    if pair == frozenset({"light_beige", "neutral_gray"}) and avg_val >= 0.72 and low_sat_ratio >= 0.72 and warm_ratio >= 0.28:
+        return "light_beige"
 
     stat_choice = _resolve_color_from_stats(stats)
     if stat_choice in {top_value, second_value}:
