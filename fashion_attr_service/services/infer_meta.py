@@ -227,8 +227,8 @@ def infer_occasions(main_category: str, fine_category: str) -> dict[str, Any]:
         "trousers": {
             "campus_casual": 0.22,
             "social": 0.40,
-            "business_casual": 0.86,
-            "professional": 0.78,
+            "business_casual": 0.84,
+            "professional": 0.92,
         },
         "wide_leg_pants": {
             "campus_casual": 0.28,
@@ -418,10 +418,10 @@ def infer_seasons(main_category: str, fine_category: str) -> dict[str, Any]:
             "winter": 0.92,
         },
         "cardigan": {
-            "spring": 0.72,
+            "spring": 0.80,
             "summer": 0.08,
-            "autumn": 0.72,
-            "winter": 0.60,
+            "autumn": 0.62,
+            "winter": 0.58,
         },
         "denim_jacket": {
             "spring": 0.54,
@@ -490,9 +490,9 @@ def infer_seasons(main_category: str, fine_category: str) -> dict[str, Any]:
             "winter": 0.02,
         },
         "mini_skirt": {
-            "spring": 0.62,
-            "summer": 0.74,
-            "autumn": 0.42,
+            "spring": 0.72,
+            "summer": 0.66,
+            "autumn": 0.38,
             "winter": 0.08,
         },
         "midi_skirt": {
@@ -538,9 +538,9 @@ def infer_seasons(main_category: str, fine_category: str) -> dict[str, Any]:
             "winter": 0.12,
         },
         "flats": {
-            "spring": 0.52,
-            "summer": 0.54,
-            "autumn": 0.46,
+            "spring": 0.62,
+            "summer": 0.46,
+            "autumn": 0.40,
             "winter": 0.12,
         },
         "bucket_hat": {

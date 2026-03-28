@@ -18,11 +18,66 @@ TOP_FINE_KEYS = {
 }
 
 
-def build_category_value(category_result: dict) -> str:
+CARDIGAN_TOP_SCORE_MIN = 0.91
+CARDIGAN_OUTER_SUPPORT_MAX = 0.05
+CARDIGAN_TOP_SUPPORT_MIN = 0.025
+DRESS_TO_OUTER_UPPER_BODY_MIN = 0.30
+DRESS_TO_OUTER_MAX_GAP = 0.03
+DRESS_TO_OUTER_CATEGORY_SCORE_MAX = 0.75
+
+
+def _sum_scores(score_map: dict[str, float], keys: set[str]) -> float:
+    return sum(float(score_map.get(key, 0.0)) for key in keys)
+
+
+def _should_map_cardigan_to_top(category_result: dict) -> bool:
+    fine_score_map = category_result.get("candidateScoreMaps", {}).get("category", {})
+    if not fine_score_map:
+        return False
+
+    cardigan_score = float(fine_score_map.get("cardigan", 0.0))
+    outer_support = _sum_scores(fine_score_map, OUTER_FINE_KEYS - {"cardigan"})
+    top_support = _sum_scores(fine_score_map, TOP_FINE_KEYS)
+
+    return (
+        cardigan_score >= CARDIGAN_TOP_SCORE_MIN
+        and outer_support <= CARDIGAN_OUTER_SUPPORT_MAX
+        and top_support >= CARDIGAN_TOP_SUPPORT_MIN
+    )
+
+
+def _should_map_dress_result_to_outer(category_result: dict, coarse_type: str) -> bool:
+    if coarse_type != "upper_body":
+        return False
+    if category_result.get("mainCategoryKey") != "dress":
+        return False
+
+    main_score_map = category_result.get("candidateScoreMaps", {}).get("mainCategory", {})
+    if not main_score_map:
+        return False
+
+    upper_body_score = float(main_score_map.get("upper_body", 0.0))
+    dress_score = float(main_score_map.get("dress", 0.0))
+    category_score = float(category_result.get("scores", {}).get("category", 0.0))
+
+    return (
+        upper_body_score >= DRESS_TO_OUTER_UPPER_BODY_MIN
+        and dress_score - upper_body_score <= DRESS_TO_OUTER_MAX_GAP
+        and category_score <= DRESS_TO_OUTER_CATEGORY_SCORE_MAX
+    )
+
+
+def build_category_value(category_result: dict, coarse_type: str = "") -> str:
     fine_key = category_result["categoryKey"]
     main_key = category_result["mainCategoryKey"]
 
+    if fine_key == "cardigan":
+        return "top" if _should_map_cardigan_to_top(category_result) else "outer"
+
     if fine_key in OUTER_FINE_KEYS:
+        return "outer"
+
+    if _should_map_dress_result_to_outer(category_result, coarse_type):
         return "outer"
 
     return MAIN_CATEGORY_TO_UI.get(main_key, "top")
@@ -64,13 +119,13 @@ def _swap_selected_category_to_top(ui_score_map: dict[str, float], selected_valu
     return _normalize_probability_map(swapped)
 
 
-def build_category_candidates(category_result: dict) -> list[dict]:
+def build_category_candidates(category_result: dict, coarse_type: str = "") -> list[dict]:
     candidate_score_maps = category_result.get("candidateScoreMaps", {})
     main_score_map = candidate_score_maps.get("mainCategory", {})
     fine_score_map = candidate_score_maps.get("category", {})
 
     if not main_score_map or not fine_score_map:
-        selected = build_category_value(category_result)
+        selected = build_category_value(category_result, coarse_type=coarse_type)
         candidates = []
         for value, label in CATEGORY_UI_OPTIONS:
             candidates.append(
@@ -94,7 +149,10 @@ def build_category_candidates(category_result: dict) -> list[dict]:
         "shoes": float(main_score_map.get("shoes", 0.0)),
     }
 
-    selected = build_category_value(category_result)
+    if _should_map_dress_result_to_outer(category_result, coarse_type):
+        ui_score_map["outer"] = max(ui_score_map["outer"], upper_body_prob)
+
+    selected = build_category_value(category_result, coarse_type=coarse_type)
     ui_score_map = _swap_selected_category_to_top(ui_score_map, selected)
 
     candidates = [
@@ -121,7 +179,7 @@ def build_predict_payload(
     detection: dict,
     final_score: float,
 ) -> dict:
-    category_value = build_category_value(category_result)
+    category_value = build_category_value(category_result, coarse_type=coarse_type)
     color_value = color_payload["color"]
     occasion_values = occasions["selected"]
     season_values = seasons["selected"]
@@ -146,7 +204,7 @@ def build_predict_payload(
             "season": float(max([x["score"] for x in seasons["candidates"]] or [0.0])),
         },
         "candidates": {
-            "category": build_category_candidates(category_result),
+            "category": build_category_candidates(category_result, coarse_type=coarse_type),
             "color": color_payload["candidates"],
             "occasion": occasions["candidates"],
             "season": seasons["candidates"],
