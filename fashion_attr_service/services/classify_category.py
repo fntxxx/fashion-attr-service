@@ -7,57 +7,64 @@ from fashion_attr_service.models.fashion_siglip_model import (
 from fashion_attr_service.utils.scoring import build_candidates
 
 
+# Prompt 設計原則：
+# - 維持所有 prompt 風格一致，避免同一批候選描述長短差異過大。
+# - 保留「clean product photo」骨架，補足最必要的服裝輪廓、穿著位置、常見英文別名。
+# - stage1 專注在大類分流；stage2 專注在同大類內的細粒度區辨。
+# - 本次只做最小範圍微調：
+#   1) 強化 dress 與 top 的邊界
+#   2) 保留 cardigan 在 outer 側，避免一般 top 被吸到 outer
 STAGE1_LABELS = {
-    "headwear": "a clean product photo of a single hat or other headwear",
-    "upper_body": "a clean product photo of a single upper-body garment",
-    "pants": "a clean product photo of a single pair of pants or trousers",
-    "skirt": "a clean product photo of a single skirt",
-    "dress": "a clean product photo of a single dress",
-    "shoes": "a clean product photo of a single pair of shoes",
+    "headwear": "a clean product photo of a single headwear item worn on the head, such as a hat, cap, beanie, or bucket hat",
+    "upper_body": "a clean product photo of a single separate upper-body garment worn on the torso, including tops and outerwear such as t-shirts, shirts, sweaters, hoodies, jackets, coats, and vests",
+    "pants": "a clean product photo of a single bottom garment with two leg openings, such as pants, trousers, jeans, leggings, or shorts",
+    "skirt": "a clean product photo of a single skirt, a bottom garment that hangs from the waist without separate leg openings",
+    "dress": "a clean product photo of a single dress, a one-piece garment that covers the upper body and continues below the waist into a skirt",
+    "shoes": "a clean product photo of a single pair of footwear, such as sneakers, boots, sandals, heels, or flats",
 }
 
 STAGE2_LABELS = {
     "headwear": {
-        "bucket_hat": "a clean product photo of a single bucket hat",
-        "beanie": "a clean product photo of a single beanie",
-        "hat": "a clean product photo of a single fashion hat or cap",
+        "bucket_hat": "a clean product photo of a single bucket hat, a soft hat with a wide downward-sloping brim",
+        "beanie": "a clean product photo of a single beanie, a close-fitting knit cap without a brim",
+        "hat": "a clean product photo of a single fashion hat or cap, a general headwear item other than a bucket hat or beanie",
     },
     "upper_body": {
-        "t_shirt": "a clean product photo of a single t-shirt or casual tee",
-        "shirt": "a clean product photo of a single button-up shirt or blouse",
-        "tank_top": "a clean product photo of a single tank top or sleeveless top",
-        "hoodie": "a clean product photo of a single hoodie",
-        "sweatshirt": "a clean product photo of a single sweatshirt",
-        "knit_sweater": "a clean product photo of a single knit sweater",
-        "cardigan": "a clean product photo of a single cardigan",
-        "denim_jacket": "a clean product photo of a single denim jacket",
-        "blazer": "a clean product photo of a single blazer",
-        "coat": "a clean product photo of a single coat or outerwear jacket",
-        "puffer_jacket": "a clean product photo of a single puffer jacket",
-        "vest": "a clean product photo of a single vest",
-        "windbreaker": "a clean product photo of a single windbreaker",
+        "t_shirt": "a clean product photo of a single t-shirt or tee, a separate casual short-sleeve knit top worn as the main top, without buttons or a front opening",
+        "shirt": "a clean product photo of a single shirt or blouse, a separate woven upper-body garment worn as the main top, with a collar or button front, not an outerwear layer",
+        "tank_top": "a clean product photo of a single tank top or sleeveless top with no sleeves or shoulder coverage",
+        "hoodie": "a clean product photo of a single hoodie, a casual hooded sweatshirt made from soft knit fabric",
+        "sweatshirt": "a clean product photo of a single sweatshirt, a pullover long-sleeve casual top without a hood or front opening",
+        "knit_sweater": "a clean product photo of a single knit sweater or pullover, a knitted long-sleeve top with a soft textured knit look",
+        "cardigan": "a clean product photo of a single cardigan, a knit outerwear layering piece with a front opening or buttons, worn over inner clothing",
+        "denim_jacket": "a clean product photo of a single denim jacket, a structured outerwear jacket made of blue or black denim",
+        "blazer": "a clean product photo of a single blazer, a tailored structured outerwear jacket with lapels for smart or formal wear",
+        "coat": "a clean product photo of a single coat, a longer structured or warm outerwear layer worn over other clothing, typically longer than a regular jacket",
+        "puffer_jacket": "a clean product photo of a single puffer jacket, a quilted padded jacket with a bulky insulated shape",
+        "vest": "a clean product photo of a single vest or gilet, a sleeveless outerwear layering piece worn over other clothing",
+        "windbreaker": "a clean product photo of a single windbreaker, a lightweight sporty zip-front jacket for wind or light rain",
     },
     "pants": {
-        "jeans": "a clean product photo of a single pair of jeans",
-        "trousers": "a clean product photo of a single pair of trousers",
-        "wide_leg_pants": "a clean product photo of a single pair of wide-leg pants",
-        "leggings": "a clean product photo of a single pair of leggings",
-        "shorts": "a clean product photo of a single pair of shorts",
+        "jeans": "a clean product photo of a single pair of jeans, denim pants with a classic five-pocket casual style",
+        "trousers": "a clean product photo of a single pair of trousers, long tailored pants in woven fabric, not denim",
+        "wide_leg_pants": "a clean product photo of a single pair of wide-leg pants, trousers with a loose wide silhouette from hip to hem",
+        "leggings": "a clean product photo of a single pair of leggings, tight close-fitting stretch pants that hug the legs",
+        "shorts": "a clean product photo of a single pair of shorts, short pants ending above the knee",
     },
     "skirt": {
-        "mini_skirt": "a clean product photo of a single mini skirt",
-        "midi_skirt": "a clean product photo of a single midi skirt or long skirt",
+        "mini_skirt": "a clean product photo of a single mini skirt, a short skirt ending above the knee",
+        "midi_skirt": "a clean product photo of a single midi skirt or long skirt, a skirt extending below the knee toward the calf or ankle",
     },
     "dress": {
-        "mini_dress": "a clean product photo of a single mini dress",
-        "midi_dress": "a clean product photo of a single midi dress or long dress",
+        "mini_dress": "a clean product photo of a single mini dress, a short one-piece garment that covers the upper body and continues into a skirt above the knee",
+        "midi_dress": "a clean product photo of a single midi dress or long dress, a one-piece garment that covers the upper body and continues into a skirt below the knee toward the calf or ankle",
     },
     "shoes": {
-        "sneakers": "a clean product photo of a single pair of sneakers or casual shoes",
-        "boots": "a clean product photo of a single pair of boots",
-        "sandals": "a clean product photo of a single pair of sandals",
-        "heels": "a clean product photo of a single pair of high heels",
-        "flats": "a clean product photo of a single pair of flats",
+        "sneakers": "a clean product photo of a single pair of sneakers, casual athletic lace-up shoes with rubber soles",
+        "boots": "a clean product photo of a single pair of boots, shoes that cover the ankle or rise higher on the leg",
+        "sandals": "a clean product photo of a single pair of sandals, open-toe shoes with straps and exposed foot areas",
+        "heels": "a clean product photo of a single pair of high heels or pumps, dress shoes with a clearly elevated heel",
+        "flats": "a clean product photo of a single pair of flats, low-profile closed-toe shoes with little or no heel",
     },
 }
 
