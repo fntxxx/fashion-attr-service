@@ -9,11 +9,9 @@ from fashion_attr_service.models.fashion_siglip_model import (
     get_clip_model,
 )
 from fashion_attr_service.services.classify_category import classify_category
-from fashion_attr_service.services.extract_color import extract_color
-from fashion_attr_service.services.infer_meta import infer_occasions, infer_seasons
+from fashion_attr_service.services.attribute_heads import infer_color, infer_occasions, infer_seasons
 from fashion_attr_service.services.postprocess_category import postprocess_category
 from fashion_attr_service.services.validate_input import validate_fashion_input, detect_coarse_fashion_type
-from fashion_attr_service.utils.color_tags import build_color_payload
 from fashion_attr_service.api.formatters import build_predict_payload
 
 
@@ -28,7 +26,7 @@ def _normalize_pipeline_backend(model_backend: str | None = None) -> str:
     return MODEL_BACKEND
 
 
-def _build_predict_debug_payload(*, pre_category_result: dict, post_category_result: dict, coarse_info: dict, occasions: dict, seasons: dict) -> dict:
+def _build_predict_debug_payload(*, pre_category_result: dict, post_category_result: dict, coarse_info: dict, color_payload: dict, occasions: dict, seasons: dict) -> dict:
     return {
         "pre_postprocess_category": {
             "mainCategoryKey": pre_category_result.get("mainCategoryKey"),
@@ -47,10 +45,19 @@ def _build_predict_debug_payload(*, pre_category_result: dict, post_category_res
         "coarse_score_map": coarse_info.get("score_map") or {},
         "candidate_score_map": post_category_result.get("candidateScoreMaps") or {},
         "postprocess_debug": post_category_result.get("postprocessDebug") or {},
+        "color_focus": color_payload.get("focusDebug") or {},
+        "color_heuristic_tone": color_payload.get("heuristicTone"),
+        "color_candidate_score_map": color_payload.get("candidateScoreMap") or {},
+        "color_raw_prompt_score_map": color_payload.get("rawPromptScoreMap") or {},
+        "color_prior_map": color_payload.get("priorMap") or {},
         "occasion_selection": occasions.get("selectionDebug") or {},
         "occasion_candidate_score_map": occasions.get("candidateScoreMap") or {},
+        "occasion_raw_prompt_score_map": occasions.get("rawPromptScoreMap") or {},
+        "occasion_prior_map": occasions.get("priorMap") or {},
         "season_selection": seasons.get("selectionDebug") or {},
         "season_candidate_score_map": seasons.get("candidateScoreMap") or {},
+        "season_raw_prompt_score_map": seasons.get("rawPromptScoreMap") or {},
+        "season_prior_map": seasons.get("priorMap") or {},
     }
 
 
@@ -65,8 +72,7 @@ def run_warmup(model_backend: str | None = None) -> dict:
         validation = validate_fashion_input(dummy, image_features=image_features, model_backend=backend_key)
         coarse_info = detect_coarse_fashion_type(dummy, image_features=image_features, model_backend=backend_key)
         category_result = classify_category(dummy, image_features=image_features, model_backend=backend_key)
-        color_tone = extract_color(dummy)
-        color_payload = build_color_payload(color_tone)
+        color_payload = infer_color(dummy, model_backend=backend_key)
 
         return {
             "ok": True,
@@ -125,20 +131,28 @@ def predict_attributes(original_img, model_backend: str | None = None, *, includ
     working_img = original_img
 
     pre_category_result = classify_category(working_img, image_features=image_features, model_backend=backend_key)
-    color_tone = extract_color(working_img)
-    color_payload = build_color_payload(color_tone)
+    color_payload = infer_color(working_img, model_backend=backend_key)
+    color_focus_detection = (color_payload.get("focusDebug") or {}).get("detection") or {}
+    if color_focus_detection.get("detected"):
+        detection = {
+            "detected": bool(color_focus_detection.get("detected")),
+            "label": color_focus_detection.get("label"),
+            "mainCategoryKey": color_focus_detection.get("mainCategoryKey"),
+            "bbox": color_focus_detection.get("bbox"),
+            "score": float(color_focus_detection.get("score") or 0.0),
+        }
 
     category_result = postprocess_category(
         dict(pre_category_result),
         working_img,
-        color_tone=color_tone,
+        color_tone=color_payload["heuristicTone"],
         route=route,
         coarse_info=coarse_info,
         validation=validation,
     )
 
-    occasions = infer_occasions(category_result["mainCategoryKey"], category_result["categoryKey"])
-    seasons = infer_seasons(category_result["mainCategoryKey"], category_result["categoryKey"])
+    occasions = infer_occasions(image_features, category_result["mainCategoryKey"], category_result["categoryKey"])
+    seasons = infer_seasons(image_features, category_result["mainCategoryKey"], category_result["categoryKey"])
 
     final_score = float(category_result["scores"]["category"])
     if detection["detected"]:
@@ -161,6 +175,7 @@ def predict_attributes(original_img, model_backend: str | None = None, *, includ
             pre_category_result=pre_category_result,
             post_category_result=category_result,
             coarse_info=coarse_info,
+            color_payload=color_payload,
             occasions=occasions,
             seasons=seasons,
         )
