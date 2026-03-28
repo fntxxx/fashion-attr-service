@@ -104,7 +104,7 @@ class PipelinePredictRunner(PredictRunner):
 
         with Image.open(image_path) as image:
             rgb_image = image.convert("RGB")
-        return self._predict_attributes(rgb_image)
+        return self._predict_attributes(rgb_image, include_debug=True)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -342,6 +342,26 @@ def extract_topk_category_values(result: dict[str, Any], topk: int) -> list[str]
     return values
 
 
+def build_quality_debug_info(result: dict[str, Any]) -> dict[str, Any]:
+    debug = result.get("_debug") or {}
+    return {
+        "pre_postprocess_category": debug.get("pre_postprocess_category"),
+        "postprocess_category": debug.get("postprocess_category"),
+        "coarse_type": debug.get("coarse_type") or result.get("coarseType"),
+        "coarse_score": debug.get("coarse_score"),
+        "candidate_score_map": debug.get("candidate_score_map"),
+    }
+
+
+def build_multilabel_case_breakdown(items: list[dict[str, Any]], eval_key: str) -> dict[str, Any]:
+    evals = [item[eval_key] for item in items]
+    return {
+        "over_predict_cases": sum(1 for metric in evals if metric["false_positive"] and not metric["false_negative"]),
+        "under_predict_cases": sum(1 for metric in evals if metric["false_negative"] and not metric["false_positive"]),
+        "hit_but_not_exact_cases": sum(1 for metric in evals if metric["hit_count"] > 0 and not metric["exact_match"]),
+    }
+
+
 def evaluate_quality_case(
     row: QualityLabelRow,
     dataset_dir: Path,
@@ -430,6 +450,7 @@ def evaluate_quality_case(
             "seasons": predicted_seasons,
             "raw": result,
         },
+        "debug": build_quality_debug_info(result),
         "color_eval": color_eval,
         "occasion_eval": occasion_eval,
         "season_eval": season_eval,
@@ -445,6 +466,8 @@ def build_quality_bucket_summary(items: list[dict[str, Any]]) -> dict[str, Any]:
     color_metrics = summarize_multiselect_rows(color_rows, "color_eval")
     occasion_metrics = summarize_multiselect_rows(occasion_rows, "occasion_eval")
     season_metrics = summarize_multiselect_rows(season_rows, "season_eval")
+    occasion_breakdown = build_multilabel_case_breakdown(occasion_rows, "occasion_eval")
+    season_breakdown = build_multilabel_case_breakdown(season_rows, "season_eval")
 
     return {
         "rows": len(items),
@@ -461,6 +484,7 @@ def build_quality_bucket_summary(items: list[dict[str, Any]]) -> dict[str, Any]:
         "occasion_false_negative_rate": occasion_metrics["false_negative_rate"],
         "occasion_avg_false_positive_count": occasion_metrics["avg_false_positive_count"],
         "occasion_avg_false_negative_count": occasion_metrics["avg_false_negative_count"],
+        "occasion_avg_predicted_count": occasion_metrics["avg_predicted_count"],
         "season_pass_rate": season_metrics["pass_rate"],
         "season_hit_rate": season_metrics["hit_rate"],
         "season_exact_match_rate": season_metrics["exact_match_rate"],
@@ -471,6 +495,7 @@ def build_quality_bucket_summary(items: list[dict[str, Any]]) -> dict[str, Any]:
         "season_false_negative_rate": season_metrics["false_negative_rate"],
         "season_avg_false_positive_count": season_metrics["avg_false_positive_count"],
         "season_avg_false_negative_count": season_metrics["avg_false_negative_count"],
+        "season_avg_predicted_count": season_metrics["avg_predicted_count"],
         "counts": {
             "category_rows": len(category_rows),
             "color_rows": len(color_rows),
@@ -513,6 +538,7 @@ def summarize_quality_results(results: list[dict[str, Any]], failures_limit: int
                 "expected": item["expected"]["category"],
                 "predicted": item["actual"]["category"],
                 f"top{topk}": item["category_topk_values"],
+                "debug": item.get("debug"),
             }
             for item in category_rows
             if not item["category_pass"]
@@ -538,6 +564,7 @@ def summarize_quality_results(results: list[dict[str, Any]], failures_limit: int
                 "main_category_key": item["actual"]["raw"].get("mainCategoryKey"),
                 "name": item["actual"]["raw"].get("name"),
                 "evaluation": item["occasion_eval"],
+                "debug": item.get("debug"),
             }
             for item in occasion_rows
             if not item["occasion_eval"]["exact_match"]
@@ -552,6 +579,7 @@ def summarize_quality_results(results: list[dict[str, Any]], failures_limit: int
                 "main_category_key": item["actual"]["raw"].get("mainCategoryKey"),
                 "name": item["actual"]["raw"].get("name"),
                 "evaluation": item["season_eval"],
+                "debug": item.get("debug"),
             }
             for item in season_rows
             if not item["season_eval"]["exact_match"]
@@ -562,6 +590,8 @@ def summarize_quality_results(results: list[dict[str, Any]], failures_limit: int
     color_metrics = summarize_multiselect_rows(color_rows, "color_eval")
     occasion_metrics = summarize_multiselect_rows(occasion_rows, "occasion_eval")
     season_metrics = summarize_multiselect_rows(season_rows, "season_eval")
+    occasion_breakdown = build_multilabel_case_breakdown(occasion_rows, "occasion_eval")
+    season_breakdown = build_multilabel_case_breakdown(season_rows, "season_eval")
 
     return {
         "total_rows": len(results),
@@ -612,6 +642,7 @@ def summarize_quality_results(results: list[dict[str, Any]], failures_limit: int
         "occasion_false_negative_rate": occasion_metrics["false_negative_rate"],
         "occasion_avg_false_positive_count": occasion_metrics["avg_false_positive_count"],
         "occasion_avg_false_negative_count": occasion_metrics["avg_false_negative_count"],
+        "occasion_avg_predicted_count": occasion_metrics["avg_predicted_count"],
         "season_pass_rate": season_metrics["pass_rate"],
         "season_hit_rate": season_metrics["hit_rate"],
         "season_exact_match_rate": season_metrics["exact_match_rate"],
@@ -622,6 +653,9 @@ def summarize_quality_results(results: list[dict[str, Any]], failures_limit: int
         "season_false_negative_rate": season_metrics["false_negative_rate"],
         "season_avg_false_positive_count": season_metrics["avg_false_positive_count"],
         "season_avg_false_negative_count": season_metrics["avg_false_negative_count"],
+        "season_avg_predicted_count": season_metrics["avg_predicted_count"],
+        "occasion_case_breakdown": occasion_breakdown,
+        "season_case_breakdown": season_breakdown,
         "counts": {
             "category_rows": len(category_rows),
             "color_rows": len(color_rows),

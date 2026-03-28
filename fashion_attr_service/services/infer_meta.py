@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from fashion_attr_service.utils.scoring import build_candidates, pick_multi_selected
+from fashion_attr_service.utils.scoring import build_candidates
 
 
 OCCASION_OPTIONS = [
@@ -18,6 +18,115 @@ SEASON_OPTIONS = [
     ("autumn", "秋季"),
     ("winter", "冬季"),
 ]
+
+SEASON_ALLOWED_DOUBLE_COMBINATIONS = {
+    frozenset({"spring", "autumn"}),
+}
+
+OCCASION_ALLOWED_DOUBLE_COMBINATIONS = {
+    frozenset({"campus_casual", "social"}),
+    frozenset({"business_casual", "social"}),
+    frozenset({"business_casual", "professional"}),
+}
+
+STRICT_OCCASION_KEYS = {"business_casual", "professional"}
+
+
+def _build_single_or_conditional_double_selection(
+    candidates: list[dict[str, Any]],
+    *,
+    second_score_min: float,
+    max_gap: float,
+    allowed_pairs: set[frozenset[str]] | None = None,
+    strict_keys: set[str] | None = None,
+    strict_second_score_min: float | None = None,
+    strict_max_gap: float | None = None,
+    force_single_keys: set[str] | None = None,
+) -> dict[str, Any]:
+    if not candidates:
+        return {
+            "selected": [],
+            "decision": "empty",
+            "top1": None,
+            "top2": None,
+            "top1_score": 0.0,
+            "top2_score": 0.0,
+            "gap": 0.0,
+            "allowed_double": False,
+        }
+
+    top1 = candidates[0]
+    selected = [str(top1["value"])]
+
+    if len(candidates) < 2:
+        return {
+            "selected": selected,
+            "decision": "single_only_one_candidate",
+            "top1": str(top1["value"]),
+            "top2": None,
+            "top1_score": float(top1["score"]),
+            "top2_score": 0.0,
+            "gap": 1.0,
+            "allowed_double": False,
+        }
+
+    top2 = candidates[1]
+    top1_value = str(top1["value"])
+    top2_value = str(top2["value"])
+    top1_score = float(top1["score"])
+    top2_score = float(top2["score"])
+    gap = top1_score - top2_score
+    pair = frozenset({top1_value, top2_value})
+
+    if force_single_keys and top1_value in force_single_keys:
+        return {
+            "selected": selected,
+            "decision": "single_force_top1",
+            "top1": top1_value,
+            "top2": top2_value,
+            "top1_score": top1_score,
+            "top2_score": top2_score,
+            "gap": gap,
+            "allowed_double": False,
+        }
+
+    resolved_second_score_min = second_score_min
+    resolved_max_gap = max_gap
+    if strict_keys and ({top1_value, top2_value} & strict_keys):
+        resolved_second_score_min = (
+            float(strict_second_score_min)
+            if strict_second_score_min is not None
+            else second_score_min
+        )
+        resolved_max_gap = (
+            float(strict_max_gap)
+            if strict_max_gap is not None
+            else max_gap
+        )
+
+    pair_allowed = True if allowed_pairs is None else pair in allowed_pairs
+    allow_double = (
+        pair_allowed
+        and top2_score >= resolved_second_score_min
+        and gap <= resolved_max_gap
+    )
+
+    if allow_double:
+        selected.append(top2_value)
+
+    return {
+        "selected": selected,
+        "decision": "double" if allow_double else "single_top1",
+        "top1": top1_value,
+        "top2": top2_value,
+        "top1_score": top1_score,
+        "top2_score": top2_score,
+        "gap": gap,
+        "allowed_double": allow_double,
+        "resolved_second_score_min": resolved_second_score_min,
+        "resolved_max_gap": resolved_max_gap,
+        "pair_allowed": pair_allowed,
+    }
 
 
 def infer_occasions(main_category: str, fine_category: str) -> dict[str, Any]:
@@ -232,8 +341,17 @@ def infer_occasions(main_category: str, fine_category: str) -> dict[str, Any]:
         score_map["business_casual"] = max(score_map.get("business_casual", 0.0), 0.62)
         score_map["professional"] = max(score_map.get("professional", 0.0), 0.36)
 
-    candidates, _ = build_candidates(score_map, label_map)
-    selected = pick_multi_selected(candidates, threshold=0.20, max_selected=2)
+    candidates, normalized_map = build_candidates(score_map, label_map)
+    selection = _build_single_or_conditional_double_selection(
+        candidates,
+        second_score_min=0.22,
+        max_gap=0.12,
+        allowed_pairs=OCCASION_ALLOWED_DOUBLE_COMBINATIONS,
+        strict_keys=STRICT_OCCASION_KEYS,
+        strict_second_score_min=0.30,
+        strict_max_gap=0.08,
+    )
+    selected = selection["selected"]
 
     legacy_style = "casual"
     if "professional" in selected:
@@ -246,6 +364,8 @@ def infer_occasions(main_category: str, fine_category: str) -> dict[str, Any]:
     return {
         "selected": selected,
         "candidates": candidates,
+        "candidateScoreMap": normalized_map,
+        "selectionDebug": selection,
         "legacy_style": legacy_style,
     }
 
@@ -418,77 +538,44 @@ def infer_seasons(main_category: str, fine_category: str) -> dict[str, Any]:
             "winter": 0.12,
         },
         "flats": {
-            "spring": 0.62,
-            "summer": 0.52,
-            "autumn": 0.62,
-            "winter": 0.18,
+            "spring": 0.52,
+            "summer": 0.54,
+            "autumn": 0.46,
+            "winter": 0.12,
         },
         "bucket_hat": {
-            "spring": 0.46,
-            "summer": 0.72,
-            "autumn": 0.26,
+            "spring": 0.48,
+            "summer": 0.64,
+            "autumn": 0.20,
             "winter": 0.06,
         },
         "beanie": {
-            "spring": 0.08,
+            "spring": 0.12,
             "summer": 0.01,
-            "autumn": 0.44,
-            "winter": 0.96,
+            "autumn": 0.46,
+            "winter": 0.92,
         },
         "hat": {
             "spring": 0.44,
-            "summer": 0.58,
-            "autumn": 0.32,
-            "winter": 0.12,
+            "summer": 0.62,
+            "autumn": 0.24,
+            "winter": 0.08,
         },
     }
 
     score_map = fine_overrides.get(fine_category, base_scores)
-    score_map = dict(score_map)
-
-    outer_like_fine_categories = {
-        "denim_jacket",
-        "cardigan",
-        "blazer",
-        "coat",
-        "puffer_jacket",
-        "vest",
-        "windbreaker",
-        "sweatshirt",
-    }
-
-    if fine_category in outer_like_fine_categories:
-        score_map["summer"] = min(score_map.get("summer", 0.0), 0.12)
-        score_map["winter"] = max(score_map.get("winter", 0.0), 0.64)
-
-    if fine_category in {"denim_jacket", "sweatshirt"}:
-        score_map["autumn"] = min(score_map.get("autumn", 0.0), 0.68)
-        score_map["winter"] = max(score_map.get("winter", 0.0), 0.72)
-
-    candidates, _ = build_candidates(score_map, label_map)
-    selected = pick_multi_selected(candidates, threshold=0.22, max_selected=2)
-
-    if selected == ["summer"]:
-        legacy_season = "summer"
-    elif selected == ["winter"]:
-        legacy_season = "winter"
-    elif set(selected) == {"spring", "autumn"}:
-        legacy_season = "spring_autumn"
-    elif len(selected) >= 3:
-        legacy_season = "all_season"
-    else:
-        legacy_season = "spring_autumn"
+    candidates, normalized_map = build_candidates(score_map, label_map)
+    selection = _build_single_or_conditional_double_selection(
+        candidates,
+        second_score_min=0.30,
+        max_gap=0.10,
+        allowed_pairs=SEASON_ALLOWED_DOUBLE_COMBINATIONS,
+        force_single_keys={"summer", "winter"},
+    )
 
     return {
-        "selected": selected,
+        "selected": selection["selected"],
         "candidates": candidates,
-        "legacy_season": legacy_season,
+        "candidateScoreMap": normalized_map,
+        "selectionDebug": selection,
     }
-
-
-def infer_style(main_category: str, fine_category: str) -> str:
-    return infer_occasions(main_category, fine_category)["legacy_style"]
-
-
-def infer_season(main_category: str, fine_category: str) -> str:
-    return infer_seasons(main_category, fine_category)["legacy_season"]

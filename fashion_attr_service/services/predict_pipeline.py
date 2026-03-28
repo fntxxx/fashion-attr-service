@@ -28,6 +28,32 @@ def _normalize_pipeline_backend(model_backend: str | None = None) -> str:
     return MODEL_BACKEND
 
 
+def _build_predict_debug_payload(*, pre_category_result: dict, post_category_result: dict, coarse_info: dict, occasions: dict, seasons: dict) -> dict:
+    return {
+        "pre_postprocess_category": {
+            "mainCategoryKey": pre_category_result.get("mainCategoryKey"),
+            "mainCategory": pre_category_result.get("mainCategory"),
+            "categoryKey": pre_category_result.get("categoryKey"),
+            "category": pre_category_result.get("category"),
+        },
+        "postprocess_category": {
+            "mainCategoryKey": post_category_result.get("mainCategoryKey"),
+            "mainCategory": post_category_result.get("mainCategory"),
+            "categoryKey": post_category_result.get("categoryKey"),
+            "category": post_category_result.get("category"),
+        },
+        "coarse_type": coarse_info.get("coarse_type"),
+        "coarse_score": float(coarse_info.get("score") or 0.0),
+        "coarse_score_map": coarse_info.get("score_map") or {},
+        "candidate_score_map": post_category_result.get("candidateScoreMaps") or {},
+        "postprocess_debug": post_category_result.get("postprocessDebug") or {},
+        "occasion_selection": occasions.get("selectionDebug") or {},
+        "occasion_candidate_score_map": occasions.get("candidateScoreMap") or {},
+        "season_selection": seasons.get("selectionDebug") or {},
+        "season_candidate_score_map": seasons.get("candidateScoreMap") or {},
+    }
+
+
 def run_warmup(model_backend: str | None = None) -> dict:
     backend_key = _normalize_pipeline_backend(model_backend)
 
@@ -68,7 +94,7 @@ def run_warmup(model_backend: str | None = None) -> dict:
         }
 
 
-def predict_attributes(original_img, model_backend: str | None = None) -> dict:
+def predict_attributes(original_img, model_backend: str | None = None, *, include_debug: bool = False) -> dict:
     backend_key = _normalize_pipeline_backend(model_backend)
 
     image_features = encode_image_feature(original_img, model_backend=backend_key)
@@ -98,12 +124,12 @@ def predict_attributes(original_img, model_backend: str | None = None) -> dict:
 
     working_img = original_img
 
-    category_result = classify_category(working_img, image_features=image_features, model_backend=backend_key)
+    pre_category_result = classify_category(working_img, image_features=image_features, model_backend=backend_key)
     color_tone = extract_color(working_img)
     color_payload = build_color_payload(color_tone)
 
     category_result = postprocess_category(
-        category_result,
+        dict(pre_category_result),
         working_img,
         color_tone=color_tone,
         route=route,
@@ -118,7 +144,7 @@ def predict_attributes(original_img, model_backend: str | None = None) -> dict:
     if detection["detected"]:
         final_score = float(category_result["scores"]["category"] * 0.75 + detection["score"] * 0.25)
 
-    return build_predict_payload(
+    payload = build_predict_payload(
         route=route,
         coarse_type=coarse_info["coarse_type"],
         category_result=category_result,
@@ -129,3 +155,14 @@ def predict_attributes(original_img, model_backend: str | None = None) -> dict:
         detection=detection,
         final_score=final_score,
     )
+
+    if include_debug:
+        payload["_debug"] = _build_predict_debug_payload(
+            pre_category_result=pre_category_result,
+            post_category_result=category_result,
+            coarse_info=coarse_info,
+            occasions=occasions,
+            seasons=seasons,
+        )
+
+    return payload

@@ -51,6 +51,19 @@ def _normalize_probability_map(score_map: dict[str, float]) -> dict[str, float]:
     }
 
 
+def _swap_selected_category_to_top(ui_score_map: dict[str, float], selected_value: str) -> dict[str, float]:
+    if selected_value not in ui_score_map:
+        return _normalize_probability_map(ui_score_map)
+
+    current_top_value = max(ui_score_map, key=ui_score_map.get)
+    if current_top_value == selected_value:
+        return _normalize_probability_map(ui_score_map)
+
+    swapped = dict(ui_score_map)
+    swapped[selected_value], swapped[current_top_value] = swapped[current_top_value], swapped[selected_value]
+    return _normalize_probability_map(swapped)
+
+
 def build_category_candidates(category_result: dict) -> list[dict]:
     candidate_score_maps = category_result.get("candidateScoreMaps", {})
     main_score_map = candidate_score_maps.get("mainCategory", {})
@@ -81,7 +94,8 @@ def build_category_candidates(category_result: dict) -> list[dict]:
         "shoes": float(main_score_map.get("shoes", 0.0)),
     }
 
-    ui_score_map = _normalize_probability_map(ui_score_map)
+    selected = build_category_value(category_result)
+    ui_score_map = _swap_selected_category_to_top(ui_score_map, selected)
 
     candidates = [
         {

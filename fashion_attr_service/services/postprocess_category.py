@@ -70,6 +70,8 @@ TOP_FINE_KEYS = {
     "knit_sweater",
 }
 
+HIGH_RISK_COARSE_TYPES = {"upper_body", "dress", "skirt"}
+
 
 def _force_main_category(
     category_result: Dict[str, Any],
@@ -104,99 +106,117 @@ def _normalize_category_key(
     return category_key
 
 
+def _get_main_category_label(main_key: str) -> str:
+    return {
+        "upper_body": "上身",
+        "pants": "褲子",
+        "skirt": "裙子",
+        "dress": "連身裙",
+        "shoes": "鞋子",
+        "headwear": "帽子",
+    }[main_key]
+
+
+def _get_fine_category_label(main_key: str, category_key: str) -> str:
+    if main_key == "upper_body":
+        return UPPER_BODY_CATEGORY_MAP[category_key]
+    if main_key == "pants":
+        return PANTS_CATEGORY_MAP[category_key]
+    if main_key == "skirt":
+        return SKIRT_CATEGORY_MAP[category_key]
+    if main_key == "dress":
+        return DRESS_CATEGORY_MAP[category_key]
+    if main_key == "shoes":
+        return SHOES_CATEGORY_MAP[category_key]
+    if main_key == "headwear":
+        return HEADWEAR_CATEGORY_MAP[category_key]
+    return category_key
+
+
+def _read_main_score(category_result: Dict[str, Any], main_key: str) -> float:
+    candidate_score_maps = category_result.get("candidateScoreMaps", {})
+    main_score_map = candidate_score_maps.get("mainCategory", {})
+    if main_key in main_score_map:
+        return float(main_score_map[main_key])
+    return float(category_result.get("scores", {}).get("mainCategory", 0.0))
+
+
+def _should_apply_coarse_override(
+    *,
+    coarse_type: str,
+    current_main_key: str,
+    coarse_score: float,
+    current_main_score: float,
+) -> tuple[bool, dict[str, Any]]:
+    if not coarse_type or coarse_type == current_main_key:
+        return False, {
+            "reason": "same_or_missing_coarse",
+            "required_margin": 0.0,
+            "score_gap": coarse_score - current_main_score,
+        }
+
+    required_margin = 0.08
+    if coarse_type in HIGH_RISK_COARSE_TYPES or current_main_key in HIGH_RISK_COARSE_TYPES:
+        required_margin = 0.15
+
+    if coarse_type == "upper_body" and current_main_key == "upper_body":
+        required_margin = 0.0
+
+    score_gap = coarse_score - current_main_score
+    should_apply = score_gap >= required_margin
+    return should_apply, {
+        "reason": "override" if should_apply else "insufficient_margin",
+        "required_margin": required_margin,
+        "score_gap": score_gap,
+    }
+
+
 def _apply_coarse_type_lock(
     category_result: Dict[str, Any],
-    coarse_type: Optional[str],
+    coarse_info: Optional[Dict[str, Any]],
     category_key: str,
 ) -> Tuple[Dict[str, Any], str, str]:
-    coarse = (coarse_type or "").strip().lower()
+    coarse_info = coarse_info or {}
+    coarse = str(coarse_info.get("coarse_type") or "").strip().lower()
     key = category_key
+    current_main_key = str(category_result.get("mainCategoryKey") or "")
+    coarse_score = float(coarse_info.get("score") or 0.0)
+    current_main_score = _read_main_score(category_result, current_main_key)
 
-    if coarse == "upper_body":
-        key = _normalize_category_key("upper_body", key)
-        return (
-            _force_main_category(
-                category_result,
-                "upper_body",
-                "上身",
-                key,
-                UPPER_BODY_CATEGORY_MAP[key],
-            ),
-            "upper_body",
+    should_apply, decision_meta = _should_apply_coarse_override(
+        coarse_type=coarse,
+        current_main_key=current_main_key,
+        coarse_score=coarse_score,
+        current_main_score=current_main_score,
+    )
+
+    debug_info = category_result.setdefault("postprocessDebug", {})
+    debug_info["coarse_decision"] = {
+        "coarse_type": coarse,
+        "coarse_score": coarse_score,
+        "current_main_key": current_main_key,
+        "current_main_score": current_main_score,
+        **decision_meta,
+    }
+
+    if not should_apply:
+        return category_result, category_result["mainCategoryKey"], category_result["categoryKey"]
+
+    if coarse not in {"upper_body", "pants", "skirt", "dress", "shoes", "headwear"}:
+        return category_result, category_result["mainCategoryKey"], category_result["categoryKey"]
+
+    key = _normalize_category_key(coarse, key)
+    return (
+        _force_main_category(
+            category_result,
+            coarse,
+            _get_main_category_label(coarse),
             key,
-        )
-
-    if coarse == "pants":
-        key = _normalize_category_key("pants", key)
-        return (
-            _force_main_category(
-                category_result,
-                "pants",
-                "褲子",
-                key,
-                PANTS_CATEGORY_MAP[key],
-            ),
-            "pants",
-            key,
-        )
-
-    if coarse == "skirt":
-        key = _normalize_category_key("skirt", key)
-        return (
-            _force_main_category(
-                category_result,
-                "skirt",
-                "裙子",
-                key,
-                SKIRT_CATEGORY_MAP[key],
-            ),
-            "skirt",
-            key,
-        )
-
-    if coarse == "dress":
-        key = _normalize_category_key("dress", key)
-        return (
-            _force_main_category(
-                category_result,
-                "dress",
-                "連身裙",
-                key,
-                DRESS_CATEGORY_MAP[key],
-            ),
-            "dress",
-            key,
-        )
-
-    if coarse == "shoes":
-        key = _normalize_category_key("shoes", key)
-        return (
-            _force_main_category(
-                category_result,
-                "shoes",
-                "鞋子",
-                key,
-                SHOES_CATEGORY_MAP[key],
-            ),
-            "shoes",
-            key,
-        )
-
-    if coarse == "headwear":
-        key = _normalize_category_key("headwear", key)
-        return (
-            _force_main_category(
-                category_result,
-                "headwear",
-                "帽子",
-                key,
-                HEADWEAR_CATEGORY_MAP[key],
-            ),
-            "headwear",
-            key,
-        )
-
-    return category_result, category_result["mainCategoryKey"], category_result["categoryKey"]
+            _get_fine_category_label(coarse, key),
+        ),
+        coarse,
+        key,
+    )
 
 
 def _refine_upper_body_key(
@@ -206,7 +226,6 @@ def _refine_upper_body_key(
     key = (category_key or "").strip().lower()
     best_label = (validation_best_label or "").strip().lower()
 
-    # cardigan 在目前資料定義中一律視為 outer
     if key == "cardigan":
         return "cardigan"
 
@@ -235,47 +254,35 @@ def postprocess_category(
     coarse_info=None,
     validation=None,
 ):
-    main_key = category_result["mainCategoryKey"]
-    category_key = category_result["categoryKey"]
-
-    coarse_type = None
-    if coarse_info:
-        coarse_type = coarse_info.get("coarse_type")
+    original_main_key = category_result["mainCategoryKey"]
+    original_category_key = category_result["categoryKey"]
 
     validation_best_label = ""
     if validation:
         validation_best_label = str(validation.get("best_label", "")).lower()
 
-    # 1. 先把 category key 正規化，避免奇怪 key 滲透到後面
+    category_result["postprocessDebug"] = {
+        "pre_postprocess": {
+            "mainCategoryKey": original_main_key,
+            "categoryKey": original_category_key,
+            "mainCategory": category_result.get("mainCategory"),
+            "category": category_result.get("category"),
+        }
+    }
+
+    main_key = original_main_key
+    category_key = original_category_key
+
     category_key = _normalize_category_key(main_key, category_key)
     category_result["categoryKey"] = category_key
+    category_result["category"] = _get_fine_category_label(main_key, category_key)
 
-    if main_key == "upper_body":
-        category_result["category"] = UPPER_BODY_CATEGORY_MAP[category_key]
-    elif main_key == "pants":
-        category_result["category"] = PANTS_CATEGORY_MAP[category_key]
-    elif main_key == "skirt":
-        category_result["category"] = SKIRT_CATEGORY_MAP[category_key]
-    elif main_key == "dress":
-        category_result["category"] = DRESS_CATEGORY_MAP[category_key]
-    elif main_key == "shoes":
-        category_result["category"] = SHOES_CATEGORY_MAP[category_key]
-    elif main_key == "headwear":
-        category_result["category"] = HEADWEAR_CATEGORY_MAP[category_key]
-
-    # 2. coarse type 優先鎖主類別
-    # 這一步直接解決：
-    # - skirt -> pants
-    # - skirt -> dress
-    # - dress -> skirt / pants
     category_result, main_key, category_key = _apply_coarse_type_lock(
         category_result=category_result,
-        coarse_type=coarse_type,
+        coarse_info=coarse_info,
         category_key=category_key,
     )
 
-    # 3. upper_body 再做 top / outer 邊界修正
-    # 只在 upper_body 類內細分，不讓 rule 跨類互打
     if main_key == "upper_body":
         refined_key = _refine_upper_body_key(
             category_key=category_key,
@@ -292,12 +299,8 @@ def postprocess_category(
         main_key = "upper_body"
         category_key = refined_key
 
-    # 4. shape heuristic 只留在 skirt 類內做 very-light 補助
-    # 不再用它把 skirt 翻成 pants，避免 denim skirt 誤判
     if route == "product" and main_key == "skirt":
         shape_guess = estimate_pants_vs_skirt(image)
-
-        # 如果真的偏裙裝，但 key 很怪，收斂成 midi_skirt
         if shape_guess == "skirt" and category_key not in SKIRT_CATEGORY_MAP:
             category_result = _force_main_category(
                 category_result,
@@ -309,14 +312,29 @@ def postprocess_category(
             main_key = "skirt"
             category_key = "midi_skirt"
 
-    # 最終保護：如果 coarse 已經明確是 skirt，就不要輸出 dress
+    coarse_type = str((coarse_info or {}).get("coarse_type") or "").strip().lower()
     if coarse_type == "skirt" and category_result.get("mainCategoryKey") == "dress":
-        category_result = _force_main_category(
-            category_result,
-            "skirt",
-            "裙子",
-            "midi_skirt",
-            "中長裙",
-        )
+        coarse_score = float((coarse_info or {}).get("score") or 0.0)
+        current_main_score = _read_main_score(category_result, "dress")
+        if coarse_score - current_main_score >= 0.15:
+            category_result = _force_main_category(
+                category_result,
+                "skirt",
+                "裙子",
+                "midi_skirt",
+                "中長裙",
+            )
+            main_key = "skirt"
+            category_key = "midi_skirt"
 
+    category_result["postprocessDebug"]["postprocess"] = {
+        "mainCategoryKey": main_key,
+        "categoryKey": category_key,
+        "mainCategory": category_result.get("mainCategory"),
+        "category": category_result.get("category"),
+        "changed": (
+            original_main_key != category_result.get("mainCategoryKey")
+            or original_category_key != category_result.get("categoryKey")
+        ),
+    }
     return category_result
