@@ -419,6 +419,13 @@ SEASON_FINE_CATEGORY_THIRD_PROFILE: dict[tuple[str, str, str, str], dict[str, fl
 }
 
 SEASON_FINE_CATEGORY_SECONDARY_RERANK_PROFILE: dict[tuple[str, str, str, str], dict[str, float]] = {
+    ("spring", "autumn", "summer", "shirt"): {
+        "min_score": 0.20,
+        "min_ratio": 0.45,
+        "min_gap_from_second": 0.05,
+        "max_gap_from_second": 0.10,
+        "allow_relaxed_thresholds": True,
+    },
     ("spring", "autumn", "summer", "midi_skirt"): {"min_score": 0.24, "min_ratio": 0.63, "max_gap_from_second": 0.06},
     ("spring", "autumn", "summer", "midi_dress"): {"min_score": 0.29, "min_ratio": 0.90, "max_gap_from_second": 0.01},
 }
@@ -650,11 +657,13 @@ def _maybe_rerank_season_secondary_candidate(
     gap_from_second = secondary_score - fallback_score
     label = str(fallback["value"])
     min_floor = max(_resolve_label_floor(config, label), float(profile.get("min_score", 0.0)))
-    resolved_ratio = max(config.second_relative_ratio, float(profile.get("min_ratio", 0.0)))
-    resolved_gap = min(config.second_max_gap, float(profile.get("max_gap_from_second", config.second_max_gap)))
+    allow_relaxed_thresholds = bool(profile.get("allow_relaxed_thresholds"))
+    resolved_ratio = float(profile.get("min_ratio", config.second_relative_ratio)) if allow_relaxed_thresholds else max(config.second_relative_ratio, float(profile.get("min_ratio", 0.0)))
+    resolved_gap = float(profile.get("max_gap_from_second", config.second_max_gap)) if allow_relaxed_thresholds else min(config.second_max_gap, float(profile.get("max_gap_from_second", config.second_max_gap)))
+    resolved_min_gap = float(profile.get("min_gap_from_second", 0.0))
     pass_score = fallback_score >= min_floor
     pass_ratio = ratio_to_top >= resolved_ratio
-    pass_gap = gap_from_second <= resolved_gap
+    pass_gap = resolved_min_gap <= gap_from_second <= resolved_gap
     allowed_pair = _is_allowed_season_pair(str(primary["value"]), label, fine_category, fallback_score)
     debug.update(
         {
@@ -668,6 +677,7 @@ def _maybe_rerank_season_secondary_candidate(
             "min_floor": min_floor,
             "resolved_ratio": resolved_ratio,
             "resolved_gap": resolved_gap,
+            "resolved_min_gap": resolved_min_gap,
         }
     )
     if not (pass_score and pass_ratio and pass_gap and allowed_pair):
