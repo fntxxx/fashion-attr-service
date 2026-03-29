@@ -407,6 +407,7 @@ SEASON_FINE_CATEGORY_SECONDARY_PROFILE: dict[tuple[str, str, str], dict[str, flo
     ("spring", "autumn", "shirt"): {"min_score": 0.25, "min_ratio": 0.62, "max_gap": 0.18, "strong_score": 0.27, "allow_relaxed_thresholds": True},
     ("spring", "autumn", "cardigan"): {"min_score": 0.26, "min_ratio": 0.62, "max_gap": 0.18, "strong_score": 0.27, "allow_relaxed_thresholds": True},
     ("spring", "autumn", "midi_skirt"): {"min_score": 0.24, "min_ratio": 0.60, "max_gap": 0.18, "strong_score": 0.26, "allow_relaxed_thresholds": True},
+    ("spring", "summer", "midi_skirt"): {"min_score": 0.24, "min_ratio": 0.63, "max_gap": 0.18, "strong_score": 0.26, "allow_relaxed_thresholds": True},
 }
 
 SEASON_FINE_CATEGORY_THIRD_PROFILE: dict[tuple[str, str, str, str], dict[str, float]] = {
@@ -427,7 +428,12 @@ SEASON_FINE_CATEGORY_SECONDARY_RERANK_PROFILE: dict[tuple[str, str, str, str], d
         "max_gap_from_second": 0.10,
         "allow_relaxed_thresholds": True,
     },
-    ("spring", "autumn", "summer", "midi_skirt"): {"min_score": 0.24, "min_ratio": 0.63, "max_gap_from_second": 0.06},
+    ("spring", "autumn", "summer", "midi_skirt"): {
+        "min_score": 0.24,
+        "min_ratio": 0.63,
+        "max_gap_from_second": 0.06,
+        "allow_relaxed_thresholds": True,
+    },
     ("spring", "autumn", "summer", "midi_dress"): {"min_score": 0.29, "min_ratio": 0.90, "max_gap_from_second": 0.01},
 }
 
