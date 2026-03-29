@@ -405,6 +405,7 @@ SEASON_FINE_CATEGORY_SECONDARY_PROFILE: dict[tuple[str, str, str], dict[str, flo
     ("autumn", "spring", "trousers"): {"min_score": 0.26, "min_ratio": 0.62, "max_gap": 0.18, "strong_score": 0.28, "allow_relaxed_thresholds": True},
     ("autumn", "spring", "denim_jacket"): {"min_score": 0.23, "min_ratio": 0.44, "max_gap": 0.30, "strong_score": 0.26, "allow_relaxed_thresholds": True},
     ("spring", "summer", "flats"): {"min_score": 0.30, "min_ratio": 0.74, "max_gap": 0.11},
+    ("spring", "summer", "sneakers"): {"min_score": 0.21, "min_ratio": 0.60, "max_gap": 0.17, "allow_relaxed_thresholds": True},
     ("spring", "autumn", "shirt"): {"min_score": 0.25, "min_ratio": 0.62, "max_gap": 0.18, "strong_score": 0.27, "allow_relaxed_thresholds": True},
     ("spring", "autumn", "cardigan"): {"min_score": 0.26, "min_ratio": 0.62, "max_gap": 0.18, "strong_score": 0.27, "allow_relaxed_thresholds": True},
     ("spring", "autumn", "midi_skirt"): {"min_score": 0.24, "min_ratio": 0.60, "max_gap": 0.18, "strong_score": 0.26, "allow_relaxed_thresholds": True},
@@ -436,6 +437,15 @@ SEASON_FINE_CATEGORY_SECONDARY_RERANK_PROFILE: dict[tuple[str, str, str, str], d
         "allow_relaxed_thresholds": True,
     },
     ("spring", "autumn", "summer", "midi_dress"): {"min_score": 0.29, "min_ratio": 0.90, "max_gap_from_second": 0.01},
+}
+
+SEASON_FINE_CATEGORY_PRIMARY_RERANK_PROFILE: dict[tuple[str, str, str, str], dict[str, float]] = {
+    ("autumn", "spring", "summer", "sneakers"): {
+        "max_top_gap": 0.08,
+        "min_secondary_score": 0.29,
+        "min_support_score": 0.21,
+        "min_support_ratio_to_secondary": 0.60,
+    },
 }
 
 
@@ -633,6 +643,80 @@ def _resolve_secondary_rerank_profile(
     fine_category: str,
 ) -> Mapping[str, float]:
     return SEASON_FINE_CATEGORY_SECONDARY_RERANK_PROFILE.get((primary_label, secondary_label, fallback_label, fine_category), {})
+
+
+def _resolve_primary_rerank_profile(
+    *,
+    primary_label: str,
+    secondary_label: str,
+    support_label: str,
+    fine_category: str,
+) -> Mapping[str, float]:
+    return SEASON_FINE_CATEGORY_PRIMARY_RERANK_PROFILE.get((primary_label, secondary_label, support_label, fine_category), {})
+
+
+def _maybe_rerank_season_primary_candidates(
+    *,
+    primary: Mapping[str, Any],
+    secondary: Mapping[str, Any],
+    support: Mapping[str, Any],
+    fine_category: str,
+) -> tuple[tuple[Mapping[str, Any], Mapping[str, Any], Mapping[str, Any]], dict[str, Any]]:
+    profile = _resolve_primary_rerank_profile(
+        primary_label=str(primary["value"]),
+        secondary_label=str(secondary["value"]),
+        support_label=str(support["value"]),
+        fine_category=fine_category,
+    )
+    debug = {
+        "applied": False,
+        "profile": dict(profile),
+        "original_primary": str(primary["value"]),
+        "promoted_primary": str(secondary["value"]),
+        "support_candidate": str(support["value"]),
+    }
+    if not profile:
+        return (primary, secondary, support), debug
+
+    primary_score = float(primary["score"])
+    secondary_score = float(secondary["score"])
+    support_score = float(support["score"])
+    top_gap = primary_score - secondary_score
+    support_ratio_to_secondary = support_score / max(secondary_score, 1e-6)
+    max_top_gap = float(profile.get("max_top_gap", 0.0))
+    min_secondary_score = float(profile.get("min_secondary_score", 0.0))
+    min_support_score = float(profile.get("min_support_score", 0.0))
+    min_support_ratio = float(profile.get("min_support_ratio_to_secondary", 0.0))
+    allowed_promoted_pair = _is_allowed_season_pair(str(secondary["value"]), str(support["value"]), fine_category, support_score)
+    allowed_original_pair = _is_allowed_season_pair(str(secondary["value"]), str(primary["value"]), fine_category, primary_score)
+    pass_gap = top_gap <= max_top_gap
+    pass_secondary_score = secondary_score >= min_secondary_score
+    pass_support_score = support_score >= min_support_score
+    pass_support_ratio = support_ratio_to_secondary >= min_support_ratio
+    debug.update(
+        {
+            "primary_score": primary_score,
+            "secondary_score": secondary_score,
+            "support_score": support_score,
+            "top_gap": top_gap,
+            "support_ratio_to_secondary": support_ratio_to_secondary,
+            "pass_gap": pass_gap,
+            "pass_secondary_score": pass_secondary_score,
+            "pass_support_score": pass_support_score,
+            "pass_support_ratio": pass_support_ratio,
+            "allowed_promoted_pair": allowed_promoted_pair,
+            "allowed_original_pair": allowed_original_pair,
+            "max_top_gap": max_top_gap,
+            "min_secondary_score": min_secondary_score,
+            "min_support_score": min_support_score,
+            "min_support_ratio_to_secondary": min_support_ratio,
+        }
+    )
+    if not (pass_gap and pass_secondary_score and pass_support_score and pass_support_ratio and allowed_promoted_pair and allowed_original_pair):
+        return (primary, secondary, support), debug
+
+    debug["applied"] = True
+    return (secondary, support, primary), debug
 
 
 def _maybe_rerank_season_secondary_candidate(
@@ -871,23 +955,37 @@ def _select_seasons(
         return debug
 
     primary = candidates[0]
-    selected_items = [primary]
     category_cap = _season_category_cap(fine_category)
     debug["top_score"] = float(primary["score"])
     debug["category_cap"] = category_cap
     debug["secondary_checks"] = []
     debug["third_checks"] = []
+    debug["primary_rerank"] = None
 
-    third_candidate_pool: Mapping[str, Any] | None = candidates[2] if len(candidates) >= 3 else None
+    ordered_candidates = list(candidates)
+    if len(ordered_candidates) >= 3:
+        reranked_candidates, primary_rerank_info = _maybe_rerank_season_primary_candidates(
+            primary=ordered_candidates[0],
+            secondary=ordered_candidates[1],
+            support=ordered_candidates[2],
+            fine_category=fine_category,
+        )
+        debug["primary_rerank"] = primary_rerank_info
+        if primary_rerank_info.get("applied"):
+            ordered_candidates[:3] = list(reranked_candidates)
+    primary = ordered_candidates[0]
+    selected_items = [primary]
+
+    third_candidate_pool: Mapping[str, Any] | None = ordered_candidates[2] if len(ordered_candidates) >= 3 else None
     debug["secondary_rerank"] = None
 
-    if category_cap >= 2 and len(candidates) >= 2:
-        secondary_candidate = candidates[1]
-        if len(candidates) >= 3:
+    if category_cap >= 2 and len(ordered_candidates) >= 2:
+        secondary_candidate = ordered_candidates[1]
+        if len(ordered_candidates) >= 3:
             secondary_candidate, skipped_candidate, rerank_info = _maybe_rerank_season_secondary_candidate(
                 primary=primary,
                 secondary=secondary_candidate,
-                fallback=candidates[2],
+                fallback=ordered_candidates[2],
                 fine_category=fine_category,
                 config=config,
             )
