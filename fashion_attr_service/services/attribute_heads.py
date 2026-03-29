@@ -418,6 +418,11 @@ SEASON_FINE_CATEGORY_THIRD_PROFILE: dict[tuple[str, str, str, str], dict[str, fl
     ("autumn", "spring", "winter", "trousers"): {"min_score": 0.11, "min_ratio": 0.24, "max_gap_from_second": 0.24, "allow_below_label_floor": True, "allow_relaxed_thresholds": True},
 }
 
+SEASON_FINE_CATEGORY_SECONDARY_RERANK_PROFILE: dict[tuple[str, str, str, str], dict[str, float]] = {
+    ("spring", "autumn", "summer", "midi_skirt"): {"min_score": 0.24, "min_ratio": 0.63, "max_gap_from_second": 0.06},
+    ("spring", "autumn", "summer", "midi_dress"): {"min_score": 0.29, "min_ratio": 0.90, "max_gap_from_second": 0.01},
+}
+
 
 def _mean(values: Sequence[float]) -> float:
     return float(sum(values) / len(values)) if values else 0.0
@@ -605,6 +610,73 @@ def _resolve_third_season_profile(
     return SEASON_FINE_CATEGORY_THIRD_PROFILE.get((primary_label, secondary_label, candidate_label, fine_category), {})
 
 
+def _resolve_secondary_rerank_profile(
+    *,
+    primary_label: str,
+    secondary_label: str,
+    fallback_label: str,
+    fine_category: str,
+) -> Mapping[str, float]:
+    return SEASON_FINE_CATEGORY_SECONDARY_RERANK_PROFILE.get((primary_label, secondary_label, fallback_label, fine_category), {})
+
+
+def _maybe_rerank_season_secondary_candidate(
+    *,
+    primary: Mapping[str, Any],
+    secondary: Mapping[str, Any],
+    fallback: Mapping[str, Any],
+    fine_category: str,
+    config: AttributeSelectionConfig,
+) -> tuple[Mapping[str, Any], Mapping[str, Any] | None, dict[str, Any]]:
+    profile = _resolve_secondary_rerank_profile(
+        primary_label=str(primary["value"]),
+        secondary_label=str(secondary["value"]),
+        fallback_label=str(fallback["value"]),
+        fine_category=fine_category,
+    )
+    debug = {
+        "applied": False,
+        "profile": dict(profile),
+        "original_secondary": str(secondary["value"]),
+        "fallback_candidate": str(fallback["value"]),
+    }
+    if not profile:
+        return secondary, None, debug
+
+    fallback_score = float(fallback["score"])
+    secondary_score = float(secondary["score"])
+    top_score = float(primary["score"])
+    ratio_to_top = fallback_score / max(top_score, 1e-6)
+    gap_from_second = secondary_score - fallback_score
+    label = str(fallback["value"])
+    min_floor = max(_resolve_label_floor(config, label), float(profile.get("min_score", 0.0)))
+    resolved_ratio = max(config.second_relative_ratio, float(profile.get("min_ratio", 0.0)))
+    resolved_gap = min(config.second_max_gap, float(profile.get("max_gap_from_second", config.second_max_gap)))
+    pass_score = fallback_score >= min_floor
+    pass_ratio = ratio_to_top >= resolved_ratio
+    pass_gap = gap_from_second <= resolved_gap
+    allowed_pair = _is_allowed_season_pair(str(primary["value"]), label, fine_category, fallback_score)
+    debug.update(
+        {
+            "candidate_score": fallback_score,
+            "ratio_to_top": ratio_to_top,
+            "gap_from_second": gap_from_second,
+            "pass_score": pass_score,
+            "pass_ratio": pass_ratio,
+            "pass_gap": pass_gap,
+            "allowed_pair": allowed_pair,
+            "min_floor": min_floor,
+            "resolved_ratio": resolved_ratio,
+            "resolved_gap": resolved_gap,
+        }
+    )
+    if not (pass_score and pass_ratio and pass_gap and allowed_pair):
+        return secondary, None, debug
+
+    debug["applied"] = True
+    return fallback, secondary, debug
+
+
 def _can_add_secondary_label(
     *,
     primary: Mapping[str, Any],
@@ -772,29 +844,45 @@ def _select_seasons(
     debug["secondary_checks"] = []
     debug["third_checks"] = []
 
+    third_candidate_pool: Mapping[str, Any] | None = candidates[2] if len(candidates) >= 3 else None
+    debug["secondary_rerank"] = None
+
     if category_cap >= 2 and len(candidates) >= 2:
+        secondary_candidate = candidates[1]
+        if len(candidates) >= 3:
+            secondary_candidate, skipped_candidate, rerank_info = _maybe_rerank_season_secondary_candidate(
+                primary=primary,
+                secondary=secondary_candidate,
+                fallback=candidates[2],
+                fine_category=fine_category,
+                config=config,
+            )
+            debug["secondary_rerank"] = rerank_info
+            if skipped_candidate is not None:
+                third_candidate_pool = skipped_candidate
+
         accepted, info = _can_add_secondary_label(
             primary=primary,
-            candidate=candidates[1],
+            candidate=secondary_candidate,
             fine_category=fine_category,
             config=config,
             attribute_name="season",
         )
         debug["secondary_checks"].append(info)
         if accepted:
-            selected_items.append(candidates[1])
+            selected_items.append(secondary_candidate)
 
-    if category_cap >= 3 and len(selected_items) >= 2 and len(candidates) >= 3:
+    if category_cap >= 3 and len(selected_items) >= 2 and third_candidate_pool is not None:
         accepted, info = _can_add_third_season_label(
             primary=primary,
             secondary=selected_items[1],
-            candidate=candidates[2],
+            candidate=third_candidate_pool,
             fine_category=fine_category,
             config=config,
         )
         debug["third_checks"].append(info)
         if accepted:
-            selected_items.append(candidates[2])
+            selected_items.append(third_candidate_pool)
 
     selected = [str(item["value"]) for item in selected_items]
     debug.update(
