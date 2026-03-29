@@ -398,6 +398,7 @@ SEASON_FINE_CATEGORY_CAPS: dict[str, int] = {
 }
 
 SEASON_FINE_CATEGORY_SECONDARY_PROFILE: dict[tuple[str, str, str], dict[str, float]] = {
+    ("spring", "summer", "shirt"): {"min_score": 0.20, "min_ratio": 0.45, "max_gap": 0.24, "strong_score": 0.20, "allow_relaxed_thresholds": True},
     ("winter", "autumn", "boots"): {"min_score": 0.34, "min_ratio": 0.68, "max_gap": 0.17},
     ("winter", "autumn", "knit_sweater"): {"min_score": 0.40, "min_ratio": 0.80, "max_gap": 0.10},
     ("autumn", "spring", "jeans"): {"min_score": 0.26, "min_ratio": 0.62, "max_gap": 0.18, "strong_score": 0.28, "allow_relaxed_thresholds": True},
@@ -422,7 +423,7 @@ SEASON_FINE_CATEGORY_SECONDARY_RERANK_PROFILE: dict[tuple[str, str, str, str], d
     ("spring", "autumn", "summer", "shirt"): {
         "min_score": 0.20,
         "min_ratio": 0.45,
-        "min_gap_from_second": 0.05,
+        "min_gap_from_second": 0.0,
         "max_gap_from_second": 0.10,
         "allow_relaxed_thresholds": True,
     },
@@ -753,6 +754,22 @@ def _can_add_third_season_label(
     candidate_score = float(candidate["score"])
     top_score = float(primary["score"])
     second_score = float(secondary["score"])
+    if candidate_score > second_score:
+        return False, {
+            "candidate": str(candidate["value"]),
+            "candidate_score": candidate_score,
+            "gap_from_second": second_score - candidate_score,
+            "ratio_to_top": candidate_score / max(top_score, 1e-6),
+            "pass_score": False,
+            "pass_ratio": False,
+            "pass_gap": False,
+            "allowed_pair_primary": False,
+            "allowed_pair_secondary": False,
+            "min_floor": max(_resolve_label_floor(config, str(candidate["value"])), config.third_strong_score),
+            "resolved_ratio": config.third_relative_ratio,
+            "resolved_gap": config.third_max_gap,
+            "profile": {"rejected_reason": "third_candidate_outscores_secondary"},
+        }
     ratio_to_top = candidate_score / max(top_score, 1e-6)
     gap_from_second = second_score - candidate_score
     label = str(candidate["value"])
