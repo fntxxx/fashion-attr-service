@@ -403,6 +403,7 @@ SEASON_FINE_CATEGORY_SECONDARY_PROFILE: dict[tuple[str, str, str], dict[str, flo
     ("winter", "autumn", "knit_sweater"): {"min_score": 0.40, "min_ratio": 0.80, "max_gap": 0.10},
     ("autumn", "spring", "jeans"): {"min_score": 0.26, "min_ratio": 0.62, "max_gap": 0.18, "strong_score": 0.28, "allow_relaxed_thresholds": True},
     ("autumn", "spring", "trousers"): {"min_score": 0.26, "min_ratio": 0.62, "max_gap": 0.18, "strong_score": 0.28, "allow_relaxed_thresholds": True},
+    ("autumn", "spring", "denim_jacket"): {"min_score": 0.23, "min_ratio": 0.44, "max_gap": 0.30, "strong_score": 0.26, "allow_relaxed_thresholds": True},
     ("spring", "summer", "flats"): {"min_score": 0.30, "min_ratio": 0.74, "max_gap": 0.11},
     ("spring", "autumn", "shirt"): {"min_score": 0.25, "min_ratio": 0.62, "max_gap": 0.18, "strong_score": 0.27, "allow_relaxed_thresholds": True},
     ("spring", "autumn", "cardigan"): {"min_score": 0.26, "min_ratio": 0.62, "max_gap": 0.18, "strong_score": 0.27, "allow_relaxed_thresholds": True},
