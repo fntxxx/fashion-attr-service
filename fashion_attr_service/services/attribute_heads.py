@@ -509,7 +509,17 @@ def _blend_prior_maps(
 
 
 def _resolve_occasion_prior_strength(fine_category: str) -> float:
-    return float(OCCASION_FINE_CATEGORY_PRIOR_STRENGTH.get(fine_category, 0.18))
+    strength = float(OCCASION_FINE_CATEGORY_PRIOR_STRENGTH.get(fine_category, 0.18))
+
+    # v29 之後 occasion 的主要殘留問題更像 bridge family 的 ranking/coupling 不夠穩，
+    # 不是第二標籤 gate 本身不足。
+    # 對 office-bridge / smart-casual-bridge 類別提高 prior 參與度，
+    # 讓 category family 在 business_casual / professional / campus_casual 的邊界上
+    # 更能穩定地修正 prompt score 的微小波動。
+    if fine_category in OCCASION_OFFICE_BRIDGE_CATEGORIES or fine_category in OCCASION_SMART_CASUAL_BRIDGE_CATEGORIES:
+        strength *= 1.25
+
+    return float(strength)
 
 
 def _score_prompt_ensemble(
@@ -1114,11 +1124,11 @@ def _build_occasion_family_bias_map(fine_category: str) -> dict[str, float]:
         bias_map["professional"] += 0.03
 
     if fine_category in OCCASION_OFFICE_BRIDGE_CATEGORIES:
-        bias_map["professional"] += 0.02
+        bias_map["professional"] += 0.03
 
     if fine_category in OCCASION_SMART_CASUAL_BRIDGE_CATEGORIES:
-        bias_map["business_casual"] += 0.015
-        bias_map["campus_casual"] -= 0.02
+        bias_map["business_casual"] += 0.02
+        bias_map["campus_casual"] -= 0.03
 
     if fine_category in OCCASION_SOCIAL_RELAXED_CATEGORIES:
         bias_map["campus_casual"] -= 0.01
@@ -1130,7 +1140,10 @@ def infer_occasions(image_features, main_category: str, fine_category: str) -> d
     label_map = {value: label for value, label in OCCASION_OPTIONS}
     fine_prior_map = _build_prior_map(fine_category, DEFAULT_OCCASION_PRIOR, OCCASION_PRIORS)
     main_prior_map = MAIN_CATEGORY_OCCASION_PRIORS.get(main_category)
-    prior_map = _blend_prior_maps(fine_prior_map, main_prior_map, primary_weight=0.74)
+    # v28 已證明 main-category coupling 對 occasion 有價值；
+    # 這裡不再額外疊選擇層 heuristic，而是把 main-category prior 的權重略微提高，
+    # 讓 bridge 類別在 main/fine 共同支持下更穩定地落在正確 family。
+    prior_map = _blend_prior_maps(fine_prior_map, main_prior_map, primary_weight=0.72)
 
     family_bias_map = _build_occasion_family_bias_map(fine_category)
     scored = _score_prompt_ensemble(
