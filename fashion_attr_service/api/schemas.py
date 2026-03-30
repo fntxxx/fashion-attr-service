@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import List, Literal, Optional, Union
+from typing import Any, List, Literal, Optional, Union
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -19,11 +19,24 @@ class EndpointMap(BaseModel):
     predict: str = Field(..., title="Predict Endpoint", description="推論 API 路徑與方法提示。", examples=["POST /predict"])
 
 
-class HealthResponse(BaseModel):
+class ModelInfo(BaseModel):
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
-                "ok": True,
+                "backend": "marqo_fashionsiglip",
+                "model_name": "hf-hub:Marqo/marqo-fashionSigLIP",
+            }
+        }
+    )
+
+    backend: str
+    model_name: str
+
+
+class HealthData(BaseModel):
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
                 "service": "fashion-attr-service",
                 "endpoints": {
                     "warmup": "/warmup",
@@ -33,9 +46,28 @@ class HealthResponse(BaseModel):
         }
     )
 
-    ok: bool
     service: str
     endpoints: EndpointMap
+
+
+class HealthResponse(BaseModel):
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "ok": True,
+                "data": {
+                    "service": "fashion-attr-service",
+                    "endpoints": {
+                        "warmup": "/warmup",
+                        "predict": "POST /predict",
+                    },
+                },
+            }
+        }
+    )
+
+    ok: Literal[True]
+    data: HealthData
 
 
 class WarmupPayload(BaseModel):
@@ -56,12 +88,15 @@ class WarmupPayload(BaseModel):
     color: str
 
 
-class WarmupSuccessResponse(BaseModel):
+class WarmupData(BaseModel):
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
-                "ok": True,
                 "service": "fashion-attr-service",
+                "model": {
+                    "backend": "marqo_fashionsiglip",
+                    "model_name": "hf-hub:Marqo/marqo-fashionSigLIP",
+                },
                 "warmup": {
                     "validation_best_label": "t-shirt",
                     "coarse_type": "top",
@@ -72,25 +107,35 @@ class WarmupSuccessResponse(BaseModel):
         }
     )
 
-    ok: Literal[True]
     service: str
+    model: ModelInfo
     warmup: WarmupPayload
 
 
-class WarmupErrorResponse(BaseModel):
+class WarmupSuccessResponse(BaseModel):
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
-                "ok": False,
-                "service": "fashion-attr-service",
-                "error": "model initialization failed",
+                "ok": True,
+                "data": {
+                    "service": "fashion-attr-service",
+                    "model": {
+                        "backend": "marqo_fashionsiglip",
+                        "model_name": "hf-hub:Marqo/marqo-fashionSigLIP",
+                    },
+                    "warmup": {
+                        "validation_best_label": "t-shirt",
+                        "coarse_type": "top",
+                        "category": "t_shirt",
+                        "color": "neutral_gray",
+                    },
+                },
             }
         }
     )
 
-    ok: Literal[False]
-    service: str
-    error: str
+    ok: Literal[True]
+    data: WarmupData
 
 
 class ValidationPayload(BaseModel):
@@ -107,26 +152,6 @@ class ValidationPayload(BaseModel):
     best_label: str
     valid_score: float
     invalid_score: float
-
-
-class PredictRejectedResponse(BaseModel):
-    model_config = ConfigDict(
-        json_schema_extra={
-            "example": {
-                "ok": False,
-                "reason": "not_fashion_image",
-                "validation": {
-                    "best_label": "person",
-                    "valid_score": 0.18,
-                    "invalid_score": 0.82,
-                },
-            }
-        }
-    )
-
-    ok: Literal[False]
-    reason: Literal["not_fashion_image"]
-    validation: ValidationPayload
 
 
 class ScoredCandidate(BaseModel):
@@ -172,11 +197,10 @@ class ScorePayload(BaseModel):
     season: float
 
 
-class PredictSuccessResponse(BaseModel):
+class PredictSuccessData(BaseModel):
     model_config = ConfigDict(
         json_schema_extra={
             "example": {
-                "ok": True,
                 "route": "product",
                 "coarseType": "top",
                 "name": "T 恤",
@@ -197,19 +221,23 @@ class PredictSuccessResponse(BaseModel):
                 "candidates": {
                     "category": [
                         {"value": "top", "label": "上衣", "score": 0.91},
-                        {"value": "outer", "label": "外套", "score": 0.18},
+                        {"value": "outer", "label": "外套", "score": 0.06},
+                        {"value": "dress", "label": "連身裙", "score": 0.02},
+                        {"value": "pants", "label": "褲子", "score": 0.01},
+                        {"value": "skirt", "label": "裙子", "score": 0.0},
+                        {"value": "shoes", "label": "鞋子", "score": 0.0},
                     ],
                     "color": [
                         {"value": "light_beige", "label": "淺米白", "score": 0.92},
-                        {"value": "neutral_gray", "label": "中性灰", "score": 0.18},
+                        {"value": "neutral_gray", "label": "中性灰", "score": 0.06},
                     ],
                     "occasion": [
                         {"value": "campus_casual", "label": "校園休閒", "score": 0.88},
-                        {"value": "social", "label": "社交聚會", "score": 0.38},
+                        {"value": "social", "label": "社交聚會", "score": 0.81},
                     ],
                     "season": [
+                        {"value": "spring", "label": "春季", "score": 0.82},
                         {"value": "summer", "label": "夏季", "score": 0.76},
-                        {"value": "spring", "label": "春季", "score": 0.70},
                     ],
                 },
                 "detected": False,
@@ -224,7 +252,6 @@ class PredictSuccessResponse(BaseModel):
         }
     )
 
-    ok: Literal[True]
     route: str
     coarseType: str
     name: str = Field(description="辨識出的衣物名稱，優先使用細類標籤。")
@@ -243,11 +270,115 @@ class PredictSuccessResponse(BaseModel):
     validation: ValidationPayload
 
 
+class PredictSuccessResponse(BaseModel):
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "ok": True,
+                "data": PredictSuccessData.model_config["json_schema_extra"]["example"],
+            }
+        }
+    )
+
+    ok: Literal[True]
+    data: PredictSuccessData
+
+
 class ValidationErrorItem(BaseModel):
     loc: List[Union[str, int]]
     msg: str
     type: str
 
 
+class RequestValidationErrorDetails(BaseModel):
+    fields: List[ValidationErrorItem]
+
+
+class PredictRejectedErrorDetails(BaseModel):
+    reason: Literal["not_fashion_image"]
+    validation: ValidationPayload
+
+
+class HttpErrorDetails(BaseModel):
+    detail: Any
+
+
+class WarmupErrorDetails(BaseModel):
+    service: str
+    model: ModelInfo
+    reason: str
+
+
+class ApiErrorPayload(BaseModel):
+    code: str
+    message: str
+    details: Any | None = None
+
+
+class ApiErrorResponse(BaseModel):
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "ok": False,
+                "error": {
+                    "code": "internal_server_error",
+                    "message": "伺服器發生未預期錯誤。",
+                    "details": None,
+                },
+            }
+        }
+    )
+
+    ok: Literal[False]
+    error: ApiErrorPayload
+
+
+class PredictRejectedResponse(BaseModel):
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "ok": False,
+                "error": {
+                    "code": "predict_rejected",
+                    "message": "輸入圖片未通過服飾商品圖驗證。",
+                    "details": {
+                        "reason": "not_fashion_image",
+                        "validation": {
+                            "best_label": "person",
+                            "valid_score": 0.18,
+                            "invalid_score": 0.82,
+                        },
+                    },
+                },
+            }
+        }
+    )
+
+    ok: Literal[False]
+    error: ApiErrorPayload
+
+
 class ValidationErrorResponse(BaseModel):
-    detail: List[ValidationErrorItem]
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "ok": False,
+                "error": {
+                    "code": "request_validation_error",
+                    "message": "請求參數驗證失敗。",
+                    "details": {
+                        "fields": [
+                            {
+                                "loc": ["body", "image"],
+                                "msg": "Field required",
+                                "type": "missing",
+                            }
+                        ]
+                    },
+                },
+            }
+        }
+    )
+
+    ok: Literal[False]
+    error: ApiErrorPayload

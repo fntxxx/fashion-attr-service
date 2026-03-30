@@ -32,7 +32,43 @@ v30 is the retained production candidate after:
 - keeping the v29 season family-aware secondary selection
 - keeping the v30 occasion bridge-category prior / coupling refinement
 
-This version does **not** change the API schema. The update is in inference behavior and decision quality, mainly on multi-label occasion ranking and selection stability.
+This revision does not change the core inference rules. It only unifies API success and error contracts, and synchronizes Swagger / OpenAPI, tests, and examples with that contract.
+
+## Unified API contract
+
+All HTTP success responses now use the same envelope:
+
+```json
+{
+  "ok": true,
+  "data": {
+    "...": "endpoint-specific payload"
+  }
+}
+```
+
+All HTTP error responses now use the same envelope:
+
+```json
+{
+  "ok": false,
+  "error": {
+    "code": "machine_readable_error_code",
+    "message": "human readable message",
+    "details": {
+      "...": "structured details"
+    }
+  }
+}
+```
+
+Contract rules:
+
+- success payload is always inside `data`
+- error payload is always inside `error`
+- `error.code` is the machine-readable discriminator
+- `error.message` is the human-readable message
+- `error.details` contains structured context such as validation fields or rejection details
 
 ## Runtime structure
 
@@ -156,12 +192,72 @@ Open the Space homepage to use the interactive API docs:
 
 From the Swagger UI, you can open `POST /predict`, click **Try it out**, upload an image with the `image` field, and execute the request directly in the browser.
 
+### Predict response semantics
+
+Successful fashion-item prediction:
+
+```json
+{
+  "ok": true,
+  "data": {
+    "route": "product",
+    "coarseType": "top",
+    "name": "T 恤"
+  }
+}
+```
+
+Rejected input image:
+
+```json
+{
+  "ok": false,
+  "error": {
+    "code": "predict_rejected",
+    "message": "輸入圖片未通過服飾商品圖驗證。",
+    "details": {
+      "reason": "not_fashion_image",
+      "validation": {
+        "best_label": "person",
+        "valid_score": 0.18,
+        "invalid_score": 0.82
+      }
+    }
+  }
+}
+```
+
+Request validation error example:
+
+```json
+{
+  "ok": false,
+  "error": {
+    "code": "request_validation_error",
+    "message": "請求參數驗證失敗。",
+    "details": {
+      "fields": [
+        {
+          "loc": ["body", "image"],
+          "msg": "Field required",
+          "type": "missing"
+        }
+      ]
+    }
+  }
+}
+```
+
 ## API output note
 
-The API schema is unchanged, but consumers should treat:
+Consumer expectations for `POST /predict`:
 
-- `occasion` as a ranked multi-label output
-- `season` as a ranked multi-label output
+- success response → `200 OK` with `ok: true` and business payload inside `data`
+- rejected input image (for example person outfit photo, multi-item image, or non-fashion image) → `400 Bad Request` with `error.code = "predict_rejected"`
+- malformed request (for example missing `image` field) → `422 Unprocessable Entity` with `error.code = "request_validation_error"`
+- unexpected runtime failure → `500 Internal Server Error` with `error.code = "internal_server_error"`
+- `occasion` remains a ranked multi-label output
+- `season` remains a ranked multi-label output
 
 Do not assume those lists are unordered.
 

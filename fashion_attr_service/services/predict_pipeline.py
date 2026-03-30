@@ -2,17 +2,21 @@ from __future__ import annotations
 
 from PIL import Image
 
+from fashion_attr_service.api.constants import SERVICE_NAME
+from fashion_attr_service.api.exceptions import PredictRejectedError
+from fashion_attr_service.api.formatters import build_predict_payload
+from fashion_attr_service.api.responses import build_success_response
 from fashion_attr_service.models.fashion_siglip_model import (
     BACKEND_SPEC,
     MODEL_BACKEND,
     encode_image_feature,
     get_clip_model,
 )
-from fashion_attr_service.services.classify_category import classify_category
 from fashion_attr_service.services.attribute_heads import infer_color, infer_occasions, infer_seasons
+from fashion_attr_service.services.classify_category import classify_category
 from fashion_attr_service.services.postprocess_category import postprocess_category
-from fashion_attr_service.services.validate_input import validate_fashion_input, detect_coarse_fashion_type
-from fashion_attr_service.api.formatters import build_predict_payload
+from fashion_attr_service.services.validate_input import detect_coarse_fashion_type, validate_fashion_input
+
 
 
 def _normalize_pipeline_backend(model_backend: str | None = None) -> str:
@@ -24,6 +28,7 @@ def _normalize_pipeline_backend(model_backend: str | None = None) -> str:
         raise ValueError(f"Unsupported model backend: {backend_key}. Supported: {MODEL_BACKEND}")
 
     return MODEL_BACKEND
+
 
 
 def _build_predict_debug_payload(*, pre_category_result: dict, post_category_result: dict, coarse_info: dict, color_payload: dict, occasions: dict, seasons: dict) -> dict:
@@ -62,6 +67,7 @@ def _build_predict_debug_payload(*, pre_category_result: dict, post_category_res
     }
 
 
+
 def run_warmup(model_backend: str | None = None) -> dict:
     backend_key = _normalize_pipeline_backend(model_backend)
 
@@ -75,24 +81,25 @@ def run_warmup(model_backend: str | None = None) -> dict:
         category_result = classify_category(dummy, image_features=image_features, model_backend=backend_key)
         color_payload = infer_color(dummy, model_backend=backend_key)
 
-        return {
-            "ok": True,
-            "service": "fashion-attr-service",
-            "model": {
-                "backend": BACKEND_SPEC.key,
-                "model_name": BACKEND_SPEC.model_name,
-            },
-            "warmup": {
-                "validation_best_label": validation["best_label"],
-                "coarse_type": coarse_info["coarse_type"],
-                "category": category_result["categoryKey"],
-                "color": color_payload["color"],
-            },
-        }
+        return build_success_response(
+            {
+                "service": SERVICE_NAME,
+                "model": {
+                    "backend": BACKEND_SPEC.key,
+                    "model_name": BACKEND_SPEC.model_name,
+                },
+                "warmup": {
+                    "validation_best_label": validation["best_label"],
+                    "coarse_type": coarse_info["coarse_type"],
+                    "category": category_result["categoryKey"],
+                    "color": color_payload["color"],
+                },
+            }
+        )
     except Exception as e:
         return {
             "ok": False,
-            "service": "fashion-attr-service",
+            "service": SERVICE_NAME,
             "model": {
                 "backend": BACKEND_SPEC.key,
                 "model_name": BACKEND_SPEC.model_name,
@@ -101,21 +108,21 @@ def run_warmup(model_backend: str | None = None) -> dict:
         }
 
 
+
 def predict_attributes(original_img, model_backend: str | None = None, *, include_debug: bool = False) -> dict:
     backend_key = _normalize_pipeline_backend(model_backend)
 
     image_features = encode_image_feature(original_img, model_backend=backend_key)
     validation = validate_fashion_input(original_img, image_features=image_features, model_backend=backend_key)
     if not validation["is_valid"]:
-        return {
-            "ok": False,
-            "reason": "not_fashion_image",
-            "validation": {
+        raise PredictRejectedError(
+            reason="not_fashion_image",
+            validation={
                 "best_label": validation["best_label"],
                 "valid_score": validation["valid_score"],
                 "invalid_score": validation["invalid_score"],
             },
-        }
+        )
 
     route = "product"
 
@@ -181,4 +188,4 @@ def predict_attributes(original_img, model_backend: str | None = None, *, includ
             seasons=seasons,
         )
 
-    return payload
+    return build_success_response(payload)

@@ -30,6 +30,7 @@ def _sum_scores(score_map: dict[str, float], keys: set[str]) -> float:
     return sum(float(score_map.get(key, 0.0)) for key in keys)
 
 
+
 def _should_map_cardigan_to_top(category_result: dict) -> bool:
     fine_score_map = category_result.get("candidateScoreMaps", {}).get("category", {})
     if not fine_score_map:
@@ -44,6 +45,7 @@ def _should_map_cardigan_to_top(category_result: dict) -> bool:
         and outer_support <= CARDIGAN_OUTER_SUPPORT_MAX
         and top_support >= CARDIGAN_TOP_SUPPORT_MIN
     )
+
 
 
 def _should_map_dress_result_to_outer(category_result: dict, coarse_type: str) -> bool:
@@ -67,6 +69,7 @@ def _should_map_dress_result_to_outer(category_result: dict, coarse_type: str) -
     )
 
 
+
 def build_category_value(category_result: dict, coarse_type: str = "") -> str:
     fine_key = category_result["categoryKey"]
     main_key = category_result["mainCategoryKey"]
@@ -83,6 +86,7 @@ def build_category_value(category_result: dict, coarse_type: str = "") -> str:
     return MAIN_CATEGORY_TO_UI.get(main_key, "top")
 
 
+
 def build_name_value(category_result: dict) -> str:
     fine_label = str(category_result.get("category", "")).strip()
     if fine_label:
@@ -95,15 +99,14 @@ def build_name_value(category_result: dict) -> str:
     return "未命名衣物"
 
 
+
 def _normalize_probability_map(score_map: dict[str, float]) -> dict[str, float]:
     total = float(sum(score_map.values()))
     if total <= 0:
         return {key: 0.0 for key in score_map.keys()}
 
-    return {
-        key: float(value / total)
-        for key, value in score_map.items()
-    }
+    return {key: float(value / total) for key, value in score_map.items()}
+
 
 
 def _swap_selected_category_to_top(ui_score_map: dict[str, float], selected_value: str) -> dict[str, float]:
@@ -117,6 +120,7 @@ def _swap_selected_category_to_top(ui_score_map: dict[str, float], selected_valu
     swapped = dict(ui_score_map)
     swapped[selected_value], swapped[current_top_value] = swapped[current_top_value], swapped[selected_value]
     return _normalize_probability_map(swapped)
+
 
 
 def build_category_candidates(category_result: dict, coarse_type: str = "") -> list[dict]:
@@ -167,6 +171,7 @@ def build_category_candidates(category_result: dict, coarse_type: str = "") -> l
     return sorted(candidates, key=lambda item: item["score"], reverse=True)
 
 
+
 def build_predict_payload(
     *,
     route: str,
@@ -185,7 +190,6 @@ def build_predict_payload(
     season_values = seasons["selected"]
 
     return {
-        "ok": True,
         "route": route,
         "coarseType": coarse_type,
         "name": build_name_value(category_result),

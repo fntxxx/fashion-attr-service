@@ -24,11 +24,11 @@ DEFAULT_TIMEOUT_SECONDS = 120
 IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
 
 VALIDATION_EXPECTED_RULES = {
-    "valid_product": {"ok": True},
-    "flatlay": {"ok": True},
-    "person_outfit": {"ok": False, "reason": "not_fashion_image"},
-    "multi_item": {"ok": False, "reason": "not_fashion_image"},
-    "invalid": {"ok": False, "reason": "not_fashion_image"},
+    "valid_product": {"ok": True, "status_code": 200},
+    "flatlay": {"ok": True, "status_code": 200},
+    "person_outfit": {"ok": False, "error_code": "predict_rejected", "reason": "not_fashion_image", "status_code": 400},
+    "multi_item": {"ok": False, "error_code": "predict_rejected", "reason": "not_fashion_image", "status_code": 400},
+    "invalid": {"ok": False, "error_code": "predict_rejected", "reason": "not_fashion_image", "status_code": 400},
 }
 
 
@@ -74,8 +74,14 @@ class ApiPredictRunner(PredictRunner):
         with image_path.open("rb") as file_obj:
             files = {"image": (image_path.name, file_obj, mime_type)}
             response = requests.post(self.api_url, files=files, timeout=self.timeout_seconds)
-        response.raise_for_status()
-        return response.json()
+
+        if response.status_code >= 500:
+            response.raise_for_status()
+
+        payload = response.json()
+        if isinstance(payload, dict):
+            payload["status_code"] = response.status_code
+        return payload
 
 
 class PipelinePredictRunner(PredictRunner):
@@ -102,9 +108,19 @@ class PipelinePredictRunner(PredictRunner):
         self._ensure_loaded()
         assert self._predict_attributes is not None
 
+        from fashion_attr_service.api.exceptions import PredictRejectedError
+
         with Image.open(image_path) as image:
             rgb_image = image.convert("RGB")
-        return self._predict_attributes(rgb_image, include_debug=True)
+
+        try:
+            payload = self._predict_attributes(rgb_image, include_debug=True)
+            payload["status_code"] = 200
+            return payload
+        except PredictRejectedError as exc:
+            payload = dict(exc.payload)
+            payload["status_code"] = exc.status_code
+            return payload
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -707,14 +723,24 @@ def iter_validation_cases(dataset_dir: Path) -> list[ValidationCase]:
 
 
 def evaluate_validation_result(expected: dict[str, Any], actual: dict[str, Any]) -> tuple[bool, str]:
+    expected_status_code = expected.get("status_code")
+    actual_status_code = actual.get("status_code")
+    if expected_status_code is not None and actual_status_code != expected_status_code:
+        return False, f"預期 status_code={expected_status_code}，實際 status_code={actual_status_code}"
+
     expected_ok = expected["ok"]
     actual_ok = actual.get("ok")
     if actual_ok != expected_ok:
         return False, f"預期 ok={expected_ok}，實際 ok={actual_ok}"
 
     if not expected_ok:
+        expected_error_code = expected.get("error_code")
+        actual_error_code = (actual.get("error") or {}).get("code")
+        if expected_error_code is not None and actual_error_code != expected_error_code:
+            return False, f"預期 error.code={expected_error_code}，實際 error.code={actual_error_code}"
+
         expected_reason = expected.get("reason")
-        actual_reason = actual.get("reason")
+        actual_reason = ((actual.get("error") or {}).get("details") or {}).get("reason")
         if expected_reason != actual_reason:
             return False, f"預期 reason={expected_reason}，實際 reason={actual_reason}"
 
@@ -722,17 +748,23 @@ def evaluate_validation_result(expected: dict[str, Any], actual: dict[str, Any])
 
 
 def build_short_actual_summary(actual: dict[str, Any]) -> dict[str, Any]:
+    data = actual.get("data") or {}
+    error = actual.get("error") or {}
+    error_details = error.get("details") or {}
+
     return {
         "ok": actual.get("ok"),
-        "reason": actual.get("reason"),
-        "route": actual.get("route"),
-        "coarseType": actual.get("coarseType"),
-        "name": actual.get("name"),
-        "category": actual.get("category"),
-        "color": actual.get("color"),
-        "detected": actual.get("detected"),
-        "bbox": actual.get("bbox"),
-        "validation": actual.get("validation"),
+        "error_code": error.get("code"),
+        "reason": error_details.get("reason"),
+        "route": data.get("route"),
+        "coarseType": data.get("coarseType"),
+        "name": data.get("name"),
+        "category": data.get("category"),
+        "color": data.get("color"),
+        "detected": data.get("detected"),
+        "bbox": data.get("bbox"),
+        "validation": data.get("validation") or error_details.get("validation"),
+        "status_code": actual.get("status_code"),
     }
 
 

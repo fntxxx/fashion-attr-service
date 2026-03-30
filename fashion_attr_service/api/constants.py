@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+SERVICE_NAME = "fashion-attr-service"
+API_VERSION = "1.3.0"
+
 CATEGORY_UI_OPTIONS = [
     ("top", "上衣"),
     ("pants", "褲子"),
@@ -30,3 +33,14 @@ OUTER_FINE_KEYS = {
     "windbreaker",
     "cardigan",
 }
+
+ERROR_CODE_PREDICT_REJECTED = "predict_rejected"
+ERROR_CODE_REQUEST_VALIDATION = "request_validation_error"
+ERROR_CODE_HTTP_EXCEPTION = "http_exception"
+ERROR_CODE_INTERNAL_SERVER = "internal_server_error"
+ERROR_CODE_WARMUP_FAILED = "warmup_failed"
+
+ERROR_MESSAGE_PREDICT_REJECTED = "輸入圖片未通過服飾商品圖驗證。"
+ERROR_MESSAGE_REQUEST_VALIDATION = "請求參數驗證失敗。"
+ERROR_MESSAGE_INTERNAL_SERVER = "伺服器發生未預期錯誤。"
+ERROR_MESSAGE_WARMUP_FAILED = "模型 warmup 失敗。"
