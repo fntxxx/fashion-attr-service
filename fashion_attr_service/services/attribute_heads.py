@@ -754,26 +754,35 @@ def _maybe_rerank_season_secondary_candidate(
     resolved_ratio = float(profile.get("min_ratio", config.second_relative_ratio)) if allow_relaxed_thresholds else max(config.second_relative_ratio, float(profile.get("min_ratio", 0.0)))
     resolved_gap = float(profile.get("max_gap_from_second", config.second_max_gap)) if allow_relaxed_thresholds else min(config.second_max_gap, float(profile.get("max_gap_from_second", config.second_max_gap)))
     resolved_min_gap = float(profile.get("min_gap_from_second", 0.0))
+
+    # 只在 top2 / top3 幾乎同分時才允許用 fallback 取代原本第二名，
+    # 避免把本來就更高分、且已能成立的第二標籤硬換成較弱的候選，
+    # 造成 spring/autumn -> spring/summer 這類 selection error。
+    replacement_near_tie_gap = float(profile.get("replacement_near_tie_gap", 0.02))
     pass_score = fallback_score >= min_floor
     pass_ratio = ratio_to_top >= resolved_ratio
     pass_gap = resolved_min_gap <= gap_from_second <= resolved_gap
+    pass_replacement_gap = gap_from_second <= replacement_near_tie_gap
     allowed_pair = _is_allowed_season_pair(str(primary["value"]), label, fine_category, fallback_score)
     debug.update(
         {
             "candidate_score": fallback_score,
+            "secondary_score": secondary_score,
             "ratio_to_top": ratio_to_top,
             "gap_from_second": gap_from_second,
             "pass_score": pass_score,
             "pass_ratio": pass_ratio,
             "pass_gap": pass_gap,
+            "pass_replacement_gap": pass_replacement_gap,
             "allowed_pair": allowed_pair,
             "min_floor": min_floor,
             "resolved_ratio": resolved_ratio,
             "resolved_gap": resolved_gap,
             "resolved_min_gap": resolved_min_gap,
+            "replacement_near_tie_gap": replacement_near_tie_gap,
         }
     )
-    if not (pass_score and pass_ratio and pass_gap and allowed_pair):
+    if not (pass_score and pass_ratio and pass_gap and pass_replacement_gap and allowed_pair):
         return secondary, None, debug
 
     debug["applied"] = True
@@ -872,11 +881,9 @@ def _can_add_third_season_label(
         candidate_label=label,
         fine_category=fine_category,
     )
-    base_floor = max(_resolve_label_floor(config, label), config.third_strong_score)
-    if profile.get("allow_below_label_floor"):
-        min_floor = float(profile.get("min_score", config.third_strong_score))
-    else:
-        min_floor = max(base_floor, float(profile.get("min_score", config.third_strong_score)))
+    # 第三標籤是目前最容易把 hit 變成非 exact 的來源，
+    # 因此不再允許低於 label floor 的弱證據直接靠 relaxed profile 通過。
+    min_floor = max(_resolve_label_floor(config, label), float(profile.get("min_score", config.third_strong_score)))
     allow_relaxed_thresholds = bool(profile.get("allow_relaxed_thresholds"))
     resolved_ratio = float(profile.get("min_ratio", config.third_relative_ratio)) if allow_relaxed_thresholds else max(config.third_relative_ratio, float(profile.get("min_ratio", 0.0)))
     resolved_gap = float(profile.get("max_gap_from_second", config.third_max_gap)) if allow_relaxed_thresholds else min(config.third_max_gap, float(profile.get("max_gap_from_second", config.third_max_gap)))
