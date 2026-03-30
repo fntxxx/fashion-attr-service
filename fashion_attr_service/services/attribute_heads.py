@@ -614,6 +614,16 @@ def _is_allowed_occasion_pair(primary: str, secondary: str, fine_category: str, 
     return True
 
 
+def _resolve_season_family(fine_category: str) -> str:
+    if fine_category in LIGHT_SEASON_CATEGORIES:
+        return "light"
+    if fine_category in HEAVY_SEASON_CATEGORIES:
+        return "heavy"
+    if fine_category in TRANSITIONAL_SEASON_CATEGORIES:
+        return "transitional"
+    return "neutral"
+
+
 def _season_category_cap(fine_category: str) -> int:
     if fine_category in SEASON_FINE_CATEGORY_CAPS:
         return int(SEASON_FINE_CATEGORY_CAPS[fine_category])
@@ -848,6 +858,29 @@ def _can_add_secondary_label(
     resolved_ratio = float(profile.get("min_ratio", config.second_relative_ratio)) if allow_relaxed_thresholds else max(config.second_relative_ratio, float(profile.get("min_ratio", 0.0)))
     resolved_gap = float(profile.get("max_gap", config.second_max_gap)) if allow_relaxed_thresholds else min(config.second_max_gap, float(profile.get("max_gap", config.second_max_gap)))
     resolved_strong_score = float(profile.get("strong_score", config.second_strong_score)) if allow_relaxed_thresholds else max(config.second_strong_score, float(profile.get("strong_score", 0.0)))
+    allow_strong_shortcut = True
+
+    if attribute_name == "season":
+        season_family = _resolve_season_family(fine_category)
+        pair = {str(primary["value"]), label}
+
+        # season 的主要殘留問題不是 signal 太弱，而是第二標籤採用規則把不同 family
+        # 用同一組 strong-score shortcut 處理，導致 light family 容易多報 spring，
+        # transitional / heavy family 則容易少報 spring 或 winter。
+        # 這裡保留既有 fine-category profile，但在 family decision layer 再做一次統一校正。
+        if season_family == "light" and pair == {"spring", "summer"}:
+            allow_strong_shortcut = False
+            resolved_ratio = max(resolved_ratio, 0.74)
+            resolved_gap = min(resolved_gap, 0.14)
+        elif season_family == "transitional" and pair == {"spring", "autumn"}:
+            resolved_ratio = min(resolved_ratio, 0.60) if allow_relaxed_thresholds else min(resolved_ratio, 0.66)
+            resolved_gap = max(resolved_gap, 0.18)
+            resolved_strong_score = min(resolved_strong_score, 0.28)
+        elif season_family == "heavy" and pair == {"autumn", "winter"}:
+            resolved_ratio = min(resolved_ratio, 0.66) if allow_relaxed_thresholds else min(resolved_ratio, 0.68)
+            resolved_gap = max(resolved_gap, 0.18)
+            resolved_strong_score = min(resolved_strong_score, 0.28)
+
     pass_score = candidate_score >= min_floor
     pass_ratio = ratio >= resolved_ratio
     pass_gap = gap <= resolved_gap
@@ -859,7 +892,7 @@ def _can_add_secondary_label(
     elif attribute_name == "season":
         allowed_pair = _is_allowed_season_pair(str(primary["value"]), label, fine_category, candidate_score)
 
-    accepted = pass_score and (strong_score or (pass_ratio and pass_gap)) and allowed_pair
+    accepted = pass_score and (((allow_strong_shortcut and strong_score) or (pass_ratio and pass_gap))) and allowed_pair
     return accepted, {
         "candidate": label,
         "candidate_score": candidate_score,
@@ -875,6 +908,9 @@ def _can_add_secondary_label(
         "resolved_gap": resolved_gap,
         "resolved_strong_score": resolved_strong_score,
         "profile": dict(profile),
+        "allow_relaxed_thresholds": allow_relaxed_thresholds,
+        "allow_strong_shortcut": allow_strong_shortcut,
+        "season_family": _resolve_season_family(fine_category) if attribute_name == "season" else None,
     }
 
 
