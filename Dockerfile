@@ -15,6 +15,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
+ENV PYTHONPATH=/app
+
 COPY requirements.txt .
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
