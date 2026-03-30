@@ -1097,40 +1097,42 @@ def infer_seasons(image_features, main_category: str, fine_category: str) -> dic
     }
 
 
-def _build_color_prior_map(heuristic_color_value: str | None) -> dict[str, float]:
-    selected = heuristic_color_value
-    score_map: dict[str, float] = {value: 0.20 for value, _label in COLOR_UI_OPTIONS}
+def _empty_color_score_map(default: float = 0.0) -> dict[str, float]:
+    return {value: float(default) for value, _label in COLOR_UI_OPTIONS}
 
-    if selected in score_map:
-        score_map[selected] = 0.82
 
-    if selected == "light_beige":
-        score_map["neutral_gray"] = max(score_map["neutral_gray"], 0.32)
-        score_map["earth_brown"] = max(score_map["earth_brown"], 0.28)
-        score_map["butter_yellow"] = max(score_map["butter_yellow"], 0.24)
-    elif selected == "dark_gray_black":
-        score_map["neutral_gray"] = max(score_map["neutral_gray"], 0.44)
-    elif selected == "neutral_gray":
-        score_map["dark_gray_black"] = max(score_map["dark_gray_black"], 0.40)
-        score_map["light_beige"] = max(score_map["light_beige"], 0.22)
-    elif selected == "earth_brown":
-        score_map["light_beige"] = max(score_map["light_beige"], 0.34)
-        score_map["butter_yellow"] = max(score_map["butter_yellow"], 0.24)
-        score_map["warm_orange_red"] = max(score_map["warm_orange_red"], 0.24)
-    elif selected == "butter_yellow":
-        score_map["light_beige"] = max(score_map["light_beige"], 0.32)
-        score_map["earth_brown"] = max(score_map["earth_brown"], 0.24)
-    elif selected == "warm_orange_red":
-        score_map["rose_pink"] = max(score_map["rose_pink"], 0.30)
-        score_map["earth_brown"] = max(score_map["earth_brown"], 0.24)
-    elif selected == "rose_pink":
-        score_map["warm_orange_red"] = max(score_map["warm_orange_red"], 0.24)
-    elif selected == "fresh_blue":
-        score_map["neutral_gray"] = max(score_map["neutral_gray"], 0.22)
-    elif selected == "elegant_purple":
-        score_map["rose_pink"] = max(score_map["rose_pink"], 0.24)
+COLOR_NEIGHBOR_SUPPORT: dict[str, dict[str, float]] = {
+    "light_beige": {"neutral_gray": 0.08, "earth_brown": 0.06, "butter_yellow": 0.05},
+    "dark_gray_black": {"neutral_gray": 0.10},
+    "neutral_gray": {"dark_gray_black": 0.10, "light_beige": 0.05, "fresh_blue": 0.04},
+    "earth_brown": {"light_beige": 0.08, "butter_yellow": 0.05, "warm_orange_red": 0.06},
+    "butter_yellow": {"light_beige": 0.08, "earth_brown": 0.05},
+    "warm_orange_red": {"rose_pink": 0.08, "earth_brown": 0.06},
+    "rose_pink": {"warm_orange_red": 0.08, "light_beige": 0.04},
+    "natural_green": {"earth_brown": 0.05, "fresh_blue": 0.05},
+    "fresh_blue": {"neutral_gray": 0.05, "natural_green": 0.05, "elegant_purple": 0.05},
+    "elegant_purple": {"rose_pink": 0.06, "fresh_blue": 0.06},
+}
 
-    return score_map
+
+def _build_color_support_map(
+    heuristic_color_value: str | None,
+    stat_color_value: str | None,
+) -> dict[str, float]:
+    support_map = _empty_color_score_map(default=0.0)
+
+    if heuristic_color_value in support_map:
+        support_map[heuristic_color_value] += 0.12
+        for neighbor, boost in COLOR_NEIGHBOR_SUPPORT.get(heuristic_color_value, {}).items():
+            support_map[neighbor] += boost * 0.7
+
+    if stat_color_value in support_map:
+        boost = 0.20 if stat_color_value == heuristic_color_value else 0.16
+        support_map[stat_color_value] += boost
+        for neighbor, boost_value in COLOR_NEIGHBOR_SUPPORT.get(stat_color_value, {}).items():
+            support_map[neighbor] += boost_value
+
+    return {value: float(score) for value, score in support_map.items()}
 
 
 def _center_crop_image(image: Image.Image, ratio: float = 0.84) -> Image.Image:
@@ -1338,69 +1340,130 @@ def _resolve_ambiguous_color(
     top_value = str(candidates[0]["value"])
     second_value = str(candidates[1]["value"])
     gap = float(candidates[0]["score"]) - float(candidates[1]["score"])
-    ambiguous_pairs = {
-        frozenset({"light_beige", "neutral_gray"}),
-        frozenset({"butter_yellow", "light_beige"}),
-        frozenset({"butter_yellow", "earth_brown"}),
-        frozenset({"earth_brown", "warm_orange_red"}),
-        frozenset({"rose_pink", "warm_orange_red"}),
-        frozenset({"elegant_purple", "fresh_blue"}),
-        frozenset({"fresh_blue", "natural_green"}),
-        frozenset({"dark_gray_black", "neutral_gray"}),
-    }
-    if gap > 0.08 or frozenset({top_value, second_value}) not in ambiguous_pairs:
+    if gap > 0.05:
         return None
 
-    avg_sat = float(stats.get("avg_sat", 0.0))
-    avg_val = float(stats.get("avg_val", 0.0))
-    low_sat_ratio = float(stats.get("low_sat_ratio", 0.0))
-    red_ratio = float(stats.get("red_ratio", 0.0))
-    warm_ratio = float(stats.get("warm_ratio", 0.0))
-
-    pair = frozenset({top_value, second_value})
-    if pair == frozenset({"earth_brown", "warm_orange_red"}) and low_sat_ratio >= 0.50 and avg_sat <= 0.24 and avg_val <= 0.80:
-        return "earth_brown"
-    if pair == frozenset({"rose_pink", "warm_orange_red"}) and avg_val >= 0.82 and low_sat_ratio >= 0.52:
-        return "rose_pink"
-    if pair == frozenset({"butter_yellow", "light_beige"}) and avg_val >= 0.88 and warm_ratio >= 0.90 and red_ratio >= 0.05:
-        return "butter_yellow"
-    if pair == frozenset({"fresh_blue", "natural_green"}) and avg_sat <= 0.16 and low_sat_ratio >= 0.56:
-        return "fresh_blue" if float(stats.get("blue_ratio", 0.0)) >= float(stats.get("green_ratio", 0.0)) else "natural_green"
-    if pair == frozenset({"elegant_purple", "fresh_blue"}) and avg_sat <= 0.12 and avg_val >= 0.82:
-        return "elegant_purple"
-    if pair == frozenset({"light_beige", "neutral_gray"}) and avg_val >= 0.72 and low_sat_ratio >= 0.72 and warm_ratio >= 0.28:
-        return "light_beige"
-
     stat_choice = _resolve_color_from_stats(stats)
-    if stat_choice in {top_value, second_value}:
+    pair = {top_value, second_value}
+
+    if stat_choice in pair and heuristic_color_value == stat_choice:
         return stat_choice
-    if heuristic_color_value in {top_value, second_value}:
-        return heuristic_color_value
+
     return None
+
+
+def _score_color_prompt_signal(
+    image: Image.Image,
+    *,
+    model_backend: str | None = None,
+) -> dict[str, Any]:
+    image_features = encode_image_feature(image, model_backend=model_backend)
+    label_map = {value: label for value, label in COLOR_UI_OPTIONS}
+    return _score_prompt_ensemble(
+        image_features,
+        COLOR_PROMPTS,
+        label_map,
+        prior_map=None,
+        prior_bias_strength=0.0,
+        candidate_temperature=0.045,
+    )
+
+
+def _resolve_color_signal_confidence(scored: Mapping[str, Any]) -> float:
+    candidates = list(scored.get("candidates") or [])
+    if not candidates:
+        return 0.0
+
+    top_score = float(candidates[0].get("score") or 0.0)
+    second_score = float(candidates[1].get("score") or 0.0) if len(candidates) >= 2 else 0.0
+    gap = max(0.0, top_score - second_score)
+    return float(min(1.0, gap * 4.0 + max(0.0, top_score - 0.22) * 1.6))
+
+
+def _fuse_color_prompt_maps(
+    full_signal: Mapping[str, Any],
+    focus_signal: Mapping[str, Any],
+    *,
+    focus_source: str,
+) -> tuple[dict[str, float], dict[str, float]]:
+    full_confidence = _resolve_color_signal_confidence(full_signal)
+    focus_confidence = _resolve_color_signal_confidence(focus_signal)
+
+    base_focus_weight = 0.58 if focus_source == "detected_bbox" else 0.50
+    base_full_weight = 1.0 - base_focus_weight
+
+    full_top = str((full_signal.get("candidates") or [{}])[0].get("value") or "")
+    focus_top = str((focus_signal.get("candidates") or [{}])[0].get("value") or "")
+    agreement_bonus = 0.08 if full_top and full_top == focus_top else 0.0
+
+    full_weight = base_full_weight * (0.90 + full_confidence + agreement_bonus)
+    focus_weight = base_focus_weight * (0.90 + focus_confidence + agreement_bonus)
+    total_weight = max(full_weight + focus_weight, 1e-6)
+
+    full_raw_map = full_signal.get("rawPromptScoreMap") or {}
+    focus_raw_map = focus_signal.get("rawPromptScoreMap") or {}
+    fused_prompt_map: dict[str, float] = {}
+    for value, _label in COLOR_UI_OPTIONS:
+        fused_prompt_map[value] = float(
+            (float(full_raw_map.get(value, 0.0)) * full_weight + float(focus_raw_map.get(value, 0.0)) * focus_weight)
+            / total_weight
+        )
+
+    return fused_prompt_map, {
+        "full": float(full_weight / total_weight),
+        "focus": float(focus_weight / total_weight),
+        "full_confidence": float(full_confidence),
+        "focus_confidence": float(focus_confidence),
+        "prompt_agreement": bool(full_top and full_top == focus_top),
+    }
+
+
+def _combine_color_scores(
+    fused_prompt_map: Mapping[str, float],
+    support_map: Mapping[str, float],
+    *,
+    support_bias_strength: float,
+) -> tuple[list[dict[str, Any]], dict[str, float], dict[str, float]]:
+    label_map = {value: label for value, label in COLOR_UI_OPTIONS}
+    combined_score_map: dict[str, float] = {}
+    support_component_map: dict[str, float] = {}
+
+    for value, _label in COLOR_UI_OPTIONS:
+        prompt_score = float(fused_prompt_map.get(value, 0.0))
+        support_component = float(support_map.get(value, 0.0)) * support_bias_strength
+        support_component_map[value] = support_component
+        combined_score_map[value] = prompt_score + support_component
+
+    candidates, normalized_map = build_candidates(
+        combined_score_map,
+        label_map,
+        temperature=0.045,
+    )
+    return candidates, normalized_map, support_component_map
 
 
 def infer_color(image: Image.Image, *, model_backend: str | None = None) -> dict[str, Any]:
     focused_image, focus_debug = prepare_color_focus_image(image)
-    image_features = encode_image_feature(focused_image, model_backend=model_backend)
+
+    full_signal = _score_color_prompt_signal(image, model_backend=model_backend)
+    focus_signal = _score_color_prompt_signal(focused_image, model_backend=model_backend)
+    fused_prompt_map, signal_weights = _fuse_color_prompt_maps(
+        full_signal,
+        focus_signal,
+        focus_source=str(focus_debug.get("source") or "center_crop_fallback"),
+    )
 
     heuristic_tone = extract_color(focused_image)
     heuristic_color_value = COLOR_TONE_TO_UI.get(heuristic_tone)
     color_stats = _estimate_color_stats(focused_image)
-    heuristic_prior_map = _build_color_prior_map(heuristic_color_value)
-    stat_prior_map = _build_color_stat_prior_map(color_stats)
-    prior_map = _merge_color_prior_maps(heuristic_prior_map, stat_prior_map)
-    label_map = {value: label for value, label in COLOR_UI_OPTIONS}
-
-    prior_bias_strength = 0.12 if focus_debug["source"] == "detected_bbox" else 0.10
-    scored = _score_prompt_ensemble(
-        image_features,
-        COLOR_PROMPTS,
-        label_map,
-        prior_map=prior_map,
-        prior_bias_strength=prior_bias_strength,
-        candidate_temperature=0.045,
+    stat_color_value = _resolve_color_from_stats(color_stats)
+    support_map = _build_color_support_map(heuristic_color_value, stat_color_value)
+    support_bias_strength = 0.035 if stat_color_value != heuristic_color_value else 0.05
+    candidates, normalized_map, support_component_map = _combine_color_scores(
+        fused_prompt_map,
+        support_map,
+        support_bias_strength=support_bias_strength,
     )
-    candidates = scored["candidates"]
 
     color_value = str(candidates[0]["value"]) if candidates else (heuristic_color_value or "neutral_gray")
     override_color = _resolve_ambiguous_color(candidates, stats=color_stats, heuristic_color_value=heuristic_color_value)
@@ -1413,18 +1476,26 @@ def infer_color(image: Image.Image, *, model_backend: str | None = None) -> dict
         "color": color_value,
         "colorLabel": color_label,
         "candidates": candidates,
-        "scoreMap": scored["candidateScoreMap"],
-        "candidateScoreMap": scored["candidateScoreMap"],
-        "rawPromptScoreMap": scored["rawPromptScoreMap"],
-        "priorMap": scored["priorMap"],
-        "priorComponentMap": scored["priorComponentMap"],
-        "combinedScoreMap": scored["combinedScoreMap"],
-        "promptBreakdown": scored["promptBreakdown"],
+        "scoreMap": normalized_map,
+        "candidateScoreMap": normalized_map,
+        "rawPromptScoreMap": fused_prompt_map,
+        "priorMap": support_map,
+        "priorComponentMap": support_component_map,
+        "combinedScoreMap": {value: float(fused_prompt_map.get(value, 0.0) + support_component_map.get(value, 0.0)) for value, _label in COLOR_UI_OPTIONS},
+        "promptBreakdown": {
+            "full_image": full_signal.get("promptBreakdown") or {},
+            "focused_image": focus_signal.get("promptBreakdown") or {},
+        },
         "heuristicTone": heuristic_tone,
         "heuristicColorValue": heuristic_color_value,
         "focusDebug": {
             **focus_debug,
             "colorStats": color_stats,
-            "statDrivenColor": _resolve_color_from_stats(color_stats),
+            "statDrivenColor": stat_color_value,
+            "signalWeights": signal_weights,
+            "fullImageCandidateScoreMap": full_signal.get("candidateScoreMap") or {},
+            "fullImageRawPromptScoreMap": full_signal.get("rawPromptScoreMap") or {},
+            "focusedImageCandidateScoreMap": focus_signal.get("candidateScoreMap") or {},
+            "focusedImageRawPromptScoreMap": focus_signal.get("rawPromptScoreMap") or {},
         },
     }
