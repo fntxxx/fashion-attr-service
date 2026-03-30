@@ -28,6 +28,9 @@ RUN pip install --upgrade pip && \
 
 COPY . .
 
+RUN mkdir -p artifacts/weights && \
+    python scripts/deploy/preload_runtime_assets.py
+
 EXPOSE 7860
 
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "7860"]
