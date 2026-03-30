@@ -256,6 +256,36 @@ CAMPUS_SOCIAL_BRIDGE_CATEGORIES = {
     "flats",
 }
 
+OCCASION_OFFICE_FORMAL_CATEGORIES = {
+    "blazer",
+    "trousers",
+    "wide_leg_pants",
+    "heels",
+    "flats",
+}
+
+OCCASION_OFFICE_BRIDGE_CATEGORIES = {
+    "shirt",
+    "cardigan",
+    "coat",
+    "midi_skirt",
+    "midi_dress",
+    "boots",
+}
+
+OCCASION_SMART_CASUAL_BRIDGE_CATEGORIES = {
+    "knit_sweater",
+    "vest",
+    "sneakers",
+    "t_shirt",
+}
+
+OCCASION_SOCIAL_RELAXED_CATEGORIES = {
+    "mini_skirt",
+    "mini_dress",
+    "sandals",
+}
+
 OCCASION_CATEGORY_CAPS: dict[str, int] = {
     "shirt": 2,
     "cardigan": 2,
@@ -488,6 +518,7 @@ def _score_prompt_ensemble(
     label_map: Mapping[str, str],
     *,
     prior_map: Mapping[str, float] | None = None,
+    score_bias_map: Mapping[str, float] | None = None,
     prior_bias_strength: float,
     candidate_temperature: float | None = None,
 ) -> dict[str, Any]:
@@ -505,11 +536,13 @@ def _score_prompt_ensemble(
 
     combined_score_map: dict[str, float] = {}
     prior_component_map: dict[str, float] = {}
+    resolved_score_bias_map = dict(score_bias_map or {})
     for value, raw_score in raw_prompt_score_map.items():
         prior_value = float((prior_map or {}).get(value, 0.5))
         prior_component = (prior_value - 0.5) * prior_bias_strength
+        score_bias_component = float(resolved_score_bias_map.get(value, 0.0))
         prior_component_map[value] = float(prior_component)
-        combined_score_map[value] = float(raw_score + prior_component)
+        combined_score_map[value] = float(raw_score + prior_component + score_bias_component)
 
     candidates, normalized_map = build_candidates(
         combined_score_map,
@@ -524,6 +557,7 @@ def _score_prompt_ensemble(
         "priorMap": dict(prior_map or {}),
         "priorComponentMap": prior_component_map,
         "combinedScoreMap": combined_score_map,
+        "scoreBiasMap": resolved_score_bias_map,
         "promptBreakdown": prompt_breakdown,
     }
 
@@ -1037,17 +1071,38 @@ def _select_seasons(
     return debug
 
 
+def _build_occasion_family_bias_map(fine_category: str) -> dict[str, float]:
+    bias_map = {value: 0.0 for value, _label in OCCASION_OPTIONS}
+
+    if fine_category in OCCASION_OFFICE_FORMAL_CATEGORIES:
+        bias_map["professional"] += 0.03
+
+    if fine_category in OCCASION_OFFICE_BRIDGE_CATEGORIES:
+        bias_map["professional"] += 0.02
+
+    if fine_category in OCCASION_SMART_CASUAL_BRIDGE_CATEGORIES:
+        bias_map["business_casual"] += 0.015
+        bias_map["campus_casual"] -= 0.02
+
+    if fine_category in OCCASION_SOCIAL_RELAXED_CATEGORIES:
+        bias_map["campus_casual"] -= 0.01
+
+    return bias_map
+
+
 def infer_occasions(image_features, main_category: str, fine_category: str) -> dict[str, Any]:
     label_map = {value: label for value, label in OCCASION_OPTIONS}
     fine_prior_map = _build_prior_map(fine_category, DEFAULT_OCCASION_PRIOR, OCCASION_PRIORS)
     main_prior_map = MAIN_CATEGORY_OCCASION_PRIORS.get(main_category)
     prior_map = _blend_prior_maps(fine_prior_map, main_prior_map, primary_weight=0.74)
 
+    family_bias_map = _build_occasion_family_bias_map(fine_category)
     scored = _score_prompt_ensemble(
         image_features,
         OCCASION_PROMPTS,
         label_map,
         prior_map=prior_map,
+        score_bias_map=family_bias_map,
         prior_bias_strength=_resolve_occasion_prior_strength(fine_category),
         candidate_temperature=0.06,
     )
@@ -1071,6 +1126,7 @@ def infer_occasions(image_features, main_category: str, fine_category: str) -> d
         "priorMap": scored["priorMap"],
         "priorComponentMap": scored["priorComponentMap"],
         "combinedScoreMap": scored["combinedScoreMap"],
+        "scoreBiasMap": scored["scoreBiasMap"],
         "promptBreakdown": scored["promptBreakdown"],
         "legacy_style": legacy_style,
     }

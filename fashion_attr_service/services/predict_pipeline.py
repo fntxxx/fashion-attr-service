@@ -54,6 +54,7 @@ def _build_predict_debug_payload(*, pre_category_result: dict, post_category_res
         "occasion_candidate_score_map": occasions.get("candidateScoreMap") or {},
         "occasion_raw_prompt_score_map": occasions.get("rawPromptScoreMap") or {},
         "occasion_prior_map": occasions.get("priorMap") or {},
+        "occasion_score_bias_map": occasions.get("scoreBiasMap") or {},
         "season_selection": seasons.get("selectionDebug") or {},
         "season_candidate_score_map": seasons.get("candidateScoreMap") or {},
         "season_raw_prompt_score_map": seasons.get("rawPromptScoreMap") or {},
