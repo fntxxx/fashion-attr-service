@@ -20,7 +20,7 @@ This Hugging Face Space serves the FastAPI Swagger UI directly at the root path:
 - `GET /openapi.json` → OpenAPI schema
 - `GET /health` → basic service metadata / health response
 - `GET /warmup` → run warmup flow and report warmup result
-- `POST /predict` → upload an image file for clothing attribute prediction
+- `POST /predict` → upload an image file or send JSON base64 for clothing attribute prediction
 
 ## Version
 
@@ -33,6 +33,49 @@ v30 is the retained production candidate after:
 - keeping the v30 occasion bridge-category prior / coupling refinement
 
 This revision does not change the core inference rules. It only unifies API success and error contracts, and synchronizes Swagger / OpenAPI, tests, and examples with that contract.
+
+## Predict request formats
+
+`POST /predict` now documents two supported request formats consistently in both README and Swagger:
+
+### 1. multipart/form-data
+
+Use this when the caller already has a browser `File`, backend upload stream, or other binary image source.
+
+Field requirements:
+
+- field name must be `image`
+- content should be a single decodable image file
+
+Example:
+
+```bash
+curl -X POST "http://localhost:7860/predict" \
+  -F "image=@./sample.png"
+```
+
+### 2. application/json
+
+Use this when the caller already holds the image as base64, such as a remove-background flow that returns base64 directly.
+
+Field requirements:
+
+- `base64`: required
+- `filename`: optional
+- `mimeType`: optional
+- `base64` may be either raw base64 or a full data URL such as `data:image/png;base64,...`
+
+Example:
+
+```json
+{
+  "base64": "iVBORw0KGgoAAAANSUhEUgAA...",
+  "filename": "removed_bg.png",
+  "mimeType": "image/png"
+}
+```
+
+This request shape is now explicitly shown in Swagger UI under the `/predict` request body.
 
 ## Unified API contract
 
