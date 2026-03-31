@@ -77,6 +77,12 @@ Example:
 
 This request shape is now explicitly shown in Swagger UI under the `/predict` request body.
 
+Swagger UI notes:
+
+- switch the request body content type to `application/json` to use the base64 flow
+- **Try it out** now shows a prefilled JSON example instead of an empty placeholder body
+- the docs also provide multiple JSON examples for data URL, raw base64, and minimal request forms
+
 ## Unified API contract
 
 All HTTP success responses now use the same envelope:
