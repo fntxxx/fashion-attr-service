@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import base64
 import io
 from typing import Any
 
@@ -8,7 +7,6 @@ from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from PIL import Image, UnidentifiedImageError
-from pydantic import BaseModel, ValidationError
 
 from fashion_attr_service.api.constants import (
     API_VERSION,
@@ -25,9 +23,6 @@ from fashion_attr_service.api.exceptions import ApiErrorException
 from fashion_attr_service.api.responses import build_error_response
 from fashion_attr_service.api.schemas import (
     ApiErrorResponse,
-    Base64PredictRequestSchema,
-    BASE64_PREDICT_REQUEST_EXAMPLE,
-    BASE64_PREDICT_REQUEST_EXAMPLES,
     HealthResponse,
     PredictRejectedResponse,
     PredictSuccessResponse,
@@ -36,11 +31,6 @@ from fashion_attr_service.api.schemas import (
 )
 from fashion_attr_service.services.predict_pipeline import predict_attributes, run_warmup
 
-
-class Base64PredictRequest(BaseModel):
-    base64: str
-    filename: str | None = None
-    mimeType: str | None = None
 
 
 app = FastAPI(
@@ -55,9 +45,8 @@ app = FastAPI(
         "\n\n"
         "- Swagger UI：`/`\n"
         "- OpenAPI schema：`/openapi.json`\n"
-        "- 支援輸入方式：`multipart/form-data` 或 `application/json`\n"
-        "- multipart 欄位名稱：`image`\n"
-        "- JSON 欄位名稱：`base64`（可帶 data URL prefix）"
+        "- 支援輸入方式：`multipart/form-data`\n"
+        "- multipart 欄位名稱：`image`"
     ),
     version=API_VERSION,
     docs_url="/",
@@ -88,51 +77,15 @@ def _validation_error(loc: list[str | int], msg: str, err_type: str) -> RequestV
     )
 
 
-def _strip_data_url_prefix(value: str) -> str:
-    trimmed = value.strip()
-    if not trimmed:
-        return trimmed
-
-    if trimmed.startswith("data:") and "," in trimmed:
-        return trimmed.split(",", 1)[1].strip()
-
-    return trimmed
-
 
 async def _read_request_image(request: Request) -> Image.Image:
-    content_type = request.headers.get("content-type", "")
+    form = await request.form()
+    image = form.get("image")
 
-    if "application/json" in content_type:
-        try:
-            body = await request.json()
-        except Exception as exc:  # pragma: no cover - framework-level parsing edge case
-            raise _validation_error(["body"], "Invalid JSON body", "json_invalid") from exc
+    if image is None or not hasattr(image, "read"):
+        raise _validation_error(["body", "image"], "Field required", "missing")
 
-        try:
-            payload = Base64PredictRequest.model_validate(body)
-        except ValidationError as exc:
-            raise RequestValidationError(exc.errors()) from exc
-
-        base64_value = _strip_data_url_prefix(payload.base64)
-        if not base64_value:
-            raise _validation_error(["body", "base64"], "Field required", "missing")
-
-        try:
-            contents = base64.b64decode(base64_value, validate=True)
-        except Exception as exc:
-            raise _validation_error(
-                ["body", "base64"],
-                "Invalid base64 image data",
-                "value_error.base64",
-            ) from exc
-    else:
-        form = await request.form()
-        image = form.get("image")
-
-        if image is None or not hasattr(image, "read"):
-            raise _validation_error(["body", "image"], "Field required", "missing")
-
-        contents = await image.read()
+    contents = await image.read()
 
     if not contents:
         raise _validation_error(["body", "image"], "Image content is empty", "value_error.empty")
@@ -154,6 +107,7 @@ async def _read_request_image(request: Request) -> Image.Image:
                 ]
             },
         ) from exc
+
 
 
 @app.on_event("startup")
@@ -325,7 +279,7 @@ def warmup() -> dict[str, Any]:
         },
         422: {
             "model": ValidationErrorResponse,
-            "description": "請求格式錯誤，例如未提供 image 檔案、base64 格式錯誤，或圖片不可解碼。",
+            "description": "請求格式錯誤，例如未提供 image 檔案、圖片內容為空，或圖片不可解碼。",
             "content": {
                 "application/json": {
                     "example": ValidationErrorResponse.model_config["json_schema_extra"]["example"],
@@ -345,11 +299,9 @@ def warmup() -> dict[str, Any]:
     summary="上傳圖片進行服飾屬性推論",
     description=(
         "上傳單張圖片進行服飾屬性推論。"
-        "支援 `multipart/form-data` 與 `application/json` 兩種輸入。"
+        "請求格式固定為 `multipart/form-data`。"
         "\n\n"
         "- multipart/form-data：欄位名稱必須是 `image`。"
-        "\n"
-        "- application/json：欄位名稱必須是 `base64`，可選擇帶 `filename` 與 `mimeType`。"
         "\n\n"
         "成功時回傳 `200 OK` 與統一的 `ok + data` envelope。"
         "若圖片可被讀取，但未通過服飾輸入驗證，回傳 `400 Bad Request` 與統一的 `ok + error` envelope。"
@@ -359,11 +311,7 @@ def warmup() -> dict[str, Any]:
     openapi_extra={
         "requestBody": {
             "required": True,
-            "description": (
-                "支援兩種輸入格式：\n"
-                "1. multipart/form-data：上傳單張圖片，欄位名稱固定為 image。\n"
-                "2. application/json：傳入 base64，可帶 filename 與 mimeType。"
-            ),
+            "description": "請使用 multipart/form-data 上傳單張圖片，欄位名稱固定為 image。",
             "content": {
                 "multipart/form-data": {
                     "schema": {
@@ -377,12 +325,7 @@ def warmup() -> dict[str, Any]:
                             }
                         },
                     }
-                },
-                "application/json": {
-                    "schema": Base64PredictRequestSchema.model_json_schema(),
-                    "example": BASE64_PREDICT_REQUEST_EXAMPLE,
-                    "examples": BASE64_PREDICT_REQUEST_EXAMPLES,
-                },
+                }
             },
         }
     },

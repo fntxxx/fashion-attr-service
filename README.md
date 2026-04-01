@@ -20,7 +20,7 @@ This Hugging Face Space serves the FastAPI Swagger UI directly at the root path:
 - `GET /openapi.json` → OpenAPI schema
 - `GET /health` → basic service metadata / health response
 - `GET /warmup` → run warmup flow and report warmup result
-- `POST /predict` → upload an image file or send JSON base64 for clothing attribute prediction
+- `POST /predict` → upload an image file for clothing attribute prediction
 
 ## Version
 
@@ -32,15 +32,11 @@ v30 is the retained production candidate after:
 - keeping the v29 season family-aware secondary selection
 - keeping the v30 occasion bridge-category prior / coupling refinement
 
-This revision does not change the core inference rules. It only unifies API success and error contracts, and synchronizes Swagger / OpenAPI, tests, and examples with that contract.
+This revision does not change the core inference rules. It unifies `/predict` to a single image-upload contract and synchronizes Swagger / OpenAPI, tests, and examples with that contract.
 
-## Predict request formats
+## Predict request format
 
-`POST /predict` now documents two supported request formats consistently in both README and Swagger:
-
-### 1. multipart/form-data
-
-Use this when the caller already has a browser `File`, backend upload stream, or other binary image source.
+`POST /predict` only accepts `multipart/form-data`.
 
 Field requirements:
 
@@ -50,38 +46,14 @@ Field requirements:
 Example:
 
 ```bash
-curl -X POST "http://localhost:7860/predict" \
-  -F "image=@./sample.png"
+curl -X POST "http://localhost:7860/predict"   -F "image=@./sample.png"
 ```
-
-### 2. application/json
-
-Use this when the caller already holds the image as base64, such as a remove-background flow that returns base64 directly.
-
-Field requirements:
-
-- `base64`: required
-- `filename`: optional
-- `mimeType`: optional
-- `base64` may be either raw base64 or a full data URL such as `data:image/png;base64,...`
-
-Example:
-
-```json
-{
-  "base64": "iVBORw0KGgoAAAANSUhEUgAA...",
-  "filename": "removed_bg.png",
-  "mimeType": "image/png"
-}
-```
-
-This request shape is now explicitly shown in Swagger UI under the `/predict` request body.
 
 Swagger UI notes:
 
-- switch the request body content type to `application/json` to use the base64 flow
-- **Try it out** now shows a prefilled JSON example instead of an empty placeholder body
-- the docs also provide multiple JSON examples for data URL, raw base64, and minimal request forms
+- `/predict` request body now documents only `multipart/form-data`
+- the upload field name is fixed to `image`
+- there is no JSON or base64 request variant
 
 ## Unified API contract
 
@@ -215,152 +187,3 @@ Based on the retained local evaluation reports used for release gating:
 - occasion exact-match quality improves relative to v29
 
 v30 should therefore be understood as an **occasion-quality refinement release**, not as a category, color, or season rewrite.
-
-## Known limitations
-
-Current known limitations of v30:
-
-- occasion still under-predicts the second label in some dress / formal scenarios
-- some bridge items can still drift between `business_casual`, `professional`, `social`, and `campus_casual`
-- multi-label quality is still more limited by ranking / selection behavior than by raw signal availability in some cases
-- category errors can still propagate downstream when a borderline upper-body item is classified into the wrong garment family
-
-Typical failure patterns:
-
-- `professional + social` or `business_casual + social` collapsing to a single label
-- footwear boundary confusion on boots / heels between `social`, `business_casual`, and `professional`
-- skirt-related over-expansion or under-selection on the second occasion label
-- borderline cardigan / outerwear items causing downstream category-conditioned errors
-
-## Swagger UI
-
-Open the Space homepage to use the interactive API docs:
-
-- Root docs: `/`
-- OpenAPI schema: `/openapi.json`
-
-From the Swagger UI, you can open `POST /predict`, click **Try it out**, upload an image with the `image` field, and execute the request directly in the browser.
-
-### Predict response semantics
-
-Successful fashion-item prediction:
-
-```json
-{
-  "ok": true,
-  "data": {
-    "route": "product",
-    "coarseType": "top",
-    "name": "T 恤"
-  }
-}
-```
-
-Rejected input image:
-
-```json
-{
-  "ok": false,
-  "error": {
-    "code": "predict_rejected",
-    "message": "輸入圖片未通過服飾商品圖驗證。",
-    "details": {
-      "reason": "not_fashion_image",
-      "validation": {
-        "best_label": "person",
-        "valid_score": 0.18,
-        "invalid_score": 0.82
-      }
-    }
-  }
-}
-```
-
-Request validation error example:
-
-```json
-{
-  "ok": false,
-  "error": {
-    "code": "request_validation_error",
-    "message": "請求參數驗證失敗。",
-    "details": {
-      "fields": [
-        {
-          "loc": ["body", "image"],
-          "msg": "Field required",
-          "type": "missing"
-        }
-      ]
-    }
-  }
-}
-```
-
-## API output note
-
-Consumer expectations for `POST /predict`:
-
-- success response → `200 OK` with `ok: true` and business payload inside `data`
-- rejected input image (for example person outfit photo, multi-item image, or non-fashion image) → `400 Bad Request` with `error.code = "predict_rejected"`
-- malformed request (for example missing `image` field) → `422 Unprocessable Entity` with `error.code = "request_validation_error"`
-- unexpected runtime failure → `500 Internal Server Error` with `error.code = "internal_server_error"`
-- `occasion` remains a ranked multi-label output
-- `season` remains a ranked multi-label output
-
-Do not assume those lists are unordered.
-
-## Local run
-
-Start the service locally:
-
-```bash
-uvicorn app:app --host 0.0.0.0 --port 7860 --reload
-```
-
-## Model evaluation
-
-Use the unified single-model evaluation entry locally.
-
-### Quality evaluation for rule / postprocess changes
-
-Run the fixed quality test set directly against the in-process pipeline:
-
-```bash
-python test_attr_eval.py quality D:\DevData\attr_quality_testset
-```
-
-Call the local API instead:
-
-```bash
-python test_attr_eval.py quality D:\DevData\attr_quality_testset --runner api --api-url http://127.0.0.1:7860/predict
-```
-
-Only inspect specific groups or subgroups:
-
-```bash
-python test_attr_eval.py quality D:\DevData\attr_quality_testset --groups color --subgroups butter_yellow,rose_pink
-```
-
-Input validation regression check:
-
-```bash
-python test_attr_eval.py validation D:\DevData\ai_testset
-```
-
-Default label file:
-
-- `artifacts/labels/labels_full_template.csv`
-
-Default report output:
-
-- `artifacts/reports/<dataset_name>_report_vN.json`
-
-## Development scripts
-
-- `python scripts/debug/debug_color_failures.py`
-- `python scripts/labels/generate_full_labels_template.py`
-- `python scripts/labels/generate_category_labels.py`
-- `python scripts/labels/check_labels.py`
-- `python scripts/labels/check_generated_labels.py`
-- `python scripts/labels/check_missing_labels.py`

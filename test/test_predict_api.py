@@ -111,105 +111,33 @@ class PredictApiContractTests(unittest.TestCase):
         self.assertEqual(response.json(), success_payload)
 
 
-    def test_predict_accepts_json_base64_request(self) -> None:
-        success_payload = {
-            "ok": True,
-            "data": {
-                "route": "product",
-                "coarseType": "top",
-                "name": "T 恤",
-                "category": "top",
-                "categoryLabel": "上衣",
-                "color": "light_beige",
-                "colorLabel": "淺米白",
-                "occasion": ["campus_casual"],
-                "season": ["spring"],
-                "score": 0.91,
-                "scores": {
-                    "mainCategory": 0.94,
-                    "category": 0.91,
-                    "occasion": 0.88,
-                    "color": 0.92,
-                    "season": 0.82,
-                },
-                "candidates": {
-                    "category": [{"value": "top", "label": "上衣", "score": 0.91}],
-                    "color": [{"value": "light_beige", "label": "淺米白", "score": 0.92}],
-                    "occasion": [{"value": "campus_casual", "label": "校園休閒", "score": 0.88}],
-                    "season": [{"value": "spring", "label": "春季", "score": 0.82}],
-                },
-                "detected": False,
-                "detectedLabel": None,
-                "bbox": None,
-                "validation": {
-                    "best_label": "t-shirt",
-                    "valid_score": 0.93,
-                    "invalid_score": 0.07,
+    def test_predict_rejects_json_request_without_image_upload(self) -> None:
+        response = self.client.post(
+            "/predict",
+            json={"base64": "iVBORw0KGgoAAAANSUhEUgAA..."},
+        )
+
+        self.assertEqual(response.status_code, 422)
+        self.assertEqual(
+            response.json(),
+            {
+                "ok": False,
+                "error": {
+                    "code": "request_validation_error",
+                    "message": "請求參數驗證失敗。",
+                    "details": {
+                        "fields": [
+                            {
+                                "loc": ["body", "image"],
+                                "msg": "Field required",
+                                "type": "missing",
+                            }
+                        ]
+                    },
                 },
             },
-        }
+        )
 
-        image_bytes = self._build_image_bytes()
-        image_b64 = __import__("base64").b64encode(image_bytes).decode("utf-8")
-
-        with patch.object(main_module, "predict_attributes", return_value=success_payload):
-            response = self.client.post(
-                "/predict",
-                json={"base64": image_b64, "filename": "removed_bg.png", "mimeType": "image/png"},
-            )
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), success_payload)
-
-    def test_predict_accepts_json_base64_with_data_url_prefix(self) -> None:
-        success_payload = {
-            "ok": True,
-            "data": {
-                "route": "product",
-                "coarseType": "top",
-                "name": "T 恤",
-                "category": "top",
-                "categoryLabel": "上衣",
-                "color": "light_beige",
-                "colorLabel": "淺米白",
-                "occasion": ["campus_casual"],
-                "season": ["spring"],
-                "score": 0.91,
-                "scores": {
-                    "mainCategory": 0.94,
-                    "category": 0.91,
-                    "occasion": 0.88,
-                    "color": 0.92,
-                    "season": 0.82,
-                },
-                "candidates": {
-                    "category": [{"value": "top", "label": "上衣", "score": 0.91}],
-                    "color": [{"value": "light_beige", "label": "淺米白", "score": 0.92}],
-                    "occasion": [{"value": "campus_casual", "label": "校園休閒", "score": 0.88}],
-                    "season": [{"value": "spring", "label": "春季", "score": 0.82}],
-                },
-                "detected": False,
-                "detectedLabel": None,
-                "bbox": None,
-                "validation": {
-                    "best_label": "t-shirt",
-                    "valid_score": 0.93,
-                    "invalid_score": 0.07,
-                },
-            },
-        }
-
-        image_bytes = self._build_image_bytes()
-        image_b64 = __import__("base64").b64encode(image_bytes).decode("utf-8")
-
-        with patch.object(main_module, "predict_attributes", return_value=success_payload):
-            response = self.client.post(
-                "/predict",
-                json={"base64": f"data:image/png;base64,{image_b64}"},
-            )
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json(), success_payload)
 
     def test_predict_returns_400_with_unified_business_error_envelope(self) -> None:
         from fashion_attr_service.api.exceptions import PredictRejectedError
@@ -302,25 +230,17 @@ class PredictApiContractTests(unittest.TestCase):
         )
 
 
-    def test_predict_openapi_json_request_body_includes_examples(self) -> None:
+    def test_predict_openapi_request_body_only_accepts_multipart_image_upload(self) -> None:
         response = self.client.get("/openapi.json")
 
         self.assertEqual(response.status_code, 200)
         request_body = response.json()["paths"]["/predict"]["post"]["requestBody"]
-        json_content = request_body["content"]["application/json"]
+        self.assertEqual(set(request_body["content"].keys()), {"multipart/form-data"})
+        multipart_schema = request_body["content"]["multipart/form-data"]["schema"]
 
-        self.assertEqual(
-            json_content["example"],
-            {
-                "base64": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
-                "filename": "removed_bg.png",
-                "mimeType": "image/png",
-            },
-        )
-        self.assertIn("examples", json_content)
-        self.assertIn("withDataUrl", json_content["examples"])
-        self.assertIn("rawBase64", json_content["examples"])
-        self.assertIn("minimal", json_content["examples"])
+        self.assertEqual(multipart_schema["type"], "object")
+        self.assertEqual(multipart_schema["required"], ["image"])
+        self.assertEqual(multipart_schema["properties"]["image"]["format"], "binary")
 
     def test_warmup_returns_500_with_unified_error_envelope_when_warmup_fails(self) -> None:
         with patch.object(

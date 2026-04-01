@@ -6,36 +6,6 @@ from typing import Any, List, Literal, Optional, Union
 from pydantic import BaseModel, ConfigDict, Field
 
 
-BASE64_PREDICT_REQUEST_EXAMPLE = {
-    "base64": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...",
-    "filename": "removed_bg.png",
-    "mimeType": "image/png",
-}
-
-BASE64_PREDICT_REQUEST_EXAMPLES = {
-    "withDataUrl": {
-        "summary": "含 data URL prefix 的 base64",
-        "description": "前端若直接使用 data URL 字串，可原樣傳入。",
-        "value": BASE64_PREDICT_REQUEST_EXAMPLE,
-    },
-    "rawBase64": {
-        "summary": "純 base64 字串",
-        "description": "若呼叫端已先去除 data URL prefix，可直接傳純 base64。",
-        "value": {
-            "base64": "iVBORw0KGgoAAAANSUhEUgAA...",
-            "filename": "removed_bg.png",
-            "mimeType": "image/png",
-        },
-    },
-    "minimal": {
-        "summary": "最小 JSON 請求",
-        "description": "只提供必要的 base64 欄位。",
-        "value": {
-            "base64": "iVBORw0KGgoAAAANSUhEUgAA...",
-        },
-    },
-}
-
 
 class EndpointMap(BaseModel):
     model_config = ConfigDict(
@@ -170,27 +140,6 @@ class WarmupSuccessResponse(BaseModel):
     data: WarmupData
 
 
-
-
-class Base64PredictRequestSchema(BaseModel):
-    model_config = ConfigDict(
-        json_schema_extra={
-            "example": BASE64_PREDICT_REQUEST_EXAMPLE
-        }
-    )
-
-    base64: str = Field(
-        ...,
-        description="圖片 base64 字串，可為純 base64，或帶 data URL prefix 的字串。",
-    )
-    filename: Optional[str] = Field(
-        default=None,
-        description="選填，呼叫端可附帶原始檔名或去背後檔名。",
-    )
-    mimeType: Optional[str] = Field(
-        default=None,
-        description="選填，呼叫端可附帶 MIME type，例如 image/png。",
-    )
 
 class ValidationPayload(BaseModel):
     model_config = ConfigDict(
