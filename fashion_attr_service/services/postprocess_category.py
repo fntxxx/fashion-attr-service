@@ -1,74 +1,17 @@
 from typing import Any, Optional, Dict, Tuple
 
 from fashion_attr_service.services.shape_heuristics import estimate_pants_vs_skirt
+from fashion_attr_service.utils.category_catalog import (
+    OUTER_FINE_KEYS,
+    TOP_FINE_KEYS,
+    get_fine_category_label,
+    get_fine_category_map,
+    get_main_category_label,
+    normalize_category_key,
+)
 
 
-UPPER_BODY_CATEGORY_MAP = {
-    "t_shirt": "T 恤",
-    "shirt": "襯衫",
-    "tank_top": "背心",
-    "hoodie": "帽T",
-    "sweatshirt": "大學T",
-    "knit_sweater": "針織衫",
-    "cardigan": "開襟衫",
-    "denim_jacket": "牛仔外套",
-    "blazer": "西裝外套",
-    "coat": "外套",
-    "puffer_jacket": "鋪棉外套",
-    "vest": "背心外套",
-    "windbreaker": "防風外套",
-}
 
-PANTS_CATEGORY_MAP = {
-    "jeans": "牛仔褲",
-    "trousers": "長褲",
-    "wide_leg_pants": "寬褲",
-    "leggings": "內搭褲",
-    "shorts": "短褲",
-}
-
-SKIRT_CATEGORY_MAP = {
-    "mini_skirt": "短裙",
-    "midi_skirt": "中長裙",
-}
-
-DRESS_CATEGORY_MAP = {
-    "mini_dress": "短洋裝",
-    "midi_dress": "中長洋裝",
-}
-
-SHOES_CATEGORY_MAP = {
-    "sneakers": "休閒鞋",
-    "boots": "靴子",
-    "sandals": "涼鞋",
-    "heels": "高跟鞋",
-    "flats": "平底鞋",
-}
-
-HEADWEAR_CATEGORY_MAP = {
-    "bucket_hat": "漁夫帽",
-    "beanie": "毛帽",
-    "hat": "帽子",
-}
-
-OUTER_FINE_KEYS = {
-    "blazer",
-    "coat",
-    "puffer_jacket",
-    "vest",
-    "windbreaker",
-    "denim_jacket",
-    "cardigan",
-}
-
-TOP_FINE_KEYS = {
-    "t_shirt",
-    "shirt",
-    "tank_top",
-    "hoodie",
-    "sweatshirt",
-    "knit_sweater",
-}
 
 HIGH_RISK_COARSE_TYPES = {"upper_body", "dress", "skirt"}
 
@@ -85,52 +28,6 @@ def _force_main_category(
     category_result["categoryKey"] = category_key
     category_result["category"] = category_label
     return category_result
-
-
-def _normalize_category_key(
-    main_key: str,
-    category_key: str,
-) -> str:
-    if main_key == "upper_body" and category_key not in UPPER_BODY_CATEGORY_MAP:
-        return "shirt"
-    if main_key == "pants" and category_key not in PANTS_CATEGORY_MAP:
-        return "trousers"
-    if main_key == "skirt" and category_key not in SKIRT_CATEGORY_MAP:
-        return "midi_skirt"
-    if main_key == "dress" and category_key not in DRESS_CATEGORY_MAP:
-        return "midi_dress"
-    if main_key == "shoes" and category_key not in SHOES_CATEGORY_MAP:
-        return "sneakers"
-    if main_key == "headwear" and category_key not in HEADWEAR_CATEGORY_MAP:
-        return "hat"
-    return category_key
-
-
-def _get_main_category_label(main_key: str) -> str:
-    return {
-        "upper_body": "上身",
-        "pants": "褲子",
-        "skirt": "裙子",
-        "dress": "連身裙",
-        "shoes": "鞋子",
-        "headwear": "帽子",
-    }[main_key]
-
-
-def _get_fine_category_label(main_key: str, category_key: str) -> str:
-    if main_key == "upper_body":
-        return UPPER_BODY_CATEGORY_MAP[category_key]
-    if main_key == "pants":
-        return PANTS_CATEGORY_MAP[category_key]
-    if main_key == "skirt":
-        return SKIRT_CATEGORY_MAP[category_key]
-    if main_key == "dress":
-        return DRESS_CATEGORY_MAP[category_key]
-    if main_key == "shoes":
-        return SHOES_CATEGORY_MAP[category_key]
-    if main_key == "headwear":
-        return HEADWEAR_CATEGORY_MAP[category_key]
-    return category_key
 
 
 def _read_main_score(category_result: Dict[str, Any], main_key: str) -> float:
@@ -205,14 +102,14 @@ def _apply_coarse_type_lock(
     if coarse not in {"upper_body", "pants", "skirt", "dress", "shoes", "headwear"}:
         return category_result, category_result["mainCategoryKey"], category_result["categoryKey"]
 
-    key = _normalize_category_key(coarse, key)
+    key = normalize_category_key(coarse, key)
     return (
         _force_main_category(
             category_result,
             coarse,
-            _get_main_category_label(coarse),
+            get_main_category_label(coarse),
             key,
-            _get_fine_category_label(coarse, key),
+            get_fine_category_label(coarse, key),
         ),
         coarse,
         key,
@@ -273,9 +170,9 @@ def postprocess_category(
     main_key = original_main_key
     category_key = original_category_key
 
-    category_key = _normalize_category_key(main_key, category_key)
+    category_key = normalize_category_key(main_key, category_key)
     category_result["categoryKey"] = category_key
-    category_result["category"] = _get_fine_category_label(main_key, category_key)
+    category_result["category"] = get_fine_category_label(main_key, category_key)
 
     category_result, main_key, category_key = _apply_coarse_type_lock(
         category_result=category_result,
@@ -292,22 +189,22 @@ def postprocess_category(
         category_result = _force_main_category(
             category_result,
             "upper_body",
-            "上身",
+            get_main_category_label("upper_body"),
             refined_key,
-            UPPER_BODY_CATEGORY_MAP[refined_key],
+            get_fine_category_label("upper_body", refined_key),
         )
         main_key = "upper_body"
         category_key = refined_key
 
     if route == "product" and main_key == "skirt":
         shape_guess = estimate_pants_vs_skirt(image)
-        if shape_guess == "skirt" and category_key not in SKIRT_CATEGORY_MAP:
+        if shape_guess == "skirt" and category_key not in get_fine_category_map("skirt"):
             category_result = _force_main_category(
                 category_result,
                 "skirt",
-                "裙子",
+                get_main_category_label("skirt"),
                 "midi_skirt",
-                "中長裙",
+                get_fine_category_label("skirt", "midi_skirt"),
             )
             main_key = "skirt"
             category_key = "midi_skirt"
@@ -320,9 +217,9 @@ def postprocess_category(
             category_result = _force_main_category(
                 category_result,
                 "skirt",
-                "裙子",
+                get_main_category_label("skirt"),
                 "midi_skirt",
-                "中長裙",
+                get_fine_category_label("skirt", "midi_skirt"),
             )
             main_key = "skirt"
             category_key = "midi_skirt"

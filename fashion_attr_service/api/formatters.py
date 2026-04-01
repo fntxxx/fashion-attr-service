@@ -6,16 +6,7 @@ from fashion_attr_service.api.constants import (
     MAIN_CATEGORY_TO_UI,
     OUTER_FINE_KEYS,
 )
-
-
-TOP_FINE_KEYS = {
-    "t_shirt",
-    "shirt",
-    "tank_top",
-    "hoodie",
-    "sweatshirt",
-    "knit_sweater",
-}
+from fashion_attr_service.utils.category_catalog import TOP_FINE_KEYS
 
 
 CARDIGAN_TOP_SCORE_MIN = 0.91
@@ -130,16 +121,7 @@ def build_category_candidates(category_result: dict, coarse_type: str = "") -> l
 
     if not main_score_map or not fine_score_map:
         selected = build_category_value(category_result, coarse_type=coarse_type)
-        candidates = []
-        for value, label in CATEGORY_UI_OPTIONS:
-            candidates.append(
-                {
-                    "value": value,
-                    "label": label,
-                    "score": 1.0 if value == selected else 0.0,
-                }
-            )
-        return candidates
+        return _build_single_selected_candidate(selected)
 
     upper_body_prob = float(main_score_map.get("upper_body", 0.0))
     headwear_prob = float(main_score_map.get("headwear", 0.0))
@@ -170,6 +152,22 @@ def build_category_candidates(category_result: dict, coarse_type: str = "") -> l
 
     return sorted(candidates, key=lambda item: item["score"], reverse=True)
 
+
+
+def _build_single_selected_candidate(selected: str) -> list[dict]:
+    return [
+        {
+            "value": value,
+            "label": label,
+            "score": 1.0 if value == selected else 0.0,
+        }
+        for value, label in CATEGORY_UI_OPTIONS
+    ]
+
+
+
+def _top_candidate_score(candidates: list[dict]) -> float:
+    return float(max((float(item["score"]) for item in candidates), default=0.0))
 
 
 def build_predict_payload(
@@ -203,9 +201,9 @@ def build_predict_payload(
         "scores": {
             "mainCategory": float(category_result["scores"]["mainCategory"]),
             "category": float(category_result["scores"]["category"]),
-            "occasion": float(max([x["score"] for x in occasions["candidates"]] or [0.0])),
-            "color": float(max([x["score"] for x in color_payload["candidates"]] or [0.0])),
-            "season": float(max([x["score"] for x in seasons["candidates"]] or [0.0])),
+            "occasion": _top_candidate_score(occasions["candidates"]),
+            "color": _top_candidate_score(color_payload["candidates"]),
+            "season": _top_candidate_score(seasons["candidates"]),
         },
         "candidates": {
             "category": build_category_candidates(category_result, coarse_type=coarse_type),

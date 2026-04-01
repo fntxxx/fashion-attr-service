@@ -68,6 +68,39 @@ def _build_predict_debug_payload(*, pre_category_result: dict, post_category_res
 
 
 
+
+def _build_default_detection() -> dict:
+    return {
+        "detected": False,
+        "label": None,
+        "mainCategoryKey": None,
+        "bbox": None,
+        "score": 0.0,
+    }
+
+
+
+def _build_detection_from_color_payload(color_payload: dict) -> dict:
+    color_focus_detection = (color_payload.get("focusDebug") or {}).get("detection") or {}
+    if not color_focus_detection.get("detected"):
+        return _build_default_detection()
+
+    return {
+        "detected": bool(color_focus_detection.get("detected")),
+        "label": color_focus_detection.get("label"),
+        "mainCategoryKey": color_focus_detection.get("mainCategoryKey"),
+        "bbox": color_focus_detection.get("bbox"),
+        "score": float(color_focus_detection.get("score") or 0.0),
+    }
+
+
+
+def _resolve_final_score(category_score: float, detection: dict) -> float:
+    if not detection["detected"]:
+        return float(category_score)
+    return float(category_score * 0.75 + detection["score"] * 0.25)
+
+
 def run_warmup(model_backend: str | None = None) -> dict:
     backend_key = _normalize_pipeline_backend(model_backend)
 
@@ -128,27 +161,11 @@ def predict_attributes(original_img, model_backend: str | None = None, *, includ
 
     coarse_info = detect_coarse_fashion_type(original_img, image_features=image_features, model_backend=backend_key)
 
-    detection = {
-        "detected": False,
-        "label": None,
-        "mainCategoryKey": None,
-        "bbox": None,
-        "score": 0.0,
-    }
-
     working_img = original_img
 
     pre_category_result = classify_category(working_img, image_features=image_features, model_backend=backend_key)
     color_payload = infer_color(working_img, model_backend=backend_key)
-    color_focus_detection = (color_payload.get("focusDebug") or {}).get("detection") or {}
-    if color_focus_detection.get("detected"):
-        detection = {
-            "detected": bool(color_focus_detection.get("detected")),
-            "label": color_focus_detection.get("label"),
-            "mainCategoryKey": color_focus_detection.get("mainCategoryKey"),
-            "bbox": color_focus_detection.get("bbox"),
-            "score": float(color_focus_detection.get("score") or 0.0),
-        }
+    detection = _build_detection_from_color_payload(color_payload)
 
     category_result = postprocess_category(
         dict(pre_category_result),
@@ -162,9 +179,7 @@ def predict_attributes(original_img, model_backend: str | None = None, *, includ
     occasions = infer_occasions(image_features, category_result["mainCategoryKey"], category_result["categoryKey"])
     seasons = infer_seasons(image_features, category_result["mainCategoryKey"], category_result["categoryKey"])
 
-    final_score = float(category_result["scores"]["category"])
-    if detection["detected"]:
-        final_score = float(category_result["scores"]["category"] * 0.75 + detection["score"] * 0.25)
+    final_score = _resolve_final_score(float(category_result["scores"]["category"]), detection)
 
     payload = build_predict_payload(
         route=route,

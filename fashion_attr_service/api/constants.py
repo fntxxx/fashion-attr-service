@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from fashion_attr_service.utils.category_catalog import OUTER_FINE_KEYS
+
 SERVICE_NAME = "fashion-attr-service"
 API_VERSION = "1.3.0"
 
@@ -24,15 +26,7 @@ MAIN_CATEGORY_TO_UI = {
     "headwear": "top",
 }
 
-OUTER_FINE_KEYS = {
-    "denim_jacket",
-    "blazer",
-    "coat",
-    "puffer_jacket",
-    "vest",
-    "windbreaker",
-    "cardigan",
-}
+
 
 ERROR_CODE_PREDICT_REJECTED = "predict_rejected"
 ERROR_CODE_REQUEST_VALIDATION = "request_validation_error"

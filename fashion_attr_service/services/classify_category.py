@@ -4,6 +4,10 @@ from fashion_attr_service.models.fashion_siglip_model import (
     score_texts_with_image_feature,
     encode_image_feature,
 )
+from fashion_attr_service.utils.category_catalog import (
+    FINE_CATEGORY_MAPS,
+    MAIN_CATEGORY_LABEL_MAP,
+)
 from fashion_attr_service.utils.scoring import build_candidates
 
 
@@ -68,47 +72,9 @@ STAGE2_LABELS = {
     },
 }
 
-MAIN_CATEGORY_LABEL_MAP = {
-    "headwear": "帽子",
-    "upper_body": "上身",
-    "pants": "褲子",
-    "skirt": "裙子",
-    "dress": "連身裙",
-    "shoes": "鞋子",
-}
 
-FINE_CATEGORY_LABEL_MAP = {
-    "bucket_hat": "漁夫帽",
-    "beanie": "毛帽",
-    "hat": "帽子",
-    "t_shirt": "T 恤",
-    "shirt": "襯衫",
-    "tank_top": "背心",
-    "hoodie": "帽T",
-    "sweatshirt": "大學T",
-    "knit_sweater": "針織衫",
-    "cardigan": "開襟衫",
-    "denim_jacket": "牛仔外套",
-    "blazer": "西裝外套",
-    "coat": "外套",
-    "puffer_jacket": "鋪棉外套",
-    "vest": "背心外套",
-    "windbreaker": "防風外套",
-    "jeans": "牛仔褲",
-    "trousers": "長褲",
-    "wide_leg_pants": "寬褲",
-    "leggings": "內搭褲",
-    "shorts": "短褲",
-    "mini_skirt": "短裙",
-    "midi_skirt": "中長裙",
-    "mini_dress": "短洋裝",
-    "midi_dress": "中長洋裝",
-    "sneakers": "休閒鞋",
-    "boots": "靴子",
-    "sandals": "涼鞋",
-    "heels": "高跟鞋",
-    "flats": "平底鞋",
-}
+
+
 
 
 def _score_label_map_with_confidence(
@@ -161,7 +127,7 @@ def classify_category(image, image_features=None, model_backend: str | None = No
     fine_result = _score_label_map_with_confidence(
         image,
         STAGE2_LABELS[main_key],
-        FINE_CATEGORY_LABEL_MAP,
+        FINE_CATEGORY_MAPS[main_key],
         image_features=image_features,
         model_backend=model_backend,
     )
@@ -171,7 +137,7 @@ def classify_category(image, image_features=None, model_backend: str | None = No
         "mainCategoryKey": main_key,
         "mainCategory": MAIN_CATEGORY_LABEL_MAP[main_key],
         "categoryKey": fine_key,
-        "category": FINE_CATEGORY_LABEL_MAP[fine_key],
+        "category": FINE_CATEGORY_MAPS[main_key][fine_key],
         "scores": {
             "mainCategory": float(main_result["best_score"]),
             "category": float(fine_result["best_score"]),
