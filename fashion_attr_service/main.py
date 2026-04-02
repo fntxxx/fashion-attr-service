@@ -3,18 +3,21 @@ from __future__ import annotations
 import io
 from typing import Any
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import Depends, FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from PIL import Image, UnidentifiedImageError
 
+from fashion_attr_service.api.auth import require_internal_api_token
 from fashion_attr_service.api.constants import (
     API_VERSION,
     ERROR_CODE_HTTP_EXCEPTION,
     ERROR_CODE_INTERNAL_SERVER,
+    ERROR_CODE_UNAUTHORIZED,
     ERROR_CODE_REQUEST_VALIDATION,
     ERROR_CODE_WARMUP_FAILED,
     ERROR_MESSAGE_INTERNAL_SERVER,
+    ERROR_MESSAGE_UNAUTHORIZED,
     ERROR_MESSAGE_REQUEST_VALIDATION,
     ERROR_MESSAGE_WARMUP_FAILED,
     SERVICE_NAME,
@@ -197,6 +200,7 @@ def health() -> dict[str, Any]:
 @app.get(
     "/warmup",
     response_model=WarmupSuccessResponse,
+    dependencies=[Depends(require_internal_api_token)],
     summary="執行模型 warmup",
     description=(
         "執行與服務啟動時相同的 warmup 流程。"
@@ -211,6 +215,24 @@ def health() -> dict[str, Any]:
             "content": {
                 "application/json": {
                     "example": WarmupSuccessResponse.model_config["json_schema_extra"]["example"],
+                }
+            },
+        },
+        401: {
+            "model": ApiErrorResponse,
+            "description": "缺少、格式錯誤或無效的 Bearer Token。",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "ok": False,
+                        "error": {
+                            "code": ERROR_CODE_UNAUTHORIZED,
+                            "message": ERROR_MESSAGE_UNAUTHORIZED,
+                            "details": {
+                                "reason": "invalid_api_token",
+                            },
+                        },
+                    },
                 }
             },
         },
@@ -259,6 +281,7 @@ def warmup() -> dict[str, Any]:
 @app.post(
     "/predict",
     response_model=PredictSuccessResponse,
+    dependencies=[Depends(require_internal_api_token)],
     responses={
         200: {
             "description": "圖片已完成服飾屬性推論。",
@@ -274,6 +297,24 @@ def warmup() -> dict[str, Any]:
             "content": {
                 "application/json": {
                     "example": PredictRejectedResponse.model_config["json_schema_extra"]["example"],
+                }
+            },
+        },
+        401: {
+            "model": ApiErrorResponse,
+            "description": "缺少、格式錯誤或無效的 Bearer Token。",
+            "content": {
+                "application/json": {
+                    "example": {
+                        "ok": False,
+                        "error": {
+                            "code": ERROR_CODE_UNAUTHORIZED,
+                            "message": ERROR_MESSAGE_UNAUTHORIZED,
+                            "details": {
+                                "reason": "invalid_api_token",
+                            },
+                        },
+                    },
                 }
             },
         },

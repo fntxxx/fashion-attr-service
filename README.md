@@ -12,6 +12,16 @@ pinned: false
 
 FastAPI service for clothing attribute prediction.
 
+## Internal API token
+
+Protected endpoints require `Authorization: Bearer <TOKEN>`.
+
+Set the environment variable before startup:
+
+```bash
+export INTERNAL_API_TOKEN="replace-with-shared-token"
+```
+
 ## Overview
 
 This Hugging Face Space serves the FastAPI Swagger UI directly at the root path:
@@ -46,7 +56,9 @@ Field requirements:
 Example:
 
 ```bash
-curl -X POST "http://localhost:7860/predict"   -F "image=@./sample.png"
+curl -X POST "http://localhost:7860/predict" \
+  -H "Authorization: Bearer $INTERNAL_API_TOKEN" \
+  -F "image=@./sample.png"
 ```
 
 Swagger UI notes:

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib
 import io
+import os
 import sys
 import types
 import unittest
@@ -55,7 +56,19 @@ class PredictApiContractTests(unittest.TestCase):
             raise HTTPException(status_code=409, detail="conflict")
 
     def setUp(self) -> None:
+        self._original_token = os.environ.get("INTERNAL_API_TOKEN")
+        os.environ["INTERNAL_API_TOKEN"] = "test-token"
         self.client = TestClient(app, raise_server_exceptions=False)
+
+    def tearDown(self) -> None:
+        if self._original_token is None:
+            os.environ.pop("INTERNAL_API_TOKEN", None)
+        else:
+            os.environ["INTERNAL_API_TOKEN"] = self._original_token
+
+    @staticmethod
+    def _auth_headers(token: str = "test-token") -> dict[str, str]:
+        return {"Authorization": f"Bearer {token}"}
 
     @staticmethod
     def _build_image_bytes() -> bytes:
@@ -105,6 +118,7 @@ class PredictApiContractTests(unittest.TestCase):
             response = self.client.post(
                 "/predict",
                 files={"image": ("valid.png", self._build_image_bytes(), "image/png")},
+                headers=self._auth_headers(),
             )
 
         self.assertEqual(response.status_code, 200)
@@ -115,6 +129,7 @@ class PredictApiContractTests(unittest.TestCase):
         response = self.client.post(
             "/predict",
             json={"base64": "iVBORw0KGgoAAAANSUhEUgAA..."},
+            headers=self._auth_headers(),
         )
 
         self.assertEqual(response.status_code, 422)
@@ -158,6 +173,7 @@ class PredictApiContractTests(unittest.TestCase):
             response = self.client.post(
                 "/predict",
                 files={"image": ("invalid.png", self._build_image_bytes(), "image/png")},
+                headers=self._auth_headers(),
             )
 
         self.assertEqual(response.status_code, 400)
@@ -181,7 +197,7 @@ class PredictApiContractTests(unittest.TestCase):
         )
 
     def test_predict_returns_422_with_unified_validation_error_envelope(self) -> None:
-        response = self.client.post("/predict", files={})
+        response = self.client.post("/predict", files={}, headers=self._auth_headers())
 
         self.assertEqual(response.status_code, 422)
         body = response.json()
@@ -214,6 +230,7 @@ class PredictApiContractTests(unittest.TestCase):
             response = self.client.post(
                 "/predict",
                 files={"image": ("valid.png", self._build_image_bytes(), "image/png")},
+                headers=self._auth_headers(),
             )
 
         self.assertEqual(response.status_code, 500)
@@ -256,7 +273,7 @@ class PredictApiContractTests(unittest.TestCase):
                 "error": "model initialization failed",
             },
         ):
-            response = self.client.get("/warmup")
+            response = self.client.get("/warmup", headers=self._auth_headers())
 
         self.assertEqual(response.status_code, 500)
         self.assertEqual(
@@ -277,6 +294,57 @@ class PredictApiContractTests(unittest.TestCase):
                 },
             },
         )
+
+    def test_predict_returns_401_when_token_is_missing(self) -> None:
+        response = self.client.post(
+            "/predict",
+            files={"image": ("valid.png", self._build_image_bytes(), "image/png")},
+        )
+
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(
+            response.json(),
+            {
+                "ok": False,
+                "error": {
+                    "code": "unauthorized",
+                    "message": "缺少或無效的 API Token。",
+                    "details": {"reason": "missing_authorization_header"},
+                },
+            },
+        )
+
+    def test_predict_returns_401_when_bearer_format_is_invalid(self) -> None:
+        response = self.client.post(
+            "/predict",
+            files={"image": ("valid.png", self._build_image_bytes(), "image/png")},
+            headers={"Authorization": "Token test-token"},
+        )
+
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.json()["error"]["details"]["reason"], "invalid_authorization_scheme")
+
+    def test_predict_returns_401_when_token_is_incorrect(self) -> None:
+        response = self.client.post(
+            "/predict",
+            files={"image": ("valid.png", self._build_image_bytes(), "image/png")},
+            headers=self._auth_headers("wrong-token"),
+        )
+
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.json()["error"]["details"]["reason"], "invalid_api_token")
+
+    def test_health_remains_public_without_token(self) -> None:
+        response = self.client.get("/health")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(response.json()["ok"])
+
+    def test_openapi_remains_public_without_token(self) -> None:
+        response = self.client.get("/openapi.json")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("/predict", response.json()["paths"])
 
 
 if __name__ == "__main__":

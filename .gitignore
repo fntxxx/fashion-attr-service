@@ -32,3 +32,6 @@ yolov8n.pt
 artifacts/reports/*.json
 artifacts/weights/*.pt
 .pytest_cache/
+
+.env
+.env*
