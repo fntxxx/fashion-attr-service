@@ -77,9 +77,9 @@ class WarmupPayload(BaseModel):
         json_schema_extra={
             "example": {
                 "validation_best_label": "t-shirt",
-                "coarse_type": "top",
-                "category": "t_shirt",
-                "color": "neutral_gray",
+                "coarse_type": "upper_body",
+                "category": "top",
+                "color": "gray",
             }
         }
     )
@@ -101,9 +101,9 @@ class WarmupData(BaseModel):
                 },
                 "warmup": {
                     "validation_best_label": "t-shirt",
-                    "coarse_type": "top",
-                    "category": "t_shirt",
-                    "color": "neutral_gray",
+                    "coarse_type": "upper_body",
+                    "category": "top",
+                    "color": "gray",
                 },
             }
         }
@@ -127,9 +127,9 @@ class WarmupSuccessResponse(BaseModel):
                     },
                     "warmup": {
                         "validation_best_label": "t-shirt",
-                        "coarse_type": "top",
-                        "category": "t_shirt",
-                        "color": "neutral_gray",
+                        "coarse_type": "upper_body",
+                        "category": "top",
+                        "color": "gray",
                     },
                 },
             }
@@ -209,9 +209,9 @@ class PredictSuccessData(BaseModel):
                 "name": "T 恤",
                 "category": "top",
                 "categoryLabel": "上衣",
-                "color": "light_beige",
+                "color": "white",
                 "colorLabel": "淺米白",
-                "occasion": ["campus_casual", "social"],
+                "occasion": ["campusCasual", "socialGathering"],
                 "season": ["spring", "summer"],
                 "score": 0.91,
                 "scores": {
@@ -224,19 +224,19 @@ class PredictSuccessData(BaseModel):
                 "candidates": {
                     "category": [
                         {"value": "top", "label": "上衣", "score": 0.91},
-                        {"value": "outer", "label": "外套", "score": 0.06},
+                        {"value": "outerwear", "label": "外套", "score": 0.06},
                         {"value": "dress", "label": "連身裙", "score": 0.02},
-                        {"value": "pants", "label": "褲子", "score": 0.01},
+                        {"value": "bottom", "label": "褲子", "score": 0.01},
                         {"value": "skirt", "label": "裙子", "score": 0.0},
                         {"value": "shoes", "label": "鞋子", "score": 0.0},
                     ],
                     "color": [
-                        {"value": "light_beige", "label": "淺米白", "score": 0.92},
-                        {"value": "neutral_gray", "label": "中性灰", "score": 0.06},
+                        {"value": "white", "label": "淺米白", "score": 0.92},
+                        {"value": "gray", "label": "中性灰", "score": 0.06},
                     ],
                     "occasion": [
-                        {"value": "campus_casual", "label": "校園休閒", "score": 0.88},
-                        {"value": "social", "label": "社交聚會", "score": 0.81},
+                        {"value": "campusCasual", "label": "校園休閒", "score": 0.88},
+                        {"value": "socialGathering", "label": "社交聚會", "score": 0.81},
                     ],
                     "season": [
                         {"value": "spring", "label": "春季", "score": 0.82},
@@ -258,7 +258,7 @@ class PredictSuccessData(BaseModel):
     route: str
     coarseType: str
     name: str = Field(description="辨識出的衣物名稱，優先使用細類標籤。")
-    category: str = Field(description="單選類別 key，例如 top、pants、skirt、dress、outer、shoes。")
+    category: str = Field(description="單選類別 key，例如 top、bottom、outerwear、shoes、skirt、dress。")
     categoryLabel: str = Field(description="category 對應顯示文字。")
     color: str = Field(description="單選色系 key。")
     colorLabel: str = Field(description="color 對應顯示文字。")

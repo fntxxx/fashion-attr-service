@@ -169,7 +169,7 @@ v30 occasion behavior:
 
 Practical implication:
 
-- v30 is more stable on `business_casual` / `professional` / `social` boundaries than earlier retained versions
+- v30 is more stable on `businessCasual` / `professional` / `socialGathering` boundaries than earlier retained versions
 - ordering matters because second-label admission still depends on ranked candidates and selection gates
 
 ### Season
@@ -199,3 +199,46 @@ Based on the retained local evaluation reports used for release gating:
 - occasion exact-match quality improves relative to v29
 
 v30 should therefore be understood as an **occasion-quality refinement release**, not as a category, color, or season rewrite.
+
+
+## Public API enum values
+
+`/predict` 與 `/warmup` 對外欄位使用以下 key：
+
+### category
+
+- `top`
+- `bottom`
+- `outerwear`
+- `shoes`
+- `skirt`
+- `dress`
+
+### occasion
+
+- `socialGathering`
+- `campusCasual`
+- `businessCasual`
+- `professional`
+
+### season
+
+- `spring`
+- `summer`
+- `autumn`
+- `winter`
+
+### color
+
+- `white`
+- `black`
+- `gray`
+- `brown`
+- `yellow`
+- `orange`
+- `pink`
+- `green`
+- `blue`
+- `purple`
+
+內部推論仍可保留既有細粒度或歷史 key，但 API 回傳與 API 文件一律以上述公開值為準。

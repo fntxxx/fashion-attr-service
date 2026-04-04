@@ -29,8 +29,8 @@ def _install_stub_predict_pipeline_module() -> None:
                 "warmup": {
                     "validation_best_label": "t-shirt",
                     "coarse_type": "top",
-                    "category": "t_shirt",
-                    "color": "neutral_gray",
+                    "category": "top",
+                    "color": "gray",
                 },
             },
         }
@@ -85,9 +85,9 @@ class PredictApiContractTests(unittest.TestCase):
                 "name": "T 恤",
                 "category": "top",
                 "categoryLabel": "上衣",
-                "color": "light_beige",
+                "color": "white",
                 "colorLabel": "淺米白",
-                "occasion": ["campus_casual"],
+                "occasion": ["campusCasual"],
                 "season": ["spring"],
                 "score": 0.91,
                 "scores": {
@@ -99,8 +99,8 @@ class PredictApiContractTests(unittest.TestCase):
                 },
                 "candidates": {
                     "category": [{"value": "top", "label": "上衣", "score": 0.91}],
-                    "color": [{"value": "light_beige", "label": "淺米白", "score": 0.92}],
-                    "occasion": [{"value": "campus_casual", "label": "校園休閒", "score": 0.88}],
+                    "color": [{"value": "white", "label": "淺米白", "score": 0.92}],
+                    "occasion": [{"value": "campusCasual", "label": "校園休閒", "score": 0.88}],
                     "season": [{"value": "spring", "label": "春季", "score": 0.82}],
                 },
                 "detected": False,

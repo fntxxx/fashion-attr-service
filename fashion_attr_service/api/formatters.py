@@ -5,6 +5,9 @@ from fashion_attr_service.api.constants import (
     CATEGORY_VALUE_TO_LABEL,
     MAIN_CATEGORY_TO_UI,
     OUTER_FINE_KEYS,
+    PUBLIC_COLOR_VALUE_MAP,
+    PUBLIC_OCCASION_VALUE_MAP,
+    PUBLIC_SEASON_VALUE_MAP,
 )
 from fashion_attr_service.utils.category_catalog import TOP_FINE_KEYS
 
@@ -66,13 +69,13 @@ def build_category_value(category_result: dict, coarse_type: str = "") -> str:
     main_key = category_result["mainCategoryKey"]
 
     if fine_key == "cardigan":
-        return "top" if _should_map_cardigan_to_top(category_result) else "outer"
+        return "top" if _should_map_cardigan_to_top(category_result) else "outerwear"
 
     if fine_key in OUTER_FINE_KEYS:
-        return "outer"
+        return "outerwear"
 
     if _should_map_dress_result_to_outer(category_result, coarse_type):
-        return "outer"
+        return "outerwear"
 
     return MAIN_CATEGORY_TO_UI.get(main_key, "top")
 
@@ -128,15 +131,15 @@ def build_category_candidates(category_result: dict, coarse_type: str = "") -> l
 
     ui_score_map = {
         "top": upper_body_prob * sum(float(fine_score_map.get(key, 0.0)) for key in TOP_FINE_KEYS) + headwear_prob,
-        "pants": float(main_score_map.get("pants", 0.0)),
+        "bottom": float(main_score_map.get("pants", 0.0)),
+        "outerwear": upper_body_prob * sum(float(fine_score_map.get(key, 0.0)) for key in OUTER_FINE_KEYS),
+        "shoes": float(main_score_map.get("shoes", 0.0)),
         "skirt": float(main_score_map.get("skirt", 0.0)),
         "dress": float(main_score_map.get("dress", 0.0)),
-        "outer": upper_body_prob * sum(float(fine_score_map.get(key, 0.0)) for key in OUTER_FINE_KEYS),
-        "shoes": float(main_score_map.get("shoes", 0.0)),
     }
 
     if _should_map_dress_result_to_outer(category_result, coarse_type):
-        ui_score_map["outer"] = max(ui_score_map["outer"], upper_body_prob)
+        ui_score_map["outerwear"] = max(ui_score_map["outerwear"], upper_body_prob)
 
     selected = build_category_value(category_result, coarse_type=coarse_type)
     ui_score_map = _swap_selected_category_to_top(ui_score_map, selected)
@@ -166,6 +169,24 @@ def _build_single_selected_candidate(selected: str) -> list[dict]:
 
 
 
+def map_public_value(value: str, mapping: dict[str, str]) -> str:
+    return mapping.get(value, value)
+
+
+def map_public_selected(values: list[str], mapping: dict[str, str]) -> list[str]:
+    return [map_public_value(str(value), mapping) for value in values]
+
+
+def map_public_candidates(candidates: list[dict], mapping: dict[str, str]) -> list[dict]:
+    return [
+        {
+            **candidate,
+            "value": map_public_value(str(candidate.get("value", "")), mapping),
+        }
+        for candidate in candidates
+    ]
+
+
 def _top_candidate_score(candidates: list[dict]) -> float:
     return float(max((float(item["score"]) for item in candidates), default=0.0))
 
@@ -183,9 +204,9 @@ def build_predict_payload(
     final_score: float,
 ) -> dict:
     category_value = build_category_value(category_result, coarse_type=coarse_type)
-    color_value = color_payload["color"]
-    occasion_values = occasions["selected"]
-    season_values = seasons["selected"]
+    color_value = map_public_value(str(color_payload["color"]), PUBLIC_COLOR_VALUE_MAP)
+    occasion_values = map_public_selected(occasions["selected"], PUBLIC_OCCASION_VALUE_MAP)
+    season_values = map_public_selected(seasons["selected"], PUBLIC_SEASON_VALUE_MAP)
 
     return {
         "route": route,
@@ -207,9 +228,9 @@ def build_predict_payload(
         },
         "candidates": {
             "category": build_category_candidates(category_result, coarse_type=coarse_type),
-            "color": color_payload["candidates"],
-            "occasion": occasions["candidates"],
-            "season": seasons["candidates"],
+            "color": map_public_candidates(color_payload["candidates"], PUBLIC_COLOR_VALUE_MAP),
+            "occasion": map_public_candidates(occasions["candidates"], PUBLIC_OCCASION_VALUE_MAP),
+            "season": map_public_candidates(seasons["candidates"], PUBLIC_SEASON_VALUE_MAP),
         },
         "detected": detection["detected"],
         "detectedLabel": detection["label"],

@@ -7,23 +7,50 @@ API_VERSION = "1.3.0"
 
 CATEGORY_UI_OPTIONS = [
     ("top", "上衣"),
-    ("pants", "褲子"),
+    ("bottom", "褲子"),
+    ("outerwear", "外套"),
+    ("shoes", "鞋子"),
     ("skirt", "裙子"),
     ("dress", "連身裙"),
-    ("outer", "外套"),
-    ("shoes", "鞋子"),
 ]
 
 CATEGORY_VALUE_TO_LABEL = {value: label for value, label in CATEGORY_UI_OPTIONS}
 
 MAIN_CATEGORY_TO_UI = {
     "upper_body": "top",
-    "pants": "pants",
+    "pants": "bottom",
     "skirt": "skirt",
     "dress": "dress",
     "shoes": "shoes",
     # 目前 UI 沒有帽子，先保守 fallback 到 top
     "headwear": "top",
+}
+
+PUBLIC_OCCASION_VALUE_MAP = {
+    "social": "socialGathering",
+    "campus_casual": "campusCasual",
+    "business_casual": "businessCasual",
+    "professional": "professional",
+}
+
+PUBLIC_SEASON_VALUE_MAP = {
+    "spring": "spring",
+    "summer": "summer",
+    "autumn": "autumn",
+    "winter": "winter",
+}
+
+PUBLIC_COLOR_VALUE_MAP = {
+    "light_beige": "white",
+    "dark_gray_black": "black",
+    "neutral_gray": "gray",
+    "earth_brown": "brown",
+    "butter_yellow": "yellow",
+    "warm_orange_red": "orange",
+    "rose_pink": "pink",
+    "natural_green": "green",
+    "fresh_blue": "blue",
+    "elegant_purple": "purple",
 }
 
 

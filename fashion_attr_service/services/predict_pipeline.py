@@ -4,8 +4,9 @@ from PIL import Image
 
 from fashion_attr_service.api.constants import SERVICE_NAME
 from fashion_attr_service.api.exceptions import PredictRejectedError
-from fashion_attr_service.api.formatters import build_predict_payload
+from fashion_attr_service.api.formatters import build_category_value, build_predict_payload, map_public_value
 from fashion_attr_service.api.responses import build_success_response
+from fashion_attr_service.api.constants import PUBLIC_COLOR_VALUE_MAP
 from fashion_attr_service.models.fashion_siglip_model import (
     BACKEND_SPEC,
     MODEL_BACKEND,
@@ -124,8 +125,8 @@ def run_warmup(model_backend: str | None = None) -> dict:
                 "warmup": {
                     "validation_best_label": validation["best_label"],
                     "coarse_type": coarse_info["coarse_type"],
-                    "category": category_result["categoryKey"],
-                    "color": color_payload["color"],
+                    "category": build_category_value(category_result, coarse_type=coarse_info["coarse_type"]),
+                    "color": map_public_value(str(color_payload["color"]), PUBLIC_COLOR_VALUE_MAP),
                 },
             }
         )

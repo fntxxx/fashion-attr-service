@@ -25,7 +25,7 @@ def _install_predict_pipeline_stubs() -> None:
     sys.modules[model_module.__name__] = model_module
 
     attr_module = types.ModuleType("fashion_attr_service.services.attribute_heads")
-    attr_module.infer_color = lambda *args, **kwargs: {"color": "light_beige", "heuristicTone": None, "candidates": [], "colorLabel": "淺米白"}
+    attr_module.infer_color = lambda *args, **kwargs: {"color": "white", "heuristicTone": None, "candidates": [], "colorLabel": "淺米白"}
     attr_module.infer_occasions = lambda *args, **kwargs: {"selected": [], "candidates": []}
     attr_module.infer_seasons = lambda *args, **kwargs: {"selected": [], "candidates": []}
     sys.modules[attr_module.__name__] = attr_module
@@ -50,6 +50,7 @@ def _install_predict_pipeline_stubs() -> None:
 
 
 _install_predict_pipeline_stubs()
+sys.modules.pop("fashion_attr_service.services.predict_pipeline", None)
 predict_pipeline = importlib.import_module("fashion_attr_service.services.predict_pipeline")
 
 
@@ -82,7 +83,7 @@ class FormatterInvariantTests(unittest.TestCase):
 
         positive = [item for item in result if item["score"] > 0]
         self.assertEqual(len(positive), 1)
-        self.assertEqual(positive[0]["value"], "pants")
+        self.assertEqual(positive[0]["value"], "bottom")
         self.assertEqual(positive[0]["score"], 1.0)
 
     def test_build_predict_payload_uses_top_candidate_scores_without_changing_contract(self) -> None:
@@ -101,13 +102,13 @@ class FormatterInvariantTests(unittest.TestCase):
                 },
             },
             color_payload={
-                "color": "light_beige",
+                "color": "white",
                 "colorLabel": "淺米白",
-                "candidates": [{"value": "light_beige", "label": "淺米白", "score": 0.66}],
+                "candidates": [{"value": "white", "label": "淺米白", "score": 0.66}],
             },
             occasions={
-                "selected": ["business_casual"],
-                "candidates": [{"value": "business_casual", "label": "商務休閒", "score": 0.77}],
+                "selected": ["businessCasual"],
+                "candidates": [{"value": "businessCasual", "label": "商務休閒", "score": 0.77}],
             },
             seasons={
                 "selected": ["spring"],
